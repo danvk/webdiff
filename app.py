@@ -9,7 +9,9 @@ import logging
 import os
 import re
 import sys
+from threading import Timer
 import urllib
+import subprocess
 
 from flask import (Flask, url_for, render_template, flash, send_from_directory,
                    request, jsonify, session, redirect, Response)
@@ -27,7 +29,9 @@ def find_diff(a, b):
     b_files = []
     def accum(arg, dirname, fnames):
         for fname in fnames:
-            arg.append(os.path.join(dirname, fname))
+            path = os.path.join(dirname, fname)
+            if not os.path.isdir(path):
+                arg.append(path)
 
     os.path.walk(a, accum, a_files)
     os.path.walk(b, accum, b_files)
@@ -116,10 +120,23 @@ def favicon():
                                mimetype='image/vnd.microsoft.icon')
 
 
+def open_browser():
+    # TODO(danvk): figure out how this works on other systems.
+    if os.path.exists('/usr/bin/open'):
+        subprocess.check_call(['open', 'http://localhost:5000'])
+
+
 if __name__ == '__main__':
     assert len(sys.argv) == 3
     A_DIR = sys.argv[1]
     B_DIR = sys.argv[2]
-    sys.stderr.write('Diffing %s and %s\n' % (A_DIR, B_DIR))
+    sys.stderr.write('''Diffing:
+A: %s
+B: %s
+
+Serving diffs on http://localhost:5000
+Hit Ctrl-C when you're done.
+''' % (A_DIR, B_DIR))
     DIFF = find_diff(A_DIR, B_DIR)
+    #Timer(0.1, open_browser).start()
     app.run(host='0.0.0.0', debug=True)

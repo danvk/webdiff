@@ -63,7 +63,7 @@ $(function() {
 });
 
 function updateWithBeforeAfterContents() {
-  displayDiffs(beforeContents, afterContents);
+  displayDiffs(a_file || '(none)', b_file || '(none)', beforeContents, afterContents);
   attachHandlers();
 }
 </script>

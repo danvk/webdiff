@@ -1,6 +1,6 @@
 // Render the diff using jsdifflib. Also attaches comments.
-function displayDiffs(baseTxt, afterTxt) {
-  var diffDiv = renderDiff(baseTxt, afterTxt);
+function displayDiffs(pathBefore, pathAfter, baseTxt, afterTxt) {
+  var diffDiv = renderDiff(pathBefore, pathAfter, baseTxt, afterTxt);
 
   $('#thediff').append(diffDiv);
 }
@@ -11,7 +11,7 @@ function displayDiffs(baseTxt, afterTxt) {
  * @param {string} contentsAfter
  * @param {!HTMLDivElement} An unattached div containing the rendered diff.
  */
-function renderDiff(contentsBefore, contentsAfter) {
+function renderDiff(pathBefore, pathAfter, contentsBefore, contentsAfter) {
   var diffDiv = $('<div class="diff"></div>').get(0);
 
   // From https://github.com/cemerick/jsdifflib
@@ -33,8 +33,8 @@ function renderDiff(contentsBefore, contentsAfter) {
       newTextLines: afterLines,
       opcodes: opcodes,
       // set the display titles for each resource
-      baseTextName: "Before",
-      newTextName: "After",
+      baseTextName: pathBefore,
+      newTextName: pathAfter,
       contextSize: contextSize,
       viewType: 0,  // i.e. two column rather than inline.
       characterDiffs: true
