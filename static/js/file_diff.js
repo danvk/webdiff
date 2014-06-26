@@ -66,5 +66,9 @@ function handleKeyPress(e) {
 }
 
 function attachHandlers() {
-  $(document).on('keydown', handleKeyPress);
+  $(document)
+    .on('keydown', handleKeyPress)
+    .on('change', '#pair-chooser', function() {
+      document.location = '/' + $('#pair-chooser').val();
+    });
 }

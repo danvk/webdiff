@@ -15,7 +15,7 @@
 <br>
 Diff: <select id=pair-chooser>
 {% for pair in pairs %}
-<option idx={{pair.idx}} {%if pair.idx == idx%}selected{%endif%}>{{pair.path}}</option>
+<option value={{pair.idx}} {%if pair.idx == idx%}selected{%endif%}>{{pair.path}} ({{pair.type}})</option>
 {% endfor %}
 </select>
 <br>Next (j):
