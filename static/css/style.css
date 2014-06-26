@@ -1,0 +1,241 @@
+body {
+    padding: 17px;
+}
+
+div.wrap {
+    margin: auto auto;
+    max-width: 800px;
+}
+
+div#refresh-update-available {
+    display: none;
+}
+
+/* Pull Request Descriptions */
+div.description {
+    max-height: 150px;
+    overflow: hidden;
+    overflow-y: auto;
+}
+
+/* commit_list.html */
+form.commit-list {
+    /*
+    border-radius: 3px;
+    border: 1px solid #dadada;
+    color: #333;
+    /*background: #edf4fa;*/
+}
+
+form.commit-list table {
+    width: 100%;
+    border: 1px solid #e5e5e5;
+    border-radius: 3px;
+    border-collapse: separate;
+}
+
+form.commit-list td {
+    border-top: 1px solid #e5e5e5;
+    padding: 7px 15px;
+    padding-right: 0;
+    line-height: 16px;
+    vertical-align: top;
+}
+form.commit-list tr:first-child td {
+    border-top: none;
+}
+form.commit-list tr.continuation td {
+    border-top: none;
+    padding-top: 0;
+}
+
+form.commit-list td.selector {
+    width: 60px;  /* enough room for two radio buttons */
+    min-width: 60px;
+}
+span.user-icon {
+    white-space: pre;  /* don't separate icon and user name */
+}
+
+form.commit-list .inner-commit-list {
+    margin-bottom: 13px;
+}
+
+form.commit-list .commit-compare {
+}
+
+form.commit-list a {
+  color: #333;
+}
+
+.commit-compare.outdated, .commit-compare.outdated a {
+    color: gray;
+    background-color: #f7f7f7;
+}
+
+form.commit-list .user {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/*
+form.commit-list input {
+    position: relative;
+    top: 5px;
+    width: 20px;
+    height: 20px;
+}
+*/
+
+form.commit-list .commit-message {
+    /* display: inline-block; */
+    font-family: Inconsolata, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+
+form.commit-list .date {
+    color: #bbb;
+    font-size: 12px;
+}
+
+form.commit-list .comments {
+    font-size: 12px;
+}
+
+/* comment_templates.html */
+div.inline-comment {
+    white-space: normal;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    background: white;
+    margin: 13px 0;
+    font: 13px Helvetica, arial, freesans, clean, sans-serif;
+}
+
+.comment-header {
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    color: #777;
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #eee;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+div.inline-comment .user {
+    font-weight: bold;
+}
+
+div.inline-comment .added-note-on {
+}
+
+div.inline-comment .comment-body {
+    margin: 15px;
+    line-height: 1.7;
+    font-size: 14px;
+}
+
+div.inline-editable-comment {
+    padding: 17px;
+}
+
+div.inline-editable-comment textarea {
+    margin-bottom: 17px;
+}
+
+div.inline-editable-comment .save-comment {
+    float: right;
+}
+
+a.github-link {
+    float: right;
+}
+
+.github-icon {
+    background: url(/static/img/github-favicon.png);
+    background-size: 20px 20px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+}
+
+.github-icon-16 {
+    background-size: 16px 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.comment-footer {
+    margin-left: 15px;
+    margin-right: 15px;
+    margin-bottom: 15px;
+}
+
+.inline-comment.draft .draft {
+    display: inline !important;
+    background: gray;
+    border-radius: 4px;
+    padding: 2px 4px;
+    font-size: 12px;
+    color: white;
+    font-weight: bold;
+}
+
+/* file_diff.html */
+div#thediff {
+}
+
+table.diff tbody {
+    font-family: Inconsolata, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    font-size: 13px;
+}
+
+/* This is 80 characters in 13px Inconsolata */
+table.diff td {
+    width: 650px;
+    min-width: 650px;
+    max-width: 650px;
+}
+
+table.diff .insert {
+    background-color: #D6FFD5;
+}
+table.diff .delete {
+    background-color: #FCD4D5;
+}
+table.diff .replace {
+    background-color: #FBE6AF;
+}
+table.diff .char-replace {
+    background-color: #FEDC87;
+}
+
+table.diff th.texttitle .github-link {
+  margin-right: 5px;
+  margin-top: 5px;
+}
+
+table.diff th.titletext {
+  vertical-align: center;
+}
+
+#prev-next {
+  display:none;
+}
+
+/* Pull Request draft preview */
+.code-snippet {
+    font-family: Inconsolata, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    white-space: pre;
+}
+
+
+/* subscriptions.html */
+ul.followed-repos {
+  font-size: 16px;
+}
+
+.pull-request {
+  clear: both;
+}

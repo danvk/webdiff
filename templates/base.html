@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>{% block title %}Better Pull Requests{% endblock %}</title>
+
+  <script src="/static/js/jquery-2.1.1.min.js"></script>
+  <script src="/static/js/underscore-min.js"></script>
+  <script src="/static/jsdifflib/difflib.js"></script>
+  <script src="/static/jsdifflib/diffview.js"></script>
+
+  <link href='http://fonts.googleapis.com/css?family=Inconsolata' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="/static/jsdifflib/diffview.css">
+  <link rel="stylesheet" href="/static/css/style.css">
+
+  {% block head %}{% endblock %}
+</head>
+
+<body>
+<div class="container">
+  {% block body %}{% endblock %}
+</div>
+</body>
+</html>

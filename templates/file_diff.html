@@ -1,0 +1,70 @@
+{%- extends "base.html" -%}
+
+{% block title %} {{this_pair.path}} - diff {% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block body %}
+
+<p>Prev (k): {% if idx > 0 %}
+<a class="prev" href="/{{idx - 1}}">{{pairs[idx-1].path}}</a>
+{% else %}
+<i>none</i>
+{% endif %}
+<br>
+Diff: <select id=pair-chooser>
+{% for pair in pairs %}
+<option idx={{pair.idx}} {%if pair.idx == idx%}selected{%endif%}>{{pair.path}}</option>
+{% endfor %}
+</select>
+<br>Next (j):
+{% if idx < num_pairs - 1 %}
+<a class="next" href="/{{idx + 1}}">{{pairs[idx+1].path}}</a>
+{% else %}
+<i>none</i>
+{% endif %}
+</p>
+
+<div id="thediff"></div>
+
+<script type="text/javascript">
+// Filled in via XHR below.
+// Inlining is appealing, but can result in too much data.
+var beforeContents;
+var afterContents;
+
+var a_file = {{this_pair.a|tojson}};
+var b_file = {{this_pair.b|tojson}};
+</script>
+
+<script src="/static/js/file_diff.js"></script>
+<script type="text/javascript">
+
+function getOrEmpty(side, path) {
+  if (path) {
+    return $.post('/' + side + '/get_contents', { path: path })
+  } else {
+    return [''];  // does this work?
+  }
+}
+
+$(function() {
+    var beforeDeferred = getOrEmpty('a', a_file);
+    var afterDeferred = getOrEmpty('b', b_file);
+
+    $.when(beforeDeferred, afterDeferred).done(function(before, after) {
+      beforeContents = before[0];
+      afterContents = after[0];
+      updateWithBeforeAfterContents();
+    }).fail(function(e) {
+      alert("Unable to get diff!");
+    });
+});
+
+function updateWithBeforeAfterContents() {
+  displayDiffs(beforeContents, afterContents);
+  attachHandlers();
+}
+</script>
+{% endblock %}
