@@ -13,14 +13,34 @@ from threading import Timer
 import urllib
 import subprocess
 
-from flask import (Flask, url_for, render_template, flash, send_from_directory,
-                   request, jsonify, session, redirect, Response)
+from flask import (Flask, render_template, send_from_directory,
+                   request, jsonify, Response)
+
+try:
+    os.chdir(sys._MEIPASS)
+except Exception:
+    pass  # probably in dev mode.
+
+class Config:
+    TESTING=True  # not exactly sure what this does...
 
 app = Flask(__name__)
+app.config.from_object(Config)
 
 A_DIR = None
 B_DIR = None
 DIFF = None
+
+handler = logging.StreamHandler()
+handler.setLevel(logging.DEBUG)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+
+app.logger.addHandler(handler)
+for logname in ['github', '']:
+    log = logging.getLogger(logname)
+    log.setLevel(logging.DEBUG)
+    log.addHandler(handler)
 
 
 def find_diff(a, b):
@@ -126,10 +146,12 @@ def open_browser():
         subprocess.check_call(['open', 'http://localhost:5000'])
 
 
-if __name__ == '__main__':
+def run():
+    global A_DIR, B_DIR, DIFF
     assert len(sys.argv) == 3
     A_DIR = sys.argv[1]
     B_DIR = sys.argv[2]
+
     sys.stderr.write('''Diffing:
 A: %s
 B: %s
@@ -138,5 +160,10 @@ Serving diffs on http://localhost:5000
 Hit Ctrl-C when you're done.
 ''' % (A_DIR, B_DIR))
     DIFF = find_diff(A_DIR, B_DIR)
-    #Timer(0.1, open_browser).start()
-    app.run(host='0.0.0.0', debug=True)
+    Timer(0.1, open_browser).start()
+    #app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0')
+
+
+if __name__ == '__main__':
+    run()
