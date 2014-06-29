@@ -2,3 +2,5 @@ Move away from jsdifflib:
 - Fixed layout with <div>s, "overflow:scroll" on each side.
 - Only use red & green, no yellow "changed" color.
 - Integrate highlight.js syntax highlighting
+
+Close the diff process when you close the tab (i.e. have a heartbeat).
