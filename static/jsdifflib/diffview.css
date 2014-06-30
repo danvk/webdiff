@@ -1,91 +1,76 @@
-/*
-This is part of jsdifflib v1.0. <http://github.com/cemerick/jsdifflib>
-
-Copyright 2007 - 2011 Chas Emerick <cemerick@snowtide.com>. All rights reserved.
-
-Redistribution and use in source and binary forms, with or without modification, are
-permitted provided that the following conditions are met:
-
-   1. Redistributions of source code must retain the above copyright notice, this list of
-      conditions and the following disclaimer.
-
-   2. Redistributions in binary form must reproduce the above copyright notice, this list
-      of conditions and the following disclaimer in the documentation and/or other materials
-      provided with the distribution.
-
-THIS SOFTWARE IS PROVIDED BY Chas Emerick ``AS IS'' AND ANY EXPRESS OR IMPLIED
-WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND
-FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL Chas Emerick OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-The views and conclusions contained in the software and documentation are those of the
-authors and should not be interpreted as representing official policies, either expressed
-or implied, of Chas Emerick.
-*/
-table.diff {
-	border-collapse:collapse;
-	border:1px solid darkgray;
-	white-space:pre-wrap
-}
-table.diff tbody { 
-	font-family:Courier, monospace
-}
-table.diff tbody th {
-	font-family:verdana,arial,'Bitstream Vera Sans',helvetica,sans-serif;
-	background:#EED;
-	font-size:11px;
-	font-weight:normal;
-	border:1px solid #BBC;
-	color:#886;
-	padding:.3em .5em .1em 2em;
-	text-align:right;
-	vertical-align:top
-}
-table.diff thead {
-	border-bottom:1px solid #BBC;
-	background:#EFEFEF;
-	font-family:Verdana
-}
-table.diff thead th.texttitle {
-	text-align:left
-}
-table.diff tbody td {
-	padding:0px .4em;
-	padding-top:.4em;
-	vertical-align:top;
-}
-table.diff .empty {
-	background-color:#DDD;
-}
-table.diff .replace {
-	background-color:#FD8
-}
-table.diff .delete {
-	background-color:#E99;
-}
-table.diff .skip {
-	background-color:#EFEFEF;
-	border:1px solid #AAA;
-	border-right:1px solid #BBC;
-}
-table.diff .insert {
-	background-color:#9E9
-}
-table.diff th.author {
-	text-align:right;
-	border-top:1px solid #BBC;
-	background:#EFEFEF
+.diff {
+  box-sizing: border-box;
 }
 
-table.diff .char-insert,
-table.diff .char-delete,
-table.diff .char-replace {
-	background-color: #EEC96D;
-	margin-top: -0.2em;
-	padding-top: 0.2em;
+.diff-header {
+  width: 85ch;
+}
+
+.diff-line-no > div {
+  width: 5ch;
+  text-align: right;
+  /*
+  border: solid 1px #bbc;
+  border-top: none;
+  */
+}
+.diff-line-no > div:first-child {
+  /*
+  border-top: solid 1px #bbc;
+  */
+}
+
+.diff-line-no {
+  color: #999;
+  background-color: #f7f7f7;
+  border-right: 1px solid #ddd;
+}
+
+.diff-wrapper {
+  width: 85ch;
+  overflow-x: auto;
+  overflow-y: hidden;  /* shouldn't happen, but we sometimes get a pixel. */
+}
+
+.diff-content {
+  display: table;
+}
+
+.line-no, .code {
+  padding: 2px;
+  height: 1.11em;
+  white-space: pre;
+}
+
+.diff {
+  display: table;
+  white-space: nowrap;
+  font-family: monospace;
+}
+
+.diff-header, .diff-wrapper, .diff-wrapper > div {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.diff .delete {
+  background-color: #fcc;
+}
+.diff .insert {
+  background-color: #cfc;
+}
+
+.diff-left-content .replace {
+  background-color: #fee;
+}
+.diff-right-content .replace {
+  background-color: #efe;
+}
+
+.diff-left-content .char-replace, .diff-left-content .char-delete {
+  background-color: #fcc;
+}
+
+.diff-right-content .char-replace, .diff-right-content .char-insert {
+  background-color: #cfc;
 }

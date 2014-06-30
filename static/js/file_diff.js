@@ -14,35 +14,30 @@ function displayDiffs(pathBefore, pathAfter, baseTxt, afterTxt) {
 function renderDiff(pathBefore, pathAfter, contentsBefore, contentsAfter) {
   var diffDiv = $('<div class="diff"></div>').get(0);
 
-  // From https://github.com/cemerick/jsdifflib
-  var baseLines = difflib.stringAsLines(contentsBefore);
-  var afterLines = difflib.stringAsLines(contentsAfter);
-
-  // create a SequenceMatcher instance that diffs the two sets of lines
-  var sm = new difflib.SequenceMatcher(baseLines, afterLines);
-
-  // get the opcodes from the SequenceMatcher instance
-  // opcodes is a list of 3-tuples describing what changes should be made to the base text
-  // in order to yield the new text
-  var opcodes = sm.get_opcodes();
-  var contextSize = 10;
-
   // build the diff view and add it to the current DOM
-  diffDiv.appendChild(diffview.buildView({
-      baseTextLines: baseLines,
-      newTextLines: afterLines,
-      opcodes: opcodes,
-      // set the display titles for each resource
-      baseTextName: pathBefore,
-      newTextName: pathAfter,
-      contextSize: contextSize,
-      viewType: 0,  // i.e. two column rather than inline.
-      characterDiffs: true
-  }));
+  var opts = {
+    // set the display titles for each resource
+    baseTextName: pathBefore,
+    newTextName: pathAfter,
+    contextSize: 10,
+    syntaxHighlighting: true
+  };
+  var language = guessLanguage(pathBefore || pathAfter);
+  if (language) opts.language = language;
+
+  diffDiv.appendChild(diffview.buildView(contentsBefore, contentsAfter, opts));
 
   return diffDiv;
 }
 
+function guessLanguage(filename) {
+  var m = /\.([^.]+)$/.exec(filename);
+  if (m) {
+    return m[1];
+  } else {
+    return undefined;
+  }
+}
 
 // Keyboard shortcuts:
 // j/k = next/prev file

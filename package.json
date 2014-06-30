@@ -1,0 +1,24 @@
+{
+  "name": "jsdiff",
+  "version": "0.1.1",
+  "description": "JavaScript-based two-column diff",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danvk/jsdiff.git"
+  },
+  "dependencies": {
+    "jquery": ">=2.0.0",
+    "highlight.js": "~8.0.0"
+  },
+  "devDependencies": {
+    "assert": "*",
+    "grunt": "~0.4.0",
+    "grunt-cli": "0.1.6",
+    "grunt-contrib-qunit": "~0.5.1",
+    "grunt-qunit-cov": "~0.3.6",
+    "grunt-qunit-junit": "~0.1.0",
+    "qunitjs": "^1.14.0"
+  },
+  "scripts": {
+  }
+}
