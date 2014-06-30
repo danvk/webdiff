@@ -22,7 +22,8 @@ except Exception:
     pass  # probably in dev mode.
 
 class Config:
-    TESTING=True  # not exactly sure what this does...
+    pass
+    # TESTING=True  # not exactly sure what this does...
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -31,16 +32,19 @@ A_DIR = None
 B_DIR = None
 DIFF = None
 
-handler = logging.StreamHandler()
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
+if app.config['TESTING']:
+    handler = logging.StreamHandler()
+    handler.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
 
-app.logger.addHandler(handler)
-for logname in ['github', '']:
-    log = logging.getLogger(logname)
-    log.setLevel(logging.DEBUG)
-    log.addHandler(handler)
+    app.logger.addHandler(handler)
+    for logname in ['github', '']:
+        log = logging.getLogger(logname)
+        log.setLevel(logging.DEBUG)
+        log.addHandler(handler)
+else:
+    logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 
 def find_diff(a, b):
