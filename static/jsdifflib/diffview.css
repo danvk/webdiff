@@ -3,21 +3,11 @@
 }
 
 .diff-header {
-  width: 85ch;
 }
 
 .diff-line-no > div {
   width: 5ch;
   text-align: right;
-  /*
-  border: solid 1px #bbc;
-  border-top: none;
-  */
-}
-.diff-line-no > div:first-child {
-  /*
-  border-top: solid 1px #bbc;
-  */
 }
 
 .diff-line-no {
@@ -27,7 +17,6 @@
 }
 
 .diff-wrapper {
-  width: 85ch;
   overflow-x: auto;
   overflow-y: hidden;  /* shouldn't happen, but we sometimes get a pixel. */
 }

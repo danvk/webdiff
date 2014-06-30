@@ -8,26 +8,6 @@ table.diff tbody {
     font-size: 13px;
 }
 
-/* This is 80 characters plus some space */
-table.diff td {
-    width: 81ch;
-    min-width: 81ch;
-    max-width: 81ch;
-}
-
-table.diff .insert {
-    background-color: #D6FFD5;
-}
-table.diff .delete {
-    background-color: #FCD4D5;
-}
-table.diff .replace {
-    background-color: #FBE6AF;
-}
-table.diff .char-replace {
-    background-color: #FEDC87;
-}
-
-table.diff th.titletext {
-  vertical-align: center;
+.diff-column-width {
+  width: 85ch; /* 5ch for line numbers, 80ch for code */
 }

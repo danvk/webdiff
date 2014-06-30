@@ -165,13 +165,13 @@ differ.prototype.buildView_ = function() {
   var $container = $('<div class="diff">');
 
   $container.append(
-      $('<div class=diff-header>').text(this.params.beforeName),
-      $('<div class=diff-header>').text(this.params.afterName),
+      $('<div class="diff-header diff-column-width">').text(this.params.beforeName),
+      $('<div class="diff-header diff-column-width">').text(this.params.afterName),
       $('<br>'));
 
   $container.append(
-      $('<div class=diff-wrapper>').append($leftLineDiv, $leftContent),
-      $('<div class=diff-wrapper>').append($rightLineDiv, $rightContent));
+      $('<div class=diff-wrapper diff-column-width>').append($leftLineDiv, $leftContent),
+      $('<div class=diff-wrapper diff-column-width>').append($rightLineDiv, $rightContent));
 
   // TODO(danvk): append each element of rows to the appropriate div here.
   rows.forEach(function(row) {

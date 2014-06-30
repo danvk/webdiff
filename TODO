@@ -9,9 +9,13 @@ x Synchronize horizontal scrolling.
 - Make scrolling not affect line numbers
 - Move away from "contextSize" and to "minJumpSize".
 - Fix one-sided diffs (shouldn't have a blank line on the other side).
+- Factor out diff # of columns in a nicer way.
+- Fix the escaping problem with "&&".
 
 Misc:
 - Put everything in an iframe with a "heartbeat" in the containing frame.
   Close the diff process when you close the tab.
 - Set up a pip installer so that "pip install git-webdiff" works.
 - Figure out what the "lindex" and "rindex" files are.
+- Detect when it's run without "-d"
+- Run "git config" on first run
