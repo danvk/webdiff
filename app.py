@@ -8,13 +8,16 @@ import json
 import logging
 import os
 import re
+import requests
 import sys
 from threading import Timer
+import time
 import urllib
 import subprocess
 
 from flask import (Flask, render_template, send_from_directory,
                    request, jsonify, Response)
+from werkzeug.serving import WSGIRequestHandler
 
 try:
     os.chdir(sys._MEIPASS)
@@ -23,7 +26,7 @@ except Exception:
 
 class Config:
     pass
-    # TESTING=True  # not exactly sure what this does...
+    #TESTING=True  # not exactly sure what this does...
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -32,7 +35,7 @@ A_DIR = None
 B_DIR = None
 DIFF = None
 
-if app.config['TESTING']:
+if app.config['TESTING'] or app.config['DEBUG']:
     handler = logging.StreamHandler()
     handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -123,7 +126,7 @@ def get_contents(side):
 # Show the first diff by default
 @app.route("/")
 def index():
-    return file_diff(0)
+    return render_template('heartbeat.html', src='/0')
 
 
 @app.route("/<idx>")
@@ -142,6 +145,37 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static/img'),
                                'favicon.ico',
                                mimetype='image/vnd.microsoft.icon')
+
+@app.route('/kill', methods=['POST'])
+def kill():
+    logging.info("Trying to die")
+    func = request.environ.get('werkzeug.server.shutdown')
+    if func is None:
+        raise RuntimeError('Not running with the Werkzeug Server')
+    func()
+    return "Shutting down..."
+
+lastHeartbeatSecs = None
+@app.route('/ping', methods=['POST'])
+def ping():
+    global lastHeartbeatSecs
+    heartbeatSecs = time.time()
+    if lastHeartbeatSecs:
+        logging.info("Elapsed time: %s", heartbeatSecs - lastHeartbeatSecs)
+    else:
+        def checkHeartbeat():
+            if lastHeartbeatSecs and (time.time() - lastHeartbeatSecs) > 0.4:
+                logging.info('Lost heartbeat, shutting down...')
+                # The shutdown function is only available in a request context.
+                # This really does seem to be the easiest way to call it!
+                try:
+                    requests.post('http://localhost:5000/kill')
+                except requests.ConnectionError:
+                    return  # probably already shut down!
+            Timer(0.4, checkHeartbeat).start()
+        checkHeartbeat()
+    lastHeartbeatSecs = heartbeatSecs
+    return "OK"
 
 
 def open_browser():
