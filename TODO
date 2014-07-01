@@ -16,8 +16,8 @@ Misc:
 x Put everything in an iframe with a "heartbeat" in the containing frame.
   Close the diff process when you close the tab.
 x Detect when it's run without "-d"
-- Set up a pip installer so that "pip install git-webdiff" works.
-  - Move everything into a "webdiff" package
+x Set up a pip installer so that "pip install webdiff" works.
+  x Move everything into a "webdiff" package
 - Figure out what the "lindex" and "rindex" files are.
 - Run "git config" on first run
 - Use jQuery and highlight from NPM to be network-free.

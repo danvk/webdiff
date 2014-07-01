@@ -1,1 +1,9 @@
-See README.md.
+Install via:
+
+  pip install webdiff
+
+Then run via:
+
+  git difftool -d -x webdiff (diff arguments)
+
+See https://github.com/danvk/webdiff/ for more information.
