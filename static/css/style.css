@@ -10,4 +10,5 @@ table.diff tbody {
 
 .diff-column-width {
   width: 85ch; /* 5ch for line numbers, 80ch for code */
+  min-width: 85ch;
 }

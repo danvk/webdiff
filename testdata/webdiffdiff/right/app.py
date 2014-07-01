@@ -73,9 +73,8 @@ def find_diff(a, b):
 
 def pair_files(a_files, b_files):
     pairs = []
-    for f in a_files[:]:
+    for i, f in enumerate(a_files):
         if f in b_files:
-            i = a_files.index(f)
             j = b_files.index(f)
             pairs.append((f, f))
             del a_files[i]

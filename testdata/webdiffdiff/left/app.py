@@ -30,7 +30,6 @@ class Config:
 
 app = Flask(__name__)
 app.config.from_object(Config)
-app.config.from_envvar('WEBDIFF_CONFIG', silent=True)
 
 A_DIR = None
 B_DIR = None
@@ -73,9 +72,8 @@ def find_diff(a, b):
 
 def pair_files(a_files, b_files):
     pairs = []
-    for f in a_files[:]:
+    for i, f in enumerate(a_files):
         if f in b_files:
-            i = a_files.index(f)
             j = b_files.index(f)
             pairs.append((f, f))
             del a_files[i]
@@ -148,7 +146,6 @@ def favicon():
                                'favicon.ico',
                                mimetype='image/vnd.microsoft.icon')
 
-
 @app.route('/kill', methods=['POST'])
 def kill():
     logging.info("Trying to die")
@@ -157,6 +154,28 @@ def kill():
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
     return "Shutting down..."
+
+lastHeartbeatSecs = None
+@app.route('/ping', methods=['POST'])
+def ping():
+    global lastHeartbeatSecs
+    heartbeatSecs = time.time()
+    if lastHeartbeatSecs:
+        logging.info("Elapsed time: %s", heartbeatSecs - lastHeartbeatSecs)
+    else:
+        def checkHeartbeat():
+            if lastHeartbeatSecs and (time.time() - lastHeartbeatSecs) > 0.4:
+                logging.info('Lost heartbeat, shutting down...')
+                # The shutdown function is only available in a request context.
+                # This really does seem to be the easiest way to call it!
+                try:
+                    requests.post('http://localhost:5000/kill')
+                except requests.ConnectionError:
+                    return  # probably already shut down!
+            Timer(0.4, checkHeartbeat).start()
+        checkHeartbeat()
+    lastHeartbeatSecs = heartbeatSecs
+    return "OK"
 
 
 def open_browser():
@@ -170,19 +189,17 @@ def run():
     assert len(sys.argv) == 3
     A_DIR = sys.argv[1]
     B_DIR = sys.argv[2]
-    if not os.path.isdir(A_DIR) or not os.path.isdir(B_DIR):
-        sys.stderr.write('Make sure you run git difftool -d\n')
-        sys.exit(1)
 
     sys.stderr.write('''Diffing:
 A: %s
 B: %s
 
 Serving diffs on http://localhost:5000
-Close the browser tab or hit Ctrl-C when you're done.
+Hit Ctrl-C when you're done.
 ''' % (A_DIR, B_DIR))
     DIFF = find_diff(A_DIR, B_DIR)
     Timer(0.1, open_browser).start()
+    #app.run(host='0.0.0.0', debug=True)
     app.run(host='0.0.0.0')
 
 

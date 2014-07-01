@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+html, body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  background: white;
+}
+iframe {
+  border: none;
+}
+</style>
+</head>
+<body>
+<iframe border="0" width="100%" height="100%" src="{{src}}"></iframe>
+
+<script src="/static/js/jquery-2.1.1.min.js"></script>
+<script type="text/javascript">
+$(function() {
+  $('iframe').focus();
+  window.addEventListener('beforeunload', function(e) {
+    $.post('/kill');
+  });
+});
+</script>
+</body>
+</html>

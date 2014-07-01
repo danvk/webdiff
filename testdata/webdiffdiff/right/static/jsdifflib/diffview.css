@@ -1,0 +1,70 @@
+.diff {
+  box-sizing: border-box;
+}
+
+.diff-column-width {
+  width: 85ch;
+  max-width: 85ch;
+}
+
+.diff-header {
+}
+
+.diff-line-no > div {
+  width: 5ch;
+  text-align: right;
+}
+
+.diff-line-no {
+  color: #999;
+  background-color: #f7f7f7;
+  border-right: 1px solid #ddd;
+}
+
+.diff-wrapper {
+  overflow-x: auto;
+  overflow-y: hidden;  /* shouldn't happen, but we sometimes get a pixel. */
+}
+
+.diff-content {
+  display: table;
+}
+
+.line-no, .code {
+  padding: 2px;
+  height: 1.11em;
+  white-space: pre;
+}
+
+.diff {
+  display: table;
+  white-space: nowrap;
+  font-family: monospace;
+}
+
+.diff-header, .diff-wrapper, .diff-wrapper > div {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.diff .delete {
+  background-color: #fcc;
+}
+.diff .insert {
+  background-color: #cfc;
+}
+
+.diff-left-content .replace {
+  background-color: #fee;
+}
+.diff-right-content .replace {
+  background-color: #efe;
+}
+
+.diff-left-content .char-replace, .diff-left-content .char-delete {
+  background-color: #fcc;
+}
+
+.diff-right-content .char-replace, .diff-right-content .char-insert {
+  background-color: #cfc;
+}

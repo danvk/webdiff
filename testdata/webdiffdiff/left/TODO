@@ -13,19 +13,9 @@ x Synchronize horizontal scrolling.
 - Fix the escaping problem with "&&".
 
 Misc:
-x Put everything in an iframe with a "heartbeat" in the containing frame.
+- Put everything in an iframe with a "heartbeat" in the containing frame.
   Close the diff process when you close the tab.
-x Detect when it's run without "-d"
 - Set up a pip installer so that "pip install git-webdiff" works.
 - Figure out what the "lindex" and "rindex" files are.
+- Detect when it's run without "-d"
 - Run "git config" on first run
-- Use jQuery and highlight from NPM to be network-free.
-
-
-Bugs:
-- In this repo, run "git difftool -d -x webdiff 1a2f7c4^..1a2f7c4".
-  x There are some left sides missing, e.g. on diffview.css
-  - In diffview.js lines 173-174, the char-replace is off by 3 chars.
-  - In app.py, line 198, the "H" on the left is green. The whole line should be.
-  - In TODO, line 16 is a 100% char replace, which should be impossible.
-  - In diffview.css, looks like we need a min-width.

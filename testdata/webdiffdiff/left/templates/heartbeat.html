@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>
+html, body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+  background: white;
+}
+iframe {
+  border: none;
+}
+</style>
+</head>
+<body>
+<iframe autofocus border="0" width="100%" height="100%" src="{{src}}"></iframe>
+
+<script src="/static/js/jquery-2.1.1.min.js"></script>
+<script type="text/javascript">
+var PING_FREQ_MS = 200;
+var interval;
+function ping() {
+  $.post('/ping')
+    .done(function() {
+        // keep pinging...
+    })
+    .fail(function() {
+        window.clearInterval(interval);
+    });
+}
+
+$(function() {
+  interval = window.setInterval(ping, PING_FREQ_MS);
+});
+</script>
+</body>
+</html>
