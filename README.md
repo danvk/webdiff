@@ -1,8 +1,6 @@
 git webdiff
 ===========
 
-Here's a new line!
-
 Two-column web-based git difftool.
 
 Installation
