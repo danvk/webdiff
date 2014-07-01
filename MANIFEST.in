@@ -1,2 +1,2 @@
-recursive-include templates *
-recursive-include static *
+recursive-include webdiff/templates *
+recursive-include webdiff/static *

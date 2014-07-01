@@ -6,16 +6,18 @@ setup(name='webdiff',
       author='Dan Vanderkam',
       author_email='danvdk@gmail.com',
       url='https://github.com/danvk/webdiff/',
-      py_modules=['app'],
       entry_points={
           'console_scripts': [
-              'webdiff = app:run',
+              'webdiff = webdiff.app:run',
           ],
       },
-      packages=find_packages(),
+      packages=find_packages(exclude=['tests*']),
       install_requires=['flask'],
       include_package_data=True,
-      package_data = { '': ['static/*', 'templates/*' ] },
+      package_data = {
+          'static': 'webdiff/static/*',
+          'templates': 'webdiff/templates/*'
+      },
       classifiers=[
           'Environment :: Console',
           'Environment :: Web Environment',

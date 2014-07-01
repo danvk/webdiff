@@ -34,7 +34,6 @@ def determine_path():
 
 # This is essential when run from distutils and does no harm otherwise.
 path = determine_path()
-sys.stderr.write("cd'ing into %s\n" % path)
 os.chdir(path)
 
 # This is essential when run via pyinstaller --one-file.
@@ -191,13 +190,12 @@ def run():
         sys.stderr.write('Make sure you run git difftool -d\n')
         sys.exit(1)
 
-    sys.stderr.write('''Diffing:
-A: %s
-B: %s
+    if app.config['TESTING'] or app.config['DEBUG']:
+        sys.stderr.write('Diffing:\nA: %s\nB: %s\n\n' % (A_DIR, B_DIR))
 
-Serving diffs on http://localhost:5000
+    sys.stderr.write('''Serving diffs on http://localhost:5000
 Close the browser tab or hit Ctrl-C when you're done.
-''' % (A_DIR, B_DIR))
+''')
     DIFF = find_diff(A_DIR, B_DIR)
     Timer(0.1, open_browser).start()
     app.run(host='0.0.0.0')
