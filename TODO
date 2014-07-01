@@ -20,6 +20,7 @@ x Detect when it's run without "-d"
 - Figure out what the "lindex" and "rindex" files are.
 - Run "git config" on first run
 - Use jQuery and highlight from NPM to be network-free.
+- Use a random port (will allow multiple diffs at once)
 
 
 Bugs:

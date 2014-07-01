@@ -8,7 +8,6 @@ import json
 import logging
 import os
 import re
-import requests
 import sys
 from threading import Timer
 import time
@@ -33,8 +32,12 @@ def determine_path():
         print "There is no __file__ variable. Please contact the author."
         sys.exit()
 
-determine_path()
+# This is essential when run from distutils and does no harm otherwise.
+path = determine_path()
+sys.stderr.write("cd'ing into %s\n" % path)
+os.chdir(path)
 
+# This is essential when run via pyinstaller --one-file.
 try:
     os.chdir(sys._MEIPASS)
 except Exception:

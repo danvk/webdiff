@@ -15,6 +15,7 @@ setup(name='git-webdiff',
       packages=find_packages(),
       install_requires=['flask'],
       include_package_data=True,
+      package_data = { '': ['static/*', 'templates/*' ] },
       classifiers=[
           'Environment :: Console'
       ],
