@@ -14,12 +14,14 @@ from threading import Timer
 import time
 import urllib
 import subprocess
+import webbrowser
 
 from flask import (Flask, render_template, send_from_directory,
                    request, jsonify, Response)
 from werkzeug.serving import WSGIRequestHandler
 
-def determine_path ():
+
+def determine_path():
     """Borrowed from wxglade.py"""
     try:
         root = __file__
@@ -174,9 +176,7 @@ def kill():
 
 
 def open_browser():
-    # TODO(danvk): figure out how this works on other systems.
-    if os.path.exists('/usr/bin/open'):
-        subprocess.check_call(['open', 'http://localhost:5000'])
+    webbrowser.open_new_tab('http://localhost:5000')
 
 
 def run():
