@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-setup(name='git-webdiff',
+setup(name='webdiff',
       version='0.2',
       description='Two-column web-based git difftool',
       author='Dan Vanderkam',
@@ -9,7 +9,7 @@ setup(name='git-webdiff',
       py_modules=['app'],
       entry_points={
           'console_scripts': [
-              'git-webdiff = app:run',
+              'webdiff = app:run',
           ],
       },
       packages=find_packages(),
@@ -17,6 +17,12 @@ setup(name='git-webdiff',
       include_package_data=True,
       package_data = { '': ['static/*', 'templates/*' ] },
       classifiers=[
-          'Environment :: Console'
+          'Environment :: Console',
+          'Environment :: Web Environment',
+          'Framework :: Flask',
+          'Development Status :: 3 - Alpha',
+          'Intended Audience :: Developers',
+          'License :: OSI Approved :: Apache Software License',
+          'Topic :: Software Development :: Version Control'
       ],
 )
