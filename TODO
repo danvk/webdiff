@@ -13,7 +13,7 @@ x Synchronize horizontal scrolling.
 - Fix the escaping problem with "&&".
 
 Misc:
-- Put everything in an iframe with a "heartbeat" in the containing frame.
+x Put everything in an iframe with a "heartbeat" in the containing frame.
   Close the diff process when you close the tab.
 - Set up a pip installer so that "pip install git-webdiff" works.
 - Figure out what the "lindex" and "rindex" files are.

@@ -23,7 +23,9 @@ function renderDiff(pathBefore, pathAfter, contentsBefore, contentsAfter) {
     syntaxHighlighting: true
   };
   var language = guessLanguage(pathBefore || pathAfter);
-  if (language) opts.language = language;
+  if (language && hljs.getLanguage(language)) {
+    opts.language = language;
+  }
 
   diffDiv.appendChild(diffview.buildView(contentsBefore, contentsAfter, opts));
 

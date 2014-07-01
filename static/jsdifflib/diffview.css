@@ -2,6 +2,11 @@
   box-sizing: border-box;
 }
 
+.diff-column-width {
+  width: 85ch;
+  max-width: 85ch;
+}
+
 .diff-header {
 }
 
