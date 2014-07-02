@@ -3,7 +3,7 @@ div#thediff {
     display: table;
 }
 
-table.diff tbody {
+.diff {
     font-family: Inconsolata, Consolas, "Liberation Mono", Menlo, Courier, monospace;
     font-size: 13px;
 }

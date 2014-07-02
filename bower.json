@@ -1,0 +1,22 @@
+{
+  "name": "webdiff",
+  "version": "0.2.1",
+  "homepage": "https://github.com/danvk/webdiff",
+  "authors": [
+    "Dan Vanderkam <danvdk@gmail.com>"
+  ],
+  "description": "Static assets for webdiff",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.1",
+    "highlightjs": "~8.0.0",
+    "underscore": "~1.6.0"
+  }
+}
