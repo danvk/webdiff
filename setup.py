@@ -9,6 +9,7 @@ setup(name='webdiff',
       entry_points={
           'console_scripts': [
               'webdiff = webdiff.app:run',
+              'git-webdiff = webdiff.gitwebdiff:run'
           ],
       },
       packages=find_packages(exclude=['tests*']),
