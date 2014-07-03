@@ -67,6 +67,7 @@ if app.config['TESTING'] or app.config['DEBUG']:
         log.setLevel(logging.DEBUG)
         log.addHandler(handler)
 else:
+    # quiet down werkzeug -- no need to log every request.
     logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 
