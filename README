@@ -1,9 +1,15 @@
+webdiff displays side-by-side two-column diffs in the web browser.
+It supports syntax highlighting, eliding & expansion of common lines.
+It integrates with git.
+
 Install via:
 
   pip install webdiff
 
-Then run via:
+Then run via one of these:
 
-  git difftool -d -x webdiff (diff arguments)
+  git webdiff
+  git webdiff <arguments>
+  webdiff <left_dir> <right_dir>
 
 See https://github.com/danvk/webdiff/ for more information.
