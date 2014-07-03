@@ -8,12 +8,10 @@ Move away from jsdifflib:
 Misc:
 - Figure out what the "lindex" and "rindex" files are.
 - Run "git config" on first run
-- Use a random port (will allow multiple diffs at once)
 
 
 Bugs:
 - In this repo, run "git difftool -d -x webdiff 1a2f7c4^..1a2f7c4".
-  x There are some left sides missing, e.g. on diffview.css
   - In diffview.js lines 173-174, the char-replace is off by 3 chars.
   - In app.py, line 198, the "H" on the left is green. The whole line should be.
   - In TODO, line 16 is a 100% char replace, which should be impossible.

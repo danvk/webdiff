@@ -8,6 +8,7 @@ import json
 import logging
 import os
 import re
+import socket
 import sys
 from threading import Timer
 import time
@@ -53,6 +54,7 @@ app.config.from_envvar('WEBDIFF_CONFIG', silent=True)
 A_DIR = None
 B_DIR = None
 DIFF = None
+PORT = None
 
 if app.config['TESTING'] or app.config['DEBUG']:
     handler = logging.StreamHandler()
@@ -181,28 +183,47 @@ def kill():
 
 
 def open_browser():
+    global PORT
     if not 'NO_OPEN_BROWSER' in app.config:
-        webbrowser.open_new_tab('http://localhost:5000')
+        webbrowser.open_new_tab('http://localhost:%s' % PORT)
+
+
+def usage_and_die():
+    sys.stderr.write(
+'''Usage: webdiff <left_dir> <right_dir>
+
+When using git difftool, make sure you run "git difftool -d".
+''')
+    sys.exit(1)
+
+
+def pick_a_port():
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind(('localhost', 0))
+    port = sock.getsockname()[1]
+    sock.close()
+    return port
 
 
 def run():
-    global A_DIR, B_DIR, DIFF
+    global A_DIR, B_DIR, DIFF, PORT
     assert len(sys.argv) == 3
     A_DIR = sys.argv[1]
     B_DIR = sys.argv[2]
     if not os.path.isdir(A_DIR) or not os.path.isdir(B_DIR):
-        sys.stderr.write('Make sure you run git difftool -d\n')
-        sys.exit(1)
+        usage_and_die()
+
+    PORT = pick_a_port()
 
     if app.config['TESTING'] or app.config['DEBUG']:
         sys.stderr.write('Diffing:\nA: %s\nB: %s\n\n' % (A_DIR, B_DIR))
 
-    sys.stderr.write('''Serving diffs on http://localhost:5000
+    sys.stderr.write('''Serving diffs on http://localhost:%s
 Close the browser tab or hit Ctrl-C when you're done.
-''')
+''' % PORT)
     DIFF = find_diff(A_DIR, B_DIR)
     Timer(0.1, open_browser).start()
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', port=PORT)
 
 
 if __name__ == '__main__':
