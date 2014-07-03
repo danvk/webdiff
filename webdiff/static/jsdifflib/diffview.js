@@ -76,6 +76,7 @@ differ.distributeSpans_ = function(text) {
 differ.highlightText_ = function(text, opt_language) {
   // TODO(danvk): look into suppressing highlighting if .relevance is low.
   var html;
+  // console.log(hljs.highlightAuto(text));
   if (opt_language) {
     html = hljs.highlight(opt_language, text, true).value;
   } else {
@@ -100,10 +101,40 @@ differ.prototype.attachHandlers_ = function(el) {
   $wrapperDivs.on('scroll', function(e) {
     var otherDiv = $wrapperDivs.not(this).get(0);
     otherDiv.scrollLeft = this.scrollLeft;
-  });
+  }.bind(this));
 
+  var this_differ = this;
   $(el).on('click', '.skip a', function(e) {
+    e.preventDefault();
     var skipData = $(this).closest('.skip').data();
+    var beforeIdx = skipData.beforeStartIndex;
+    var afterIdx = skipData.afterStartIndex;
+    var jump = skipData.jumpLength;
+    var beforeEnd = beforeIdx + jump;
+    var afterEnd = afterIdx + jump;
+    var change = "equal";
+    var newRows = [];
+    for (var i = 0; i < jump; i++) {
+      var data = this_differ.buildRow_(beforeIdx, beforeEnd, afterIdx, afterEnd, change);
+      beforeIdx = data.newBeforeIdx;
+      afterIdx = data.newAfterIdx;
+      newRows.push(data.row);
+    }
+
+    // Replace the "skip" rows with real code.
+    var $lefts = $(this).closest('.diff').find('.diff-left-line-no, .diff-left-content').find('[line-no=' + (1+skipData.beforeStartIndex) + ']');
+    var $rights = $(this).closest('.diff').find('.diff-right-line-no, .diff-right-content').find('[line-no=' + (1+skipData.afterStartIndex) + ']');
+
+    if ($lefts.length == 2 && $rights.length == 2) {
+      var els = [$lefts.get(0), $lefts.get(1), $rights.get(0), $rights.get(1)];
+      for (var rowIdx = newRows.length - 1; rowIdx >= 0; rowIdx--) {
+        var row = newRows[rowIdx];
+        for (var i = 0; i < row.length; i++) {
+          $(els[i]).after(row[i]);
+        }
+      }
+      els.forEach(function(el) { $(el).remove(); });
+    }
   });
 };
 
@@ -161,20 +192,21 @@ differ.prototype.buildView_ = function() {
           var els = [];
           topRows.push(els);
 
-          var $skipEl = $('<div class=skip><a href="#">Show ' + jump + ' lines</a></div>');
+          var $skipEl = $('<div class="skip code"><a href="#">Show ' + jump + ' lines</a></div>');
           $skipEl.data({
             'beforeStartIndex': beforeIdx,
             'afterStartIndex': afterIdx,
-            'jumpLength': jump
-          });
+            'jumpLength': jump,
+          }).attr('line-no', 1 + afterIdx);
           
+          els.push($('<div class=line-no>...</div>').attr('line-no', 1+beforeIdx).get(0));
+          els.push($('<div class="skip code">...</div>').attr('line-no', 1+beforeIdx).get(0));
+          els.push($('<div class=line-no>...</div>').attr('line-no', 1+afterIdx).get(0));
+          els.push($skipEl.get(0));
+
           beforeIdx += jump;
           afterIdx += jump;
           i += jump - 1;
-          els.push($('<div>...</div>').get(0));
-          els.push($('<div class=skip>...</div>').get(0));
-          els.push($('<div>...</div>').get(0));
-          els.push($skipEl.get(0));
           
           // skip last lines if they're all equal
           if (isEnd) {
@@ -226,9 +258,9 @@ function addCells(row, tidx, tend, isHtml, textLines, change, line_no) {
     var txt = textLines[tidx].replace(/\t/g, "\u00a0\u00a0\u00a0\u00a0");
     row.push($('<div class=line-no>')
                   .text(tidx + 1)
-                  .data('line-no', line_no)
+                  .attr('line-no', line_no)
                   .get(0));
-    var $code = $('<div>').addClass(change + ' code').data('line-no', line_no);
+    var $code = $('<div>').addClass(change + ' code').attr('line-no', line_no);
     if (isHtml) {
       $code.html(txt);
     } else {
@@ -237,8 +269,8 @@ function addCells(row, tidx, tend, isHtml, textLines, change, line_no) {
     row.push($code.get(0));
     return tidx + 1;
   } else {
-    row.push($('<div class=line-no>').data('line-no', line_no).get(0));
-    row.push($('<div class="empty code">').data('line-no', line_no).get(0));
+    row.push($('<div class=line-no>').attr('line-no', line_no).get(0));
+    row.push($('<div class="empty code">').attr('line-no', line_no).get(0));
     return tidx;
   }
 }

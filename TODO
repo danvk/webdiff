@@ -1,5 +1,4 @@
 Move away from jsdifflib:
-- Re-implement "show more" links
 - Factor out construction of line ranges for easier testing.
 - Make scrolling not affect line numbers
 - Move away from "contextSize" and to "minJumpSize".
