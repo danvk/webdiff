@@ -3,6 +3,13 @@ git webdiff
 
 Two-column web-based git difftool.
 
+Features include:
+* Side-by-side (two column) diff view
+* Runs in the browser of your choice on any platform.
+* Syntax highlighting via highlight.js
+* Step back and forth through multiple files in a single diff
+* Long stretches of common lines are elided (but can be shown if desired)
+
 Installation
 ------------
 
