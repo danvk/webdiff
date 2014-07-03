@@ -146,7 +146,10 @@ def get_contents(side):
 # Show the first diff by default
 @app.route("/")
 def index():
-    return render_template('heartbeat.html', src='/0')
+    if not 'NO_FRAME' in app.config:
+        return render_template('heartbeat.html', src='/0')
+    else:
+        return file_diff('0')
 
 
 @app.route("/<idx>")
