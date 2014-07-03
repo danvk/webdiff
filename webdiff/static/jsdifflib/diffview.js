@@ -1,9 +1,6 @@
 var diffview = (function() {
 
 var differ = function(beforeText, afterText, userParams) {
-  if (!'beforeText' in userParams) throw "need beforeText";
-  if (!'afterText' in userParams) throw "need afterText";
-
   var defaultParams = {
     contextSize: 3,
     language: null,
@@ -13,8 +10,8 @@ var differ = function(beforeText, afterText, userParams) {
 
   this.params = $.extend({}, defaultParams, userParams);
 
-  this.beforeLines = difflib.stringAsLines(beforeText);
-  this.afterLines = difflib.stringAsLines(afterText);
+  this.beforeLines = beforeText ? difflib.stringAsLines(beforeText) : [];
+  this.afterLines = afterText ? difflib.stringAsLines(afterText) : [];
   var sm = new difflib.SequenceMatcher(this.beforeLines, this.afterLines);
   this.opcodes = sm.get_opcodes();
 
@@ -74,6 +71,8 @@ differ.distributeSpans_ = function(text) {
  *     tags will be balanced within each line.
  */
 differ.highlightText_ = function(text, opt_language) {
+  if (text === null) return [];
+
   // TODO(danvk): look into suppressing highlighting if .relevance is low.
   var html;
   // console.log(hljs.highlightAuto(text));

@@ -2,12 +2,10 @@ Move away from jsdifflib:
 - Factor out construction of line ranges for easier testing.
 - Make scrolling not affect line numbers
 - Move away from "contextSize" and to "minJumpSize".
-- Fix one-sided diffs (shouldn't have a blank line on the other side).
 - Factor out diff # of columns in a nicer way.
 
 Misc:
 - Figure out what the "lindex" and "rindex" files are.
-- Run "git config" on first run
 - Include the "/4" in the URL for the containing frame (make refresh work).
 
 

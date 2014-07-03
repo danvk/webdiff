@@ -41,17 +41,17 @@ var b_file = {{this_pair.b|tojson}};
 <script src="/static/js/file_diff.js"></script>
 <script type="text/javascript">
 
-function getOrEmpty(side, path) {
+function getOrNull(side, path) {
   if (path) {
     return $.post('/' + side + '/get_contents', { path: path })
   } else {
-    return [''];  // does this work?
+    return [null];
   }
 }
 
 $(function() {
-    var beforeDeferred = getOrEmpty('a', a_file);
-    var afterDeferred = getOrEmpty('b', b_file);
+    var beforeDeferred = getOrNull('a', a_file);
+    var afterDeferred = getOrNull('b', b_file);
 
     $.when(beforeDeferred, afterDeferred).done(function(before, after) {
       beforeContents = before[0];
