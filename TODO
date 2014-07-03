@@ -3,6 +3,7 @@ Move away from jsdifflib:
 - Make scrolling not affect line numbers
 - Move away from "contextSize" and to "minJumpSize".
 - Factor out diff # of columns in a nicer way.
+  -> also: use space more efficiently when full width won't fit. split left/right down the middle.
 
 Misc:
 - Figure out what the "lindex" and "rindex" files are.
