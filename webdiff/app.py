@@ -169,7 +169,7 @@ def favicon():
 
 @app.route('/kill', methods=['POST'])
 def kill():
-    logging.info("Trying to die")
+    if 'STAY_RUNNING' in app.config: return
     func = request.environ.get('werkzeug.server.shutdown')
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
@@ -178,7 +178,8 @@ def kill():
 
 
 def open_browser():
-    webbrowser.open_new_tab('http://localhost:5000')
+    if not 'NO_OPEN_BROWSER' in app.config:
+        webbrowser.open_new_tab('http://localhost:5000')
 
 
 def run():

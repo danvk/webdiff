@@ -1,26 +1,14 @@
 Move away from jsdifflib:
-x Fixed layout with <div>s, "overflow:scroll" on each side.
-x Only use red & green, no yellow "changed" color.
-x Integrate highlight.js syntax highlighting
-x Re-implement character-by-character diffs
-x Synchronize horizontal scrolling.
 - Re-implement "show more" links
 - Factor out construction of line ranges for easier testing.
 - Make scrolling not affect line numbers
 - Move away from "contextSize" and to "minJumpSize".
 - Fix one-sided diffs (shouldn't have a blank line on the other side).
 - Factor out diff # of columns in a nicer way.
-- Fix the escaping problem with "&&".
 
 Misc:
-x Put everything in an iframe with a "heartbeat" in the containing frame.
-  Close the diff process when you close the tab.
-x Detect when it's run without "-d"
-x Set up a pip installer so that "pip install webdiff" works.
-  x Move everything into a "webdiff" package
 - Figure out what the "lindex" and "rindex" files are.
 - Run "git config" on first run
-- Use jQuery and highlight from NPM to be network-free.
 - Use a random port (will allow multiple diffs at once)
 
 
@@ -31,3 +19,5 @@ Bugs:
   - In app.py, line 198, the "H" on the left is green. The whole line should be.
   - In TODO, line 16 is a 100% char replace, which should be impossible.
   - In diffview.css, looks like we need a min-width.
+- Fix the escaping problem with "&&".
+  - shows up in dygraph-canvas.js in testdata

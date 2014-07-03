@@ -17,10 +17,9 @@ function renderDiff(pathBefore, pathAfter, contentsBefore, contentsAfter) {
   // build the diff view and add it to the current DOM
   var opts = {
     // set the display titles for each resource
-    baseTextName: pathBefore,
-    newTextName: pathAfter,
-    contextSize: 10,
-    syntaxHighlighting: true
+    baseTextName: pathBefore || '(none)',
+    newTextName: pathAfter || '(none)',
+    contextSize: 10
   };
   var language = guessLanguage(pathBefore || pathAfter);
   if (language && hljs.getLanguage(language)) {
@@ -35,6 +34,8 @@ function renderDiff(pathBefore, pathAfter, contentsBefore, contentsAfter) {
 function guessLanguage(filename) {
   var m = /\.([^.]+)$/.exec(filename);
   if (m) {
+    ext = m[1];
+    if (ext == 'py') return 'python';
     return m[1];
   } else {
     return undefined;

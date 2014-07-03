@@ -6,7 +6,7 @@ var differ = function(beforeText, afterText, userParams) {
 
   var defaultParams = {
     contextSize: 3,
-    syntaxHighlighting: false,
+    language: null,
     beforeName: "Before",
     afterName: "After"
   };
@@ -18,7 +18,7 @@ var differ = function(beforeText, afterText, userParams) {
   var sm = new difflib.SequenceMatcher(this.beforeLines, this.afterLines);
   this.opcodes = sm.get_opcodes();
 
-  if (this.params.syntaxHighlighting) {
+  if (this.params.language) {
     var lang = this.params.language;
     this.beforeLinesHighlighted = differ.highlightText_(beforeText, lang);
     this.afterLinesHighlighted = differ.highlightText_(afterText, lang);
@@ -79,7 +79,11 @@ differ.highlightText_ = function(text, opt_language) {
   if (opt_language) {
     html = hljs.highlight(opt_language, text, true).value;
   } else {
-    html = hljs.highlightAuto(text).value;
+    return null;
+    // This produces a lot of false positives:
+    // html = hljs.highlightAuto(text).value;
+    // There is a relevance number but it's hard to threshold. The file
+    // extension is probably a good enough heuristic.
   }
 
   // Some of the <span>s might cross lines, which won't work for our diff
@@ -87,14 +91,47 @@ differ.highlightText_ = function(text, opt_language) {
   return differ.distributeSpans_(html);
 }
 
+/**
+ * Attach event listeners, notably for the "show more" links.
+ */
+differ.prototype.attachHandlers_ = function(el) {
+  // Synchronize horizontal scrolling.
+  var $wrapperDivs = $(el).find('.diff-wrapper');
+  $wrapperDivs.on('scroll', function(e) {
+    var otherDiv = $wrapperDivs.not(this).get(0);
+    otherDiv.scrollLeft = this.scrollLeft;
+  });
+
+  $(el).on('click', '.skip a', function(e) {
+    var skipData = $(this).closest('.skip').data();
+  });
+};
+
+differ.prototype.buildRow_ = function(beforeIdx, beforeEnd, afterIdx, afterEnd, change) {
+  // TODO(danvk): move this logic into addCells() or get rid of it.
+  var beforeLines = this.params.language ? this.beforeLinesHighlighted : this.beforeLines;
+  var afterLines = this.params.language ? this.afterLinesHighlighted : this.afterLines;
+
+  var els = [];
+  beforeIdx = addCells(els, beforeIdx, beforeEnd, this.params.language, beforeLines, 'before ' + change, beforeIdx + 1);
+  afterIdx = addCells(els, afterIdx, afterEnd, this.params.language, afterLines, 'after ' + change, afterIdx + 1);
+
+  if (change == 'replace') {
+    differ.addCharacterDiffs_(els[1], els[3], this.params.language);
+  }
+
+  return {
+    row: els,
+    newBeforeIdx: beforeIdx,
+    newAfterIdx: afterIdx
+  };
+};
+
 differ.prototype.buildView_ = function() {
   var $leftLineDiv = $('<div class="diff-line-no diff-left-line-no">');
   var $leftContent = $('<div class="diff-content diff-left-content">');
   var $rightLineDiv = $('<div class="diff-line-no diff-right-line-no">');
   var $rightContent = $('<div class="diff-content diff-right-content">');
-
-  var beforeLines = this.params.syntaxHighlighting ? this.beforeLinesHighlighted : this.beforeLines;
-  var afterLines = this.params.syntaxHighlighting ? this.afterLinesHighlighted : this.afterLines;
 
   var contextSize = this.params.contextSize;
   var rows = [];
@@ -148,14 +185,10 @@ differ.prototype.buildView_ = function() {
         }
       }
 
-      var els = [];
-      topRows.push(els);
-      beforeIdx = addCells(els, beforeIdx, beforeEnd, this.params.syntaxHighlighting, beforeLines, 'before line-' + (beforeIdx + 1) + ' ' + change);
-      afterIdx = addCells(els, afterIdx, afterEnd, this.params.syntaxHighlighting, afterLines, 'after line-' + (afterIdx + 1) + ' ' + change);
-
-      if (change == 'replace') {
-        differ.addCharacterDiffs_(els[1], els[3], this.params.syntaxHighlighting);
-      }
+      var data = this.buildRow_(beforeIdx, beforeEnd, afterIdx, afterEnd, change);
+      beforeIdx = data.newBeforeIdx;
+      afterIdx = data.newAfterIdx;
+      topRows.push(data.row);
     }
 
     for (var i = 0; i < topRows.length; i++) rows.push(topRows[i]);
@@ -183,20 +216,19 @@ differ.prototype.buildView_ = function() {
     $rightContent.append(row[3]);
   });
 
-  var $wrapperDivs = $container.find('.diff-wrapper');
-  $wrapperDivs.on('scroll', function(e) {
-    var otherDiv = $wrapperDivs.not(this).get(0);
-    otherDiv.scrollLeft = this.scrollLeft;
-  });
+  this.attachHandlers_($container);
 
   return $container.get(0);
 };
 
-function addCells(row, tidx, tend, isHtml, textLines, change) {
+function addCells(row, tidx, tend, isHtml, textLines, change, line_no) {
   if (tidx < tend) {
     var txt = textLines[tidx].replace(/\t/g, "\u00a0\u00a0\u00a0\u00a0");
-    row.push($('<div class=line-no>').text(tidx + 1).get(0));
-    var $code = $('<div>').addClass(change + ' code');
+    row.push($('<div class=line-no>')
+                  .text(tidx + 1)
+                  .data('line-no', line_no)
+                  .get(0));
+    var $code = $('<div>').addClass(change + ' code').data('line-no', line_no);
     if (isHtml) {
       $code.html(txt);
     } else {
@@ -205,8 +237,8 @@ function addCells(row, tidx, tend, isHtml, textLines, change) {
     row.push($code.get(0));
     return tidx + 1;
   } else {
-    row.push($('<div class=line-no>').get(0));
-    row.push($('<div class="empty code">').get(0));
+    row.push($('<div class=line-no>').data('line-no', line_no).get(0));
+    row.push($('<div class="empty code">').data('line-no', line_no).get(0));
     return tidx;
   }
 }
