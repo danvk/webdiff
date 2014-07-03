@@ -15,4 +15,3 @@ Bugs:
 - In this repo, run "git difftool -d -x webdiff 1a2f7c4^..1a2f7c4".
   - In app.py, line 198, the "H" on the left is green. The whole line should be.
   - In diffview.css, looks like we need a min-width.
-- Horizontal scrolling is broken

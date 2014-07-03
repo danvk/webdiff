@@ -101,7 +101,7 @@ differ.prototype.attachHandlers_ = function(el) {
   $wrapperDivs.on('scroll', function(e) {
     var otherDiv = $wrapperDivs.not(this).get(0);
     otherDiv.scrollLeft = this.scrollLeft;
-  }.bind(this));
+  });
 
   var this_differ = this;
   $(el).on('click', '.skip a', function(e) {
