@@ -27,6 +27,17 @@ webdiff can also be invoked directly to diff two directories:
 
     webdiff [left_dir] [right_dir]
 
+Preview
+----------
+
+![Screenshot of webdiff in action](http://www.danvk.org/webdiff.png)
+
+This shows a JavaScript file being diffed. A few things to note:
+* Line deletions and per-character modifications.
+* Long stretches of common lines are elided, but can be shown if desired.
+* Syntax highlighting (via highlight.js)
+* Keyboard shortcuts (j/k) for stepping through fiels in the diff.
+
 Testing
 -------
 
