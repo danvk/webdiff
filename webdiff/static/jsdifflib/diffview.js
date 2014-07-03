@@ -293,6 +293,11 @@ differ.htmlTextMapper.prototype.getHtmlSubstring = function(start, limit) {
       }
       htmlIndex += 1;
     }
+    if (html.charAt(htmlIndex) == '&') {
+      while (html.charAt(htmlIndex) != ';') {
+        htmlIndex += 1;
+      }
+    }
     htmlIndex += 1;
     textIndex += 1;
   };
