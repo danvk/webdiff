@@ -9,6 +9,7 @@ diff library changes:
 Misc:
 - Figure out what the "lindex" and "rindex" files are.
 - Include the "/4" in the URL for the containing frame (make refresh work).
+- Make a "live demo" consisting of static content.
 
 
 Bugs:

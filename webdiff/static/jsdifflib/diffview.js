@@ -286,7 +286,7 @@ differ.htmlTextMapper.prototype.getHtmlSubstring = function(start, limit) {
   var html = this.html_;
   var advanceOne = function() {
     // This won't work for <span data="<foo">, but hljs never does that.
-    if (html.charAt(htmlIndex) == '<') {
+    while (html.charAt(htmlIndex) == '<') {
       while (html.charAt(htmlIndex) != '>') {
         htmlIndex += 1;
       }
