@@ -299,6 +299,13 @@ differ.htmlTextMapper.prototype.getHtmlSubstring = function(start, limit) {
     }
     htmlIndex += 1;
     textIndex += 1;
+    // include closing tags
+    if (htmlIndex + 1 <= html.length && html.charAt(htmlIndex) == '<' && html.charAt(htmlIndex + 1) == '/') {
+      while (html.charAt(htmlIndex) != '>') {
+        htmlIndex += 1;
+      }
+      htmlIndex += 1;
+    }
   };
 
   while (textIndex < start) {
