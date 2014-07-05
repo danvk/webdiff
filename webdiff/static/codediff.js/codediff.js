@@ -1,4 +1,4 @@
-var diffview = (function() {
+var codediff = (function() {
 
 var differ = function(beforeText, afterText, userParams) {
   var defaultParams = {
@@ -282,43 +282,75 @@ differ.htmlTextMapper = function(text, html) {
 // Get the substring of HTML corresponding to text.substr(start, len).
 // Leading markup is included with index 0, trailing with the last char.
 differ.htmlTextMapper.prototype.getHtmlSubstring = function(start, limit) {
-  var textIndex = 0, htmlIndex = 0;
-  var html = this.html_;
-  var advanceOne = function() {
-    // This won't work for <span data="<foo">, but hljs never does that.
-    while (html.charAt(htmlIndex) == '<') {
-      while (html.charAt(htmlIndex) != '>') {
-        htmlIndex += 1;
-      }
-      htmlIndex += 1;
-    }
-    if (html.charAt(htmlIndex) == '&') {
-      while (html.charAt(htmlIndex) != ';') {
-        htmlIndex += 1;
-      }
-    }
-    htmlIndex += 1;
-    textIndex += 1;
-  };
-
-  while (textIndex < start) {
-    advanceOne();
-  }
-  var htmlStartIndex = htmlIndex;
-
-  // special case: trailing tags go with the last character.
-  var htmlEndIndex;
-  if (limit < this.text_.length || (limit <= start)) {
-    while (textIndex < limit) {
-      advanceOne();
-    }
-    htmlEndIndex = htmlIndex;
-  } else {
-    htmlEndIndex = html.length;
-  }
-
-  return html.substring(htmlStartIndex, htmlEndIndex);
+  var count = limit - start;
+  return html_substr(this.html_, start, count);
 };
+
+// Returns the HTML corresponding to text in positions [start, start+count).
+// This includes any HTML in that character range, or enclosing it.
+// cobbled together from:
+// http://stackoverflow.com/questions/6003271/substring-text-with-html-tags-in-javascript?rq=1
+// http://stackoverflow.com/questions/16856928/substring-text-with-javascript-including-html-tags
+function html_substr(html, start, count) {
+  var div = document.createElement('div');
+  div.innerHTML = html;
+  var consumed = 0;
+  
+  walk(div, track);
+  
+  function track(el) {
+    if (count > 0) {
+      var len = el.data.length;
+      if (start <= len) {
+        el.data = el.substringData(start, len);
+        start = 0;
+      } else {
+        start -= len;
+        el.data = '';
+      }
+      len = el.data.length;
+      count -= len;
+      consumed += len;
+      if (count <= 0) {
+        el.data = el.substringData(0, el.data.length + count);
+      }
+    } else {
+      el.data = '';
+    }
+  }
+  
+  function walk(el, fn) {
+    var node = el.firstChild, oldNode;
+    var elsToRemove = [];
+    do {
+      if (node.nodeType === 3) {
+        fn(node);
+      } else if (node.nodeType === 1 && node.childNodes && node.childNodes[0]) {
+        walk( node, fn );
+      }
+      if (consumed == 0 && node.nodeType == 1) {
+        elsToRemove.push(node);
+      }
+    } while ((node = node.nextSibling) && (count > 0));
+
+    // remove remaining nodes
+    while (node){
+      oldNode = node;
+      node = node.nextSibling;
+      el.removeChild(oldNode);
+    }
+
+    for (var i = 0; i < elsToRemove.length; i++) {
+      var el = elsToRemove[i];
+      if (el && el.parentNode) {
+        el.parentNode.removeChild(el);
+      }
+    }
+  }
+
+  return div.innerHTML;
+}
+
 
 differ.addCharacterDiffs_ = function(beforeCell, afterCell) {
   var beforeText = $(beforeCell).text(),
@@ -343,32 +375,80 @@ differ.addCharacterDiffs_ = function(beforeCell, afterCell) {
   var beforeMapper = new differ.htmlTextMapper(beforeText, beforeHtml);
   var afterMapper = new differ.htmlTextMapper(afterText, afterHtml);
 
-  var beforeOut = '', afterOut = '';
+  var beforeOut = [], afterOut = [];  // (span class, start, end) triples
   opcodes.forEach(function(opcode) {
     var change = opcode[0];
     var beforeIdx = opcode[1];
     var beforeEnd = opcode[2];
     var afterIdx = opcode[3];
     var afterEnd = opcode[4];
-    var beforeSubstr = beforeMapper.getHtmlSubstring(beforeIdx, beforeEnd);
-    var afterSubstr = afterMapper.getHtmlSubstring(afterIdx, afterEnd);
+    // var beforeSubstr = beforeMapper.getHtmlSubstring(beforeIdx, beforeEnd);
+    // var afterSubstr = afterMapper.getHtmlSubstring(afterIdx, afterEnd);
     if (change == 'equal') {
-      beforeOut += beforeSubstr;
-      afterOut += afterSubstr;
+      beforeOut.push([null, beforeIdx, beforeEnd]);
+      afterOut.push([null, afterIdx, afterEnd]);
+      // beforeOut += beforeSubstr;
+      // afterOut += afterSubstr;
     } else if (change == 'delete') {
-      beforeOut += '<span class=char-delete>' + beforeSubstr + '</span>';
+      // beforeOut += '<span class=char-delete>' + beforeSubstr + '</span>';
+      beforeOut.push(['delete', beforeIdx, beforeEnd]);
     } else if (change == 'insert') {
-      afterOut += '<span class=char-insert>' + afterSubstr + '</span>';
+      // afterOut += '<span class=char-insert>' + afterSubstr + '</span>';
+      afterOut.push(['insert', afterIdx, afterEnd]);
     } else if (change == 'replace') {
-      beforeOut += '<span class=char-delete>' + beforeSubstr + '</span>';
-      afterOut += '<span class=char-insert>' + afterSubstr + '</span>';
+      // beforeOut += '<span class=char-delete>' + beforeSubstr + '</span>';
+      // afterOut += '<span class=char-insert>' + afterSubstr + '</span>';
+      beforeOut.push(['delete', beforeIdx, beforeEnd]);
+      afterOut.push(['insert', afterIdx, afterEnd]);
     } else {
       throw "Invalid opcode: " + opcode[0];
     }
   });
-  $(beforeCell).empty().html(beforeOut);
-  $(afterCell).empty().html(afterOut);
+  beforeOut = differ.simplifyCodes_(beforeOut);
+  afterOut = differ.simplifyCodes_(afterOut);
+
+  $(beforeCell).empty().html(differ.codesToHtml_(beforeMapper, beforeOut));
+  $(afterCell).empty().html(differ.codesToHtml_(afterMapper, afterOut));
 };
+
+differ.simplifyCodes_ = function(codes) {
+  var newCodes = [];
+  for (var i = 0; i < codes.length; i++) {
+    var code = codes[i];
+    if (i == 0) {
+      newCodes.push(code);
+      continue;
+    }
+
+    var lastIndex = newCodes.length - 1;
+    var lastCodeClass = newCodes[lastIndex][0];
+    if (lastCodeClass == code[0]) {
+      newCodes[lastIndex][2] = code[2];  // extend last run.
+    } else {
+      newCodes.push(code);
+    }
+  }
+
+  return newCodes;
+};
+
+differ.codesToHtml_ = function(mapper, codes) {
+  var html = '';
+  for (var i = 0; i < codes.length; i++) {
+    var code = codes[i],
+        type = code[0],
+        start = code[1],
+        limit = code[2];
+    var thisHtml = mapper.getHtmlSubstring(start, limit);
+    if (type == null) {
+      html += thisHtml;
+    } else {
+      html += '<span class="char-' + type + '">' + thisHtml + '</span>';
+    }
+  }
+  return html;
+}
+
 
 differ.buildView = function(beforeText, afterText, userParams) {
   var d = new differ(beforeText, afterText, userParams);

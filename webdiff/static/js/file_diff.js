@@ -26,7 +26,7 @@ function renderDiff(pathBefore, pathAfter, contentsBefore, contentsAfter) {
     opts.language = language;
   }
 
-  diffDiv.appendChild(diffview.buildView(contentsBefore, contentsAfter, opts));
+  diffDiv.appendChild(codediff.buildView(contentsBefore, contentsAfter, opts));
 
   return diffDiv;
 }
