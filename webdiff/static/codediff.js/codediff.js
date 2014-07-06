@@ -22,6 +22,10 @@ var differ = function(beforeText, afterText, userParams) {
   }
 };
 
+differ.prototype.maxLineNumber = function() {
+  return Math.max(this.beforeLines.length, this.afterLines.length);
+};
+
 /**
  * @param {string} text Possibly multiline text containing spans that cross
  *     line breaks.
@@ -75,7 +79,6 @@ differ.highlightText_ = function(text, opt_language) {
 
   // TODO(danvk): look into suppressing highlighting if .relevance is low.
   var html;
-  // console.log(hljs.highlightAuto(text));
   if (opt_language) {
     html = hljs.highlight(opt_language, text, true).value;
   } else {
@@ -121,8 +124,8 @@ differ.prototype.attachHandlers_ = function(el) {
     }
 
     // Replace the "skip" rows with real code.
-    var $lefts = $(this).closest('.diff').find('.diff-left-line-no, .diff-left-content').find('[line-no=' + (1+skipData.beforeStartIndex) + ']');
-    var $rights = $(this).closest('.diff').find('.diff-right-line-no, .diff-right-content').find('[line-no=' + (1+skipData.afterStartIndex) + ']');
+    var $lefts = $(this).closest('.diff').find('.diff-left').find('[line-no=' + (1+skipData.beforeStartIndex) + ']');
+    var $rights = $(this).closest('.diff').find('.diff-right').find('[line-no=' + (1+skipData.afterStartIndex) + ']');
 
     if ($lefts.length == 2 && $rights.length == 2) {
       var els = [$lefts.get(0), $lefts.get(1), $rights.get(0), $rights.get(1)];
@@ -158,9 +161,9 @@ differ.prototype.buildRow_ = function(beforeIdx, beforeEnd, afterIdx, afterEnd, 
 };
 
 differ.prototype.buildView_ = function() {
-  var $leftLineDiv = $('<div class="diff-line-no diff-left-line-no">');
+  var $leftLineDiv = $('<div class="diff-line-no diff-left diff-left-line-no">');
   var $leftContent = $('<div class="diff-content diff-left-content">');
-  var $rightLineDiv = $('<div class="diff-line-no diff-right-line-no">');
+  var $rightLineDiv = $('<div class="diff-line-no diff-right diff-right-line-no">');
   var $rightContent = $('<div class="diff-content diff-right-content">');
 
   var contextSize = this.params.contextSize;
@@ -198,9 +201,9 @@ differ.prototype.buildView_ = function() {
             'jumpLength': jump,
           }).attr('line-no', 1 + afterIdx);
           
-          els.push($('<div class=line-no>...</div>').attr('line-no', 1+beforeIdx).get(0));
+          els.push($('<div class=line-no>&hellip;</div>').attr('line-no', 1+beforeIdx).get(0));
           els.push($('<div class="skip code">...</div>').attr('line-no', 1+beforeIdx).get(0));
-          els.push($('<div class=line-no>...</div>').attr('line-no', 1+afterIdx).get(0));
+          els.push($('<div class=line-no>&hellip;</div>').attr('line-no', 1+afterIdx).get(0));
           els.push($skipEl.get(0));
 
           beforeIdx += jump;
@@ -228,14 +231,23 @@ differ.prototype.buildView_ = function() {
 
   var $container = $('<div class="diff">');
 
-  $container.append(
-      $('<div class="diff-header diff-column-width">').text(this.params.beforeName),
-      $('<div class="diff-header diff-column-width">').text(this.params.afterName),
-      $('<br>'));
+  $leftLineDiv.append($('<div class="line-no-header">&nbsp;</div>'));
+  $rightLineDiv.append($('<div class="line-no-header">&nbsp;</div>'));
+  $leftContent.append($('<div class="diff-header">').text(this.params.beforeName));
+  $rightContent.append($('<div class="diff-header">').text(this.params.afterName));
 
   $container.append(
-      $('<div class="diff-wrapper diff-column-width">').append($leftLineDiv, $leftContent),
-      $('<div class="diff-wrapper diff-column-width">').append($rightLineDiv, $rightContent));
+      $('<div class="diff-column diff-left">').append(
+        $leftLineDiv,
+        $('<div class="diff-remainder">').append(
+          $('<div class="diff-wrapper diff-left diff-column-width">').append($leftContent))
+      ),
+      $('<div class="diff-column diff-right">').append(
+        $rightLineDiv,
+        $('<div class="diff-remainder">').append(
+          $('<div class="diff-wrapper diff-right diff-column-width">').append($rightContent))
+      )
+      );
 
   // TODO(danvk): append each element of rows to the appropriate div here.
   rows.forEach(function(row) {
@@ -382,22 +394,14 @@ differ.addCharacterDiffs_ = function(beforeCell, afterCell) {
     var beforeEnd = opcode[2];
     var afterIdx = opcode[3];
     var afterEnd = opcode[4];
-    // var beforeSubstr = beforeMapper.getHtmlSubstring(beforeIdx, beforeEnd);
-    // var afterSubstr = afterMapper.getHtmlSubstring(afterIdx, afterEnd);
     if (change == 'equal') {
       beforeOut.push([null, beforeIdx, beforeEnd]);
       afterOut.push([null, afterIdx, afterEnd]);
-      // beforeOut += beforeSubstr;
-      // afterOut += afterSubstr;
     } else if (change == 'delete') {
-      // beforeOut += '<span class=char-delete>' + beforeSubstr + '</span>';
       beforeOut.push(['delete', beforeIdx, beforeEnd]);
     } else if (change == 'insert') {
-      // afterOut += '<span class=char-insert>' + afterSubstr + '</span>';
       afterOut.push(['insert', afterIdx, afterEnd]);
     } else if (change == 'replace') {
-      // beforeOut += '<span class=char-delete>' + beforeSubstr + '</span>';
-      // afterOut += '<span class=char-insert>' + afterSubstr + '</span>';
       beforeOut.push(['delete', beforeIdx, beforeEnd]);
       afterOut.push(['insert', afterIdx, afterEnd]);
     } else {
@@ -411,6 +415,8 @@ differ.addCharacterDiffs_ = function(beforeCell, afterCell) {
   $(afterCell).empty().html(differ.codesToHtml_(afterMapper, afterOut));
 };
 
+// codes are (span class, start, end) triples.
+// This merges consecutive runs with the same class, which simplifies the HTML.
 differ.simplifyCodes_ = function(codes) {
   var newCodes = [];
   for (var i = 0; i < codes.length; i++) {
@@ -432,6 +438,8 @@ differ.simplifyCodes_ = function(codes) {
   return newCodes;
 };
 
+// codes are (span class, start, end) triples.
+// This wraps html[start..end] in appropriate <span>..</span>s.
 differ.codesToHtml_ = function(mapper, codes) {
   var html = '';
   for (var i = 0; i < codes.length; i++) {

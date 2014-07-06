@@ -3,22 +3,52 @@
 }
 
 .diff-column-width {
-  width: 85ch;
-  max-width: 85ch;
+  max-width: 81ch;
+  min-width: 40ch;
+}
+.diff-column {
+  max-width: 50%;
 }
 
-.diff-header {
-}
-
-.diff-line-no > div {
-  width: 5ch;
-  text-align: right;
+.diff-header, .line-no-header {
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+  padding: 2px;
 }
 
 .diff-line-no {
+  display: table;  /* shrink to fit longest line number */
+}
+.diff-left .diff-line-no {
+  float: left;
+}
+.diff-right .diff-line-no {
+  float: right;
+}
+.diff-remainder {
+  overflow: hidden;  /* see http://stackoverflow.com/questions/5540485/how-to-make-an-inline-block-element-fill-the-remainder-of-the-line */
+}
+
+.line-no {
   color: #999;
   background-color: #f7f7f7;
+}
+
+.diff-left .line-no {
   border-right: 1px solid #ddd;
+  text-align: right;
+}
+.diff-right .line-no {
+  border-left: 1px solid #ddd;
+  text-align: left;
+}
+.diff-left.diff-column {
+  border-right: 1px solid #ddd;
+}
+
+.diff-line-no, .diff-wrapper, .diff-column {
+  display: inline-block;
+  vertical-align: top;
 }
 
 .diff-wrapper {
@@ -27,22 +57,22 @@
 }
 
 .diff-content {
-  display: table;
+  display: table;  /* "expand to fit" */
+  min-width: 100%;
 }
 
 .line-no, .code {
   padding: 2px;
   height: 1.11em;
   white-space: pre;
-}
-
-.diff {
-  display: table;
-  white-space: nowrap;
   font-family: monospace;
 }
 
-.diff-header, .diff-wrapper, .diff-wrapper > div {
+.diff {
+  white-space: nowrap;
+}
+
+.diff-wrapper, .diff-wrapper > div {
   display: inline-block;
   vertical-align: top;
 }
