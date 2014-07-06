@@ -35,6 +35,7 @@ def determine_path():
         sys.exit()
 
 # This is essential when run from distutils and does no harm otherwise.
+ORIGINAL_DIR = os.getcwd()
 path = determine_path()
 os.chdir(path)
 
@@ -212,11 +213,20 @@ def pick_a_port():
     return port
 
 
+def adjust_path(path):
+    '''Changes relative paths to be abs w/r/t/ the original cwd.'''
+    global ORIGINAL_DIR
+    if os.path.isabs(path):
+        return path
+    else:
+        return os.path.join(ORIGINAL_DIR, path)
+
+
 def run():
     global A_DIR, B_DIR, DIFF, PORT
     assert len(sys.argv) == 3
-    A_DIR = sys.argv[1]
-    B_DIR = sys.argv[2]
+    A_DIR = adjust_path(sys.argv[1])
+    B_DIR = adjust_path(sys.argv[2])
     if not os.path.isdir(A_DIR) or not os.path.isdir(B_DIR):
         usage_and_die()
 

@@ -1,9 +1,6 @@
 diff library changes:
 - Factor out construction of line ranges for easier testing.
-- Make scrolling not affect line numbers
 - Move away from "contextSize" and to "minJumpSize".
-- Factor out diff # of columns in a nicer way.
-  -> also: use space more efficiently when full width won't fit. split left/right down the middle.
 - Add a "selected diff" line
 
 Misc:
@@ -15,6 +12,3 @@ Misc:
 Bugs:
 - In this repo, run "git webdiff 1a2f7c4^..1a2f7c4".
   - In app.py, line 198, the "H" on the left is green. The whole line should be.
-  - In diffview.css, looks like we need a min-width.
-- You can't run "webdiff testdata/webdiffdiff/{left,right}"
-  -> should absolute-ize relative directories before os.chdir
