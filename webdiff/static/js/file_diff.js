@@ -17,8 +17,8 @@ function renderDiff(pathBefore, pathAfter, contentsBefore, contentsAfter) {
   // build the diff view and add it to the current DOM
   var opts = {
     // set the display titles for each resource
-    baseTextName: pathBefore || '(none)',
-    newTextName: pathAfter || '(none)',
+    beforeName: pathBefore || '(none)',
+    afterName: pathAfter || '(none)',
     contextSize: 10
   };
   var language = guessLanguage(pathBefore || pathAfter);

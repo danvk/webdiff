@@ -1,14 +1,14 @@
 div#thediff {
     padding-right: 10px;
-    display: table;
+    max-width: 100%;
 }
 
-.diff {
+.diff .line-no, .diff .code {
     font-family: Inconsolata, Consolas, "Liberation Mono", Menlo, Courier, monospace;
     font-size: 13px;
 }
 
 .diff-column-width {
-  width: 85ch; /* 5ch for line numbers, 80ch for code */
-  min-width: 85ch;
+    max-width: 81ch; /* 80ch for code, plus some extra wiggle room */
+    min-width: 50ch;
 }
