@@ -19,6 +19,8 @@ from flask import (Flask, render_template, send_from_directory,
                    request, jsonify, Response)
 from werkzeug.serving import WSGIRequestHandler
 
+import util
+
 
 def determine_path():
     """Borrowed from wxglade.py"""
@@ -135,7 +137,12 @@ def get_contents(side):
 
     try:
         abs_path = os.path.join(A_DIR if side == 'a' else B_DIR, path)
-        contents = open(abs_path).read()
+        is_binary = util.is_binary_file(abs_path)
+        if is_binary:
+          size = os.path.getsize(abs_path)
+          contents = "Binary file (%d bytes)" % size
+        else:
+          contents = open(abs_path).read()
         return Response(contents, mimetype='text/plain')
     except Exception:
         e = {"code": "read-error",
