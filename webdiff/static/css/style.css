@@ -9,6 +9,6 @@ div#thediff {
 }
 
 .diff-column-width {
-    max-width: 81ch; /* 80ch for code, plus some extra wiggle room */
+    max-width: 101ch; /* 80ch for code, plus some extra wiggle room */
     min-width: 50ch;
 }

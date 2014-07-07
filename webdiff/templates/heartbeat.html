@@ -8,6 +8,13 @@ html, body {
   height: 100%;
   width: 100%;
   background: white;
+  overflow: hidden;
+}
+/* Disable the "bounce" on Mac OS X. See http://stackoverflow.com/questions/8150191/disable-elastic-scrolling-in-safari */
+body {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
 }
 iframe {
   border: none;
