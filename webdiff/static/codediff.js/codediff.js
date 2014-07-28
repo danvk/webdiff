@@ -15,15 +15,37 @@ var differ = function(beforeText, afterText, userParams) {
   var sm = new difflib.SequenceMatcher(this.beforeLines, this.afterLines);
   this.opcodes = sm.get_opcodes();
 
+  this.suppressCharDiffs_ = !(
+      differ.suitableForHighlighting_(this.beforeLines) &&
+      differ.suitableForHighlighting_(this.afterLines));
+
   if (this.params.language) {
-    var lang = this.params.language;
-    this.beforeLinesHighlighted = differ.highlightText_(beforeText, lang);
-    this.afterLinesHighlighted = differ.highlightText_(afterText, lang);
+    if (!this.suppressCharDiffs_) {
+      var lang = this.params.language;
+      this.beforeLinesHighlighted = differ.highlightText_(beforeText, lang);
+      this.afterLinesHighlighted = differ.highlightText_(afterText, lang);
+    } else {
+      this.params.language = null;
+    }
   }
 };
 
 differ.prototype.maxLineNumber = function() {
   return Math.max(this.beforeLines.length, this.afterLines.length);
+};
+
+/**
+ * Check for long lines which might make highlight.js hang.
+ * @param {Array.string>} lines The lines which might be highlighted.
+ */
+differ.suitableForHighlighting_ = function(lines) {
+  var MAX_LINE_LENGTH = 1000;
+  for (var i = 0; i < lines.length; i++) {
+    if (lines[i].length > MAX_LINE_LENGTH) {
+      return false;
+    }
+  }
+  return true;
 };
 
 /**
@@ -149,7 +171,7 @@ differ.prototype.buildRow_ = function(beforeIdx, beforeEnd, afterIdx, afterEnd, 
   beforeIdx = addCells(els, beforeIdx, beforeEnd, this.params.language, beforeLines, 'before ' + change, beforeIdx + 1);
   afterIdx = addCells(els, afterIdx, afterEnd, this.params.language, afterLines, 'after ' + change, afterIdx + 1);
 
-  if (change == 'replace') {
+  if (change == 'replace' && !this.suppressCharDiffs_) {
     differ.addCharacterDiffs_(els[1], els[3], this.params.language);
   }
 
