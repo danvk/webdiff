@@ -69,3 +69,17 @@ or to launch in debug mode:
     ./app.py $(pwd)/../testdata/webdiffdiff/{left,right}
 
 (or any other directory in testdata)
+
+To iterate on the PyPI package, run:
+
+    # from outside the webdiff virtualenv:
+    pip uninstall webdiff
+
+    # from inside the webdiff virtualenv, adjust for current version
+    python setup.py sdist
+    mkdir /tmp/webdiff-test
+    cp dist/webdiff-0.6.0.tar.gz /tmp/webdiff-test
+
+    deactivate
+    cd /tmp/webdiff-test
+    pip install webdiff-0.6.0.tar.gz
