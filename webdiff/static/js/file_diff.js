@@ -2,7 +2,7 @@
 function displayDiffs(pathBefore, pathAfter, baseTxt, afterTxt) {
   var diffDiv = renderDiff(pathBefore, pathAfter, baseTxt, afterTxt);
 
-  $('#thediff').append(diffDiv);
+  $('#thediff').empty().append(diffDiv);
 }
 
 /**
@@ -34,7 +34,7 @@ function renderDiff(pathBefore, pathAfter, contentsBefore, contentsAfter) {
 function guessLanguage(filename) {
   var m = /\.([^.]+)$/.exec(filename);
   if (m) {
-    ext = m[1];
+    var ext = m[1];
     if (ext == 'py') return 'python';
     return m[1];
   } else {

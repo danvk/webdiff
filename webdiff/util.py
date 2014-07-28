@@ -3,6 +3,7 @@ import os
 import hashlib
 from collections import defaultdict
 import copy
+import mimetypes
 
 textchars = ''.join(map(chr, [7,8,9,10,12,13,27] + range(0x20, 0x100)))
 is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
@@ -99,3 +100,21 @@ def find_moves(diff, a_dir, b_dir):
         }
 
     return out
+
+
+def is_image_diff(diff):
+    def is_image(path):
+        if path is None: return False
+        mime_type, enc = mimetypes.guess_type(path)
+        return (mime_type and mime_type.startswith('image/') and enc is None)
+
+    left_img = is_image(diff['a'])
+    right_img = is_image(diff['b'])
+
+    if left_img and right_img:
+        return True
+    elif left_img and diff['b'] is None:
+        return True
+    elif right_img and diff['a'] is None:
+        return True
+    return False

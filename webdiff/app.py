@@ -5,6 +5,7 @@ For usage, see README.md.
 '''
 
 import logging
+import mimetypes
 import os
 import socket
 import sys
@@ -79,11 +80,42 @@ def get_contents(side):
         abs_path = os.path.join(A_DIR if side == 'a' else B_DIR, path)
         is_binary = util.is_binary_file(abs_path)
         if is_binary:
-          size = os.path.getsize(abs_path)
-          contents = "Binary file (%d bytes)" % size
+            size = os.path.getsize(abs_path)
+            contents = "Binary file (%d bytes)" % size
         else:
-          contents = open(abs_path).read()
+            contents = open(abs_path).read()
         return Response(contents, mimetype='text/plain')
+    except Exception:
+        e = {"code": "read-error",
+             "message": "Unable to read %s" % abs_path}
+        response = jsonify(e)
+        response.status_code = 400
+        return response
+
+
+@app.route("/<side>/image/<path:path>")
+def get_image(side, path):
+    assert side in ('a', 'b')
+    if not path:
+        e = {"code": "incomplete",
+             "message": "Incomplete request (need path)"}
+        response = jsonify(e)
+        response.status_code = 400
+        return response
+
+    mime_type, enc = mimetypes.guess_type(path)
+    if not mime_type.startswith('image/') or enc is not None:
+        e = {"code": "wrongtype",
+             "message": "Requested file of type (%s, %s) as image" % (
+                 mime_type, enc)}
+        response = jsonify(e)
+        response.status_code = 400
+        return response
+
+    try:
+        abs_path = os.path.join(A_DIR if side == 'a' else B_DIR, path)
+        contents = open(abs_path).read()
+        return Response(contents, mimetype=mime_type)
     except Exception:
         e = {"code": "read-error",
              "message": "Unable to read %s" % abs_path}
@@ -109,6 +141,7 @@ def file_diff(idx):
                            idx=idx,
                            pairs=DIFF,
                            this_pair=DIFF[idx],
+                           is_image_diff=util.is_image_diff(DIFF[idx]),
                            num_pairs=len(DIFF))
 
 

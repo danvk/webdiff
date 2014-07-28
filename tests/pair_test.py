@@ -49,5 +49,15 @@ class PairFilesTest(unittest.TestCase):
              {'a': 'file.json', 'path': 'file.json', 'b': None, 'type': 'delete', 'idx': 1}], diff)
 
 
+    def test_is_image_diff(self):
+        self.assertTrue(util.is_image_diff({'a': 'foo.png', 'b': 'bar.png'}))
+        self.assertFalse(util.is_image_diff({'a': 'foo.png.gz', 'b': 'bar.png.gz'}))
+        self.assertFalse(util.is_image_diff({'a': 'foo.txt', 'b': 'bar.txt'}))
+        self.assertTrue(util.is_image_diff({'a': 'foo.png', 'b': None}))
+        self.assertFalse(util.is_image_diff({'a': 'foo.txt', 'b': None}))
+        self.assertTrue(util.is_image_diff({'a': None, 'b': 'foo.png'}))
+        self.assertFalse(util.is_image_diff({'a': None, 'b': 'foo.txt'}))
+
+
 if __name__ == '__main__':
     unittest.main()
