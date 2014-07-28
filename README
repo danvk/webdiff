@@ -17,3 +17,14 @@ Then run via one of these:
   webdiff <left_dir> <right_dir>
 
 See https://github.com/danvk/webdiff/ for more information.
+
+Release Notes
+- 0.6
+  * Support for image diffs
+  * Basic move/rename detection
+  * Bug fixes
+
+- 0.5
+  * Switched from jsdifflib to codediff.js, which provides syntax highlighting.
+  * Make better use of narrow browser windows
+  * Detect (and suppress) binary diffs
