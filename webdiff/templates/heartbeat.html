@@ -10,19 +10,10 @@ html, body {
   background: white;
   overflow: hidden;
 }
-/* Disable the "bounce" on Mac OS X. See http://stackoverflow.com/questions/8150191/disable-elastic-scrolling-in-safari */
-body {
-    height: 100%;
-    width: 100%;
-    overflow: auto;
-}
 iframe {
   border: none;
 }
 </style>
-</head>
-<body>
-<iframe border="0" width="100%" height="100%" src="{{src}}"></iframe>
 
 <script src="/static/js/jquery-2.1.1.min.js"></script>
 <script type="text/javascript">
@@ -33,5 +24,6 @@ $(function() {
   });
 });
 </script>
-</body>
+</head>
+<body><iframe border="0" width="100%" height="100%" src="{{src}}"></iframe></body>
 </html>
