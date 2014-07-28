@@ -45,7 +45,7 @@ class PairFilesTest(unittest.TestCase):
         testdir = 'testdata/renamedfile'
         diff = util.find_diff('%s/left' % testdir, '%s/right' % testdir)
         self.assertEquals(
-            [{'a': 'file.json', 'path': 'file.json', 'b': 'renamed.json', 'type': 'change', 'idx': 0},
+            [{'a': 'file.json', 'path': 'file.json', 'b': 'renamed.json', 'type': 'move', 'idx': 0},
              {'a': 'file.json', 'path': 'file.json', 'b': None, 'type': 'delete', 'idx': 1}], diff)
 
 

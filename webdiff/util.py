@@ -95,7 +95,7 @@ def find_moves(diff, a_dir, b_dir):
             'a': a['a'],
             'b': b['b'],
             'path': a['a'],  # ???
-            'type': 'change'
+            'type': 'move'
         }
 
     return out
