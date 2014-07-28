@@ -4,15 +4,11 @@
 For usage, see README.md.
 '''
 
-import json
 import logging
 import os
-import re
 import socket
 import sys
 from threading import Timer
-import time
-import urllib
 import webbrowser
 
 from flask import (Flask, render_template, send_from_directory,
@@ -38,12 +34,6 @@ def determine_path():
 ORIGINAL_DIR = os.getcwd()
 path = determine_path()
 os.chdir(path)
-
-# This is essential when run via pyinstaller --one-file.
-try:
-    os.chdir(sys._MEIPASS)
-except Exception:
-    pass  # probably in dev mode.
 
 class Config:
     pass
@@ -72,57 +62,6 @@ if app.config['TESTING'] or app.config['DEBUG']:
 else:
     # quiet down werkzeug -- no need to log every request.
     logging.getLogger('werkzeug').setLevel(logging.ERROR)
-
-
-def find_diff(a, b):
-    '''Walk directories a and b and pair off files.'''
-    a_files = []
-    b_files = []
-    def accum(arg, dirname, fnames):
-        for fname in fnames:
-            path = os.path.join(dirname, fname)
-            if not os.path.isdir(path):
-                arg.append(path)
-
-    os.path.walk(a, accum, a_files)
-    os.path.walk(b, accum, b_files)
-
-    a_files = [os.path.relpath(x, start=a) for x in a_files]
-    b_files = [os.path.relpath(x, start=b) for x in b_files]
-
-    pairs = pair_files(a_files, b_files)
-    return annotate_pairs(pairs)
-
-
-def pair_files(a_files, b_files):
-    pairs = []
-    for f in a_files[:]:
-        if f in b_files:
-            i = a_files.index(f)
-            j = b_files.index(f)
-            pairs.append((f, f))
-            del a_files[i]
-            del b_files[j]
-        else:
-            pairs.append((f, None))  # delete
-
-    for f in b_files:
-        pairs.append((None, f))  # add
-
-    pairs.sort(key=lambda x: x[0] or x[1])
-    return pairs
-
-
-def annotate_pairs(pairs):
-    diffs = []
-    for i, (a, b) in enumerate(pairs):
-        d = { 'idx': i, 'a': a, 'b': b, 'path': b or a, 'type': 'change' }
-        if a is None:
-            d['type'] = 'add'
-        elif b is None:
-            d['type'] = 'delete'
-        diffs.append(d)
-    return diffs
 
 
 @app.route("/<side>/get_contents", methods=['POST'])
@@ -238,7 +177,8 @@ def run():
     sys.stderr.write('''Serving diffs on http://localhost:%s
 Close the browser tab or hit Ctrl-C when you're done.
 ''' % PORT)
-    DIFF = find_diff(A_DIR, B_DIR)
+    DIFF = util.find_diff(A_DIR, B_DIR)
+    logging.info('Diff: %r', DIFF)
     Timer(0.1, open_browser).start()
     app.run(host='0.0.0.0', port=PORT)
 

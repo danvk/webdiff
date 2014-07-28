@@ -1,6 +1,6 @@
 import unittest
 
-import app
+from webdiff import util
 
 class PairFilesTest(unittest.TestCase):
 
@@ -27,15 +27,26 @@ class PairFilesTest(unittest.TestCase):
             'static/jsdifflib/diffview.css',
             'static/jsdifflib/diffview.js',
             'templates/heartbeat.html']
-        
+
+        pairs = util.pair_files(a_files, b_files)
+        pairs.sort()
+
         self.assertEquals(
-            [('TODO', 'TODO'),
+            [(None, 'testing.cfg'),
+             ('TODO', 'TODO'),
              ('app.py', 'app.py'),
              ('static/js/file_diff.js', 'static/js/file_diff.js'),
              ('static/jsdifflib/diffview.css', 'static/jsdifflib/diffview.css'),
              ('static/jsdifflib/diffview.js', 'static/jsdifflib/diffview.js'),
              ('templates/heartbeat.html', 'templates/heartbeat.html'),
-             (None, 'testing.cfg')], app.pair_files(a_files, b_files))
+             ], pairs)
+
+    def test_pairing_with_move(self):
+        testdir = 'testdata/renamedfile'
+        diff = util.find_diff('%s/left' % testdir, '%s/right' % testdir)
+        self.assertEquals(
+            [{'a': 'file.json', 'path': 'file.json', 'b': 'renamed.json', 'type': 'change', 'idx': 0},
+             {'a': 'file.json', 'path': 'file.json', 'b': None, 'type': 'delete', 'idx': 1}], diff)
 
 
 if __name__ == '__main__':

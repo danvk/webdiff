@@ -1,0 +1,5 @@
+{
+  "notes": "This file is renamed, but its content is identical.",
+  "expectations": "It should show up as a delete and an unchanged file with different paths in git webdiff.",
+  "future work": "It would be nice if git webdiff could detect move + change, i.e. if files were 90% identical."
+}
