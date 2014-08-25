@@ -7,6 +7,7 @@
 
 {% block body %}
 
+<div id="controls">
 <p>Prev (k): {% if idx > 0 %}
 <a class="prev" href="/{{idx - 1}}">{{pairs[idx-1].path}}</a>
 {% else %}
@@ -25,6 +26,14 @@ Diff: <select id=pair-chooser>
 <i>none</i>
 {% endif %}
 </p>
+<p id="imagediff-controls" style="display:none">
+<br>
+Image diff mode:
+<a id="image-side-by-side" onclick="handleSideBySide()" style="font-weight:bold">side-by-side</a>
+-
+<a href="#" id="image-blink" onclick="handleBlink()">blink (b)</a>
+</p>
+</div>
 
 <div id="thediff">
   Loading diff&hellip;
@@ -92,6 +101,7 @@ $(function() {
 
     $('#thediff').hide();
     $('#imagediff').show();
+    $('#imagediff-controls').show();
   }
   attachHandlers();
 });

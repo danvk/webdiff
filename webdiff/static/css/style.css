@@ -12,3 +12,11 @@ div#thediff {
     max-width: 101ch; /* 80ch for code, plus some extra wiggle room */
     min-width: 50ch;
 }
+
+#controls > p {
+  vertical-align: top;
+  display: inline-block;
+}
+#imagediff-controls {
+  margin-left: 25px;
+}

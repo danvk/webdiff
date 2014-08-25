@@ -42,10 +42,35 @@ function guessLanguage(filename) {
   }
 }
 
+function handleBlink() {
+  // Four possible states:
+  var leftVis = $('.image-diff-content .diff-left').is(':visible'),
+      rightVis = $('.image-diff-content .diff-right').is(':visible');
+
+  if (!leftVis && !rightVis) {
+    return;  // not an image diff.
+  } else if (leftVis && rightVis) {
+    // side-by-side mode. Show left image first.
+    $('#imagediff .diff-right').hide();
+    $('#image-side-by-side').attr('href', '#');
+  } else if (leftVis && !rightVis) {
+    $('#imagediff .diff-left').hide();
+    $('#imagediff .diff-right').show();
+  } else if (!leftVis && rightVis) {
+    $('#imagediff .diff-left').show();
+    $('#imagediff .diff-right').hide();
+  }
+}
+
+function handleSideBySide() {
+  $('#imagediff').find('.diff-left, .diff-right').show();
+  $('#image-side-by-side').removeAttr('href');
+}
+
 // Keyboard shortcuts:
 // j/k = next/prev file
 // n/p = next/prev diff
-// u = up to pull request
+// b = blink images
 function handleKeyPress(e) {
   if (e.ctrlKey || e.altKey || e.metaKey ||
       e.target.tagName.toLowerCase() == 'input' ||
@@ -59,6 +84,8 @@ function handleKeyPress(e) {
     if (url) {
       window.location = url;
     }
+  } else if (e.keyCode == 66) {  // 'b'
+    handleBlink();
   }
   // console.log(e.keyCode);
 }
