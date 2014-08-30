@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='webdiff',
-      version='0.6.1',
+      version='0.6.2',
       description='Two-column web-based git difftool',
       author='Dan Vanderkam',
       author_email='danvdk@gmail.com',
@@ -23,7 +23,7 @@ setup(name='webdiff',
           'Environment :: Console',
           'Environment :: Web Environment',
           'Framework :: Flask',
-          'Development Status :: 3 - Alpha',
+          'Development Status :: 4 - Beta',
           'Intended Audience :: Developers',
           'License :: OSI Approved :: Apache Software License',
           'Topic :: Software Development :: Version Control'
