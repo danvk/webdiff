@@ -171,8 +171,9 @@ def open_browser():
 def usage_and_die():
     sys.stderr.write(
 '''Usage: webdiff <left_dir> <right_dir>
+       webdiff <left_file> <right_file>
 
-When using git difftool, make sure you run "git difftool -d".
+Or run "git webdiff" from a git repository.
 ''')
     sys.exit(1)
 
@@ -194,12 +195,26 @@ def adjust_path(path):
         return os.path.join(ORIGINAL_DIR, path)
 
 
+def shim_for_file_diff(a_file, b_file):
+    '''Sets A_DIR, B_DIR and DIFF to do a one-file diff.'''
+    global A_DIR, B_DIR, DIFF
+    A_DIR = os.path.dirname(a_file)
+    a_file = os.path.basename(a_file)
+    B_DIR = os.path.dirname(b_file)
+    b_file = os.path.basename(b_file)
+    DIFF = [{'a': a_file,
+             'b': b_file,
+             'idx': 0,
+             'path': a_file,
+             'type': 'change'}]  # 'change' is the only likely case.
+
+
 def run():
     global A_DIR, B_DIR, DIFF, PORT
     assert len(sys.argv) == 3
     A_DIR = adjust_path(sys.argv[1])
     B_DIR = adjust_path(sys.argv[2])
-    if not os.path.isdir(A_DIR) or not os.path.isdir(B_DIR):
+    if os.path.isdir(A_DIR) != os.path.isdir(B_DIR):
         usage_and_die()
 
     PORT = pick_a_port()
@@ -210,7 +225,10 @@ def run():
     sys.stderr.write('''Serving diffs on http://localhost:%s
 Close the browser tab or hit Ctrl-C when you're done.
 ''' % PORT)
-    DIFF = util.find_diff(A_DIR, B_DIR)
+    if os.path.isdir(A_DIR):
+        DIFF = util.find_diff(A_DIR, B_DIR)
+    else:
+        shim_for_file_diff(A_DIR, B_DIR)
     logging.info('Diff: %r', DIFF)
     Timer(0.1, open_browser).start()
     app.run(host='0.0.0.0', port=PORT)
