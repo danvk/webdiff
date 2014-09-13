@@ -168,10 +168,16 @@ def kill():
     return "Shutting down..."
 
 
+def is_hot_reload():
+    return os.environ.get('WERKZEUG_RUN_MAIN')
+
 def open_browser():
     global PORT
     if not 'NO_OPEN_BROWSER' in app.config:
-        webbrowser.open_new_tab('http://localhost:%s' % PORT)
+        if is_hot_reload():
+            log.debug('Skipping browser open on reload')
+        else:
+            webbrowser.open_new_tab('http://localhost:%s' % PORT)
 
 
 def usage_and_die():
