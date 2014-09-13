@@ -231,6 +231,12 @@ def run():
     A_DIR = adjust_path(args.a)
     B_DIR = adjust_path(args.b)
 
+    if not os.path.exists(A_DIR):
+        err_and_die("'%s' doesn't exist" % A_DIR)
+
+    if not os.path.exists(B_DIR):
+        err_and_die("'%s' doesn't exist" % B_DIR)
+
     if os.path.isdir(A_DIR) and not os.path.isdir(B_DIR):
         err_and_die("'%s' is a directory but '%s' is not" % (A_DIR, B_DIR))
 
