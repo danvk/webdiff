@@ -174,6 +174,11 @@ def open_browser():
         webbrowser.open_new_tab('http://localhost:%s' % PORT)
 
 
+def err_and_die(err, code=1):
+    sys.stderr.write('ERROR: ' + err + '\n' if err and err[len(err) - 1] != '\n' else '')
+    sys.exit(code)
+
+
 def usage_and_die():
     sys.stderr.write(
 '''Usage: webdiff <left_dir> <right_dir>
@@ -225,8 +230,12 @@ def run():
     global A_DIR, B_DIR, DIFF, PORT
     A_DIR = adjust_path(args.a)
     B_DIR = adjust_path(args.b)
-    if os.path.isdir(A_DIR) != os.path.isdir(B_DIR):
-        usage_and_die()
+
+    if os.path.isdir(A_DIR) and not os.path.isdir(B_DIR):
+        err_and_die("'%s' is a directory but '%s' is not" % (A_DIR, B_DIR))
+
+    if not os.path.isdir(A_DIR) and os.path.isdir(B_DIR):
+        err_and_die("'%s' is a directory but '%s' is not" % (B_DIR, A_DIR))
 
     if app.config['TESTING'] or app.config['DEBUG']:
         sys.stderr.write('Diffing:\nA: %s\nB: %s\n\n' % (A_DIR, B_DIR))
