@@ -14,7 +14,6 @@ import webbrowser
 
 from flask import (Flask, render_template, send_from_directory,
                    request, jsonify, Response)
-from werkzeug.serving import WSGIRequestHandler
 
 import util
 
