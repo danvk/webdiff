@@ -4,6 +4,7 @@
 For usage, see README.md.
 '''
 
+import argparse
 import logging
 import mimetypes
 import os
@@ -35,6 +36,11 @@ def determine_path():
 ORIGINAL_DIR = os.getcwd()
 path = determine_path()
 os.chdir(path)
+
+parser = argparse.ArgumentParser(description='Run webdiff.')
+parser.add_argument('a', type=str, help="'Left' file to diff")
+parser.add_argument('b', type=str, help="'Right' file to diff")
+args = parser.parse_args()
 
 class Config:
     pass
@@ -211,9 +217,8 @@ def shim_for_file_diff(a_file, b_file):
 
 def run():
     global A_DIR, B_DIR, DIFF, PORT
-    assert len(sys.argv) == 3
-    A_DIR = adjust_path(sys.argv[1])
-    B_DIR = adjust_path(sys.argv[2])
+    A_DIR = adjust_path(args.a)
+    B_DIR = adjust_path(args.b)
     if os.path.isdir(A_DIR) != os.path.isdir(B_DIR):
         usage_and_die()
 
