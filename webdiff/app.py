@@ -174,7 +174,7 @@ def is_hot_reload():
 def open_browser():
     global PORT
     if not 'NO_OPEN_BROWSER' in app.config:
-        if is_hot_reload() and not 'BROWSER_OPEN_ON_RERUN' in app.config:
+        if is_hot_reload():
             log.debug('Skipping browser open on reload')
         else:
             webbrowser.open_new_tab('http://localhost:%s' % PORT)
