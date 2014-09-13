@@ -38,6 +38,7 @@ path = determine_path()
 os.chdir(path)
 
 parser = argparse.ArgumentParser(description='Run webdiff.')
+parser.add_argument('--port', '-p', type=int, help="Port to run webdiff on.", default=8080)
 parser.add_argument('a', type=str, help="'Left' file to diff")
 parser.add_argument('b', type=str, help="'Right' file to diff")
 args = parser.parse_args()
@@ -53,7 +54,7 @@ app.config.from_envvar('WEBDIFF_CONFIG', silent=True)
 A_DIR = None
 B_DIR = None
 DIFF = None
-PORT = None
+PORT = args.port
 
 if app.config['TESTING'] or app.config['DEBUG']:
     handler = logging.StreamHandler()
@@ -221,8 +222,6 @@ def run():
     B_DIR = adjust_path(args.b)
     if os.path.isdir(A_DIR) != os.path.isdir(B_DIR):
         usage_and_die()
-
-    PORT = pick_a_port()
 
     if app.config['TESTING'] or app.config['DEBUG']:
         sys.stderr.write('Diffing:\nA: %s\nB: %s\n\n' % (A_DIR, B_DIR))
