@@ -4,6 +4,7 @@
 For usage, see README.md.
 '''
 
+import argparse
 import logging
 import mimetypes
 import os
@@ -34,6 +35,12 @@ def determine_path():
 ORIGINAL_DIR = os.getcwd()
 path = determine_path()
 os.chdir(path)
+
+parser = argparse.ArgumentParser(description='Run webdiff.')
+parser.add_argument('--port', '-p', type=int, help="Port to run webdiff on.", default=-1)
+parser.add_argument('a', type=str, help="'Left' file to diff")
+parser.add_argument('b', type=str, help="'Right' file to diff")
+args = parser.parse_args()
 
 class Config:
     pass
@@ -178,6 +185,12 @@ Or run "git webdiff" from a git repository.
 
 
 def pick_a_port():
+    if args.port != -1:
+        return args.port
+
+    if os.environ.get('WEBDIFF_PORT'):
+        return int(os.environ.get('WEBDIFF_PORT'))
+
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind(('localhost', 0))
     port = sock.getsockname()[1]
@@ -210,16 +223,15 @@ def shim_for_file_diff(a_file, b_file):
 
 def run():
     global A_DIR, B_DIR, DIFF, PORT
-    assert len(sys.argv) == 3
-    A_DIR = adjust_path(sys.argv[1])
-    B_DIR = adjust_path(sys.argv[2])
+    A_DIR = adjust_path(args.a)
+    B_DIR = adjust_path(args.b)
     if os.path.isdir(A_DIR) != os.path.isdir(B_DIR):
         usage_and_die()
 
-    PORT = pick_a_port()
-
     if app.config['TESTING'] or app.config['DEBUG']:
         sys.stderr.write('Diffing:\nA: %s\nB: %s\n\n' % (A_DIR, B_DIR))
+
+    PORT = pick_a_port()
 
     sys.stderr.write('''Serving diffs on http://localhost:%s
 Close the browser tab or hit Ctrl-C when you're done.
