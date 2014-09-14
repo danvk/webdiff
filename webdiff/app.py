@@ -130,14 +130,14 @@ def get_image(side, path):
         return response
 
 
-@app.route("/git/add/<int:idx>")
+@app.route("/git/add/<int:idx>", methods=['POST'])
 def add(idx):
     adjusted_path = abs_path(DIFF[idx]['path'])
     subprocess.check_output(['git', 'add', adjusted_path])
     return Response("OK", mimetype='text/plain')
 
 
-@app.route("/git/reset/<int:idx>")
+@app.route("/git/reset/<int:idx>", methods=['POST'])
 def reset(idx):
     adjusted_path = abs_path(DIFF[idx]['path'])
     subprocess.check_output(['git', 'reset', adjusted_path])

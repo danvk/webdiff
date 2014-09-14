@@ -19,8 +19,8 @@
       <option value={{pair.idx}} {%if pair.idx == idx%}selected{%endif%}>{{pair.path}} ({{pair.type}})</option>
       {% endfor %}
     </select>
-    <input id="add-button" type="button" label="add" value="add"/>
-    <input id="reset-button" type="button" label="reset" value="reset"/>
+    <button id="git-add-button">git add</button>
+    <button id="git-reset-button">git reset</button>
     <br>Next (j):
     {% if idx < num_pairs - 1 %}
     <a class="next" href="/{{idx + 1}}">{{pairs[idx+1].path}}</a>

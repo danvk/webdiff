@@ -97,11 +97,29 @@ function attachHandlers() {
       document.location = '/' + $('#pair-chooser').val();
     });
 
-  $('#add-button').click(function(e) {
-    $.ajax('/git/add/' + $('#pair-chooser').val());
+  $('#git-add-button').click(function(e) {
+    $(this).prop('disabled', true).text('...');
+    $.ajax('/git/add/' + $('#pair-chooser').val(), {type: 'POST'})
+          .done(function() {
+            $(this).text('Added');
+            $('#git-reset-button').prop('disabled', false);
+          }.bind(this))
+          .fail(function() {
+            $(this).text('Failed');
+            $('#git-add-button').prop('disabled', false);
+          }.bind(this));
   });
 
-  $('#reset-button').click(function(e) {
-    $.ajax('/git/reset/' + $('#pair-chooser').val());
+  $('#git-reset-button').click(function(e) {
+    $(this).prop('disabled', true).text('...');
+    $.ajax('/git/reset/' + $('#pair-chooser').val(), {type: 'POST'})
+          .done(function() {
+            $(this).text('Reset');
+            $('#git-add-button').prop('disabled', false);
+          }.bind(this))
+          .fail(function() {
+            $(this).text('Failed');
+            $('#git-reset-button').prop('disabled', false);
+          }.bind(this));
   });
 }
