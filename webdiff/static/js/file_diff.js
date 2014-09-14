@@ -101,12 +101,11 @@ function attachHandlers() {
     $(this).prop('disabled', true).text('...');
     $.ajax('/git/add/' + $('#pair-chooser').val(), {type: 'POST'})
           .done(function() {
-            $(this).text('Added');
-            $('#git-reset-button').prop('disabled', false);
+            $(this).text('Staged');
+            $('#git-reset-button').prop('disabled', false).text('Unstage');
           }.bind(this))
           .fail(function() {
-            $(this).text('Failed');
-            $('#git-add-button').prop('disabled', false);
+            $(this).prop('disabled', false).text('Stage');
           }.bind(this));
   });
 
@@ -114,12 +113,11 @@ function attachHandlers() {
     $(this).prop('disabled', true).text('...');
     $.ajax('/git/reset/' + $('#pair-chooser').val(), {type: 'POST'})
           .done(function() {
-            $(this).text('Reset');
-            $('#git-add-button').prop('disabled', false);
+            $(this).text('Unstaged');
+            $('#git-add-button').prop('disabled', false).text('Stage');
           }.bind(this))
           .fail(function() {
-            $(this).text('Failed');
-            $('#git-reset-button').prop('disabled', false);
+            $(this).prop('disabled', false).text('Unstage');
           }.bind(this));
   });
 }
