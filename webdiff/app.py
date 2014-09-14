@@ -35,18 +35,6 @@ def is_hot_reload():
     """In debug mode, Werkzeug reloads the app on any changes."""
     return os.environ.get('WERKZEUG_RUN_MAIN')
 
-if not is_hot_reload():
-    ORIGINAL_DIR = os.getcwd()
-    os.environ['ORIGINAL_DIR'] = os.getcwd()
-else:
-    ORIGINAL_DIR = os.environ['ORIGINAL_DIR']
-    if not ORIGINAL_DIR:
-        raise Exception("Missing ORIGINAL_DIR env var on hot reload")
-
-# This is essential when run from distutils and does no harm otherwise.
-path = determine_path()
-os.chdir(path)
-
 parser = argparse.ArgumentParser(description='Run webdiff.')
 parser.add_argument('--port', '-p', type=int, help="Port to run webdiff on.", default=-1)
 parser.add_argument('a', type=str, help="'Left' file to diff")
@@ -216,13 +204,12 @@ def pick_a_port():
     return port
 
 
-def adjust_path(path):
+def abs_path(path):
     '''Changes relative paths to be abs w/r/t/ the original cwd.'''
-    global ORIGINAL_DIR
     if os.path.isabs(path):
         return path
     else:
-        return os.path.join(ORIGINAL_DIR, path)
+        return os.path.join(os.getcwd(), path)
 
 
 def shim_for_file_diff(a_file, b_file):
@@ -241,8 +228,8 @@ def shim_for_file_diff(a_file, b_file):
 
 def run():
     global A_DIR, B_DIR, DIFF, PORT
-    A_DIR = adjust_path(args.a)
-    B_DIR = adjust_path(args.b)
+    A_DIR = abs_path(args.a)
+    B_DIR = abs_path(args.b)
 
     if not os.path.exists(A_DIR):
         err_and_die("'%s' doesn't exist" % A_DIR)
