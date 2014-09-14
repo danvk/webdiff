@@ -158,6 +158,7 @@ def file_diff(idx):
     return render_template('file_diff.html',
                            idx=idx,
                            pairs=DIFF,
+                           git_mode=os.environ.get('WEBDIFF_GIT_MODE'),
                            this_pair=DIFF[idx],
                            is_image_diff=util.is_image_diff(DIFF[idx]),
                            num_pairs=len(DIFF))
