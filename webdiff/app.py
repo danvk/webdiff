@@ -9,6 +9,7 @@ import logging
 import mimetypes
 import os
 import socket
+import subprocess
 import sys
 from threading import Timer
 import webbrowser
@@ -129,6 +130,19 @@ def get_image(side, path):
         return response
 
 
+@app.route("/git/add/<int:idx>", methods=['POST'])
+def add(idx):
+    adjusted_path = abs_path(DIFF[idx]['path'])
+    subprocess.check_output(['git', 'add', adjusted_path])
+    return Response("OK", mimetype='text/plain')
+
+
+@app.route("/git/reset/<int:idx>", methods=['POST'])
+def reset(idx):
+    adjusted_path = abs_path(DIFF[idx]['path'])
+    subprocess.check_output(['git', 'reset', adjusted_path])
+    return Response("OK", mimetype='text/plain')
+
 # Show the first diff by default
 @app.route("/")
 def index():
@@ -144,6 +158,7 @@ def file_diff(idx):
     return render_template('file_diff.html',
                            idx=idx,
                            pairs=DIFF,
+                           git_mode=os.environ.get('WEBDIFF_GIT_MODE'),
                            this_pair=DIFF[idx],
                            is_image_diff=util.is_image_diff(DIFF[idx]),
                            num_pairs=len(DIFF))

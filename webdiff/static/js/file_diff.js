@@ -96,4 +96,28 @@ function attachHandlers() {
     .on('change', '#pair-chooser', function() {
       document.location = '/' + $('#pair-chooser').val();
     });
+
+  $('#git-add-button').click(function(e) {
+    $(this).prop('disabled', true).text('...');
+    $.ajax('/git/add/' + $('#pair-chooser').val(), {type: 'POST'})
+          .done(function() {
+            $(this).text('Staged');
+            $('#git-reset-button').prop('disabled', false).text('Unstage');
+          }.bind(this))
+          .fail(function() {
+            $(this).prop('disabled', false).text('Stage');
+          }.bind(this));
+  });
+
+  $('#git-reset-button').click(function(e) {
+    $(this).prop('disabled', true).text('...');
+    $.ajax('/git/reset/' + $('#pair-chooser').val(), {type: 'POST'})
+          .done(function() {
+            $(this).text('Unstaged');
+            $('#git-add-button').prop('disabled', false).text('Stage');
+          }.bind(this))
+          .fail(function() {
+            $(this).prop('disabled', false).text('Unstage');
+          }.bind(this));
+  });
 }

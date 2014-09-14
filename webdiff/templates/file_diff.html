@@ -14,11 +14,15 @@
     <i>none</i>
     {% endif %}
     <br>
-    Diff: <select id=pair-chooser>
+    Diff: <select id="pair-chooser">
       {% for pair in pairs %}
       <option value={{pair.idx}} {%if pair.idx == idx%}selected{%endif%}>{{pair.path}} ({{pair.type}})</option>
       {% endfor %}
     </select>
+    {%if git_mode %}
+      <button id="git-add-button">Stage</button>
+      <button id="git-reset-button">Unstage</button>
+    {%endif%}
     <br>Next (j):
     {% if idx < num_pairs - 1 %}
     <a class="next" href="/{{idx + 1}}">{{pairs[idx+1].path}}</a>
