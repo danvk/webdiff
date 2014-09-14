@@ -98,10 +98,10 @@ function attachHandlers() {
     });
 
   $('#add-button').click(function(e) {
-    $.ajax('/add/' + $('#pair-chooser').val());
+    $.ajax('/git/add/' + $('#pair-chooser').val());
   });
 
   $('#reset-button').click(function(e) {
-    $.ajax('/reset/' + $('#pair-chooser').val());
+    $.ajax('/git/reset/' + $('#pair-chooser').val());
   });
 }
