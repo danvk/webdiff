@@ -136,6 +136,7 @@ def add(idx):
     subprocess.check_output(['git', 'add', adjusted_path])
     return Response("OK", mimetype='text/plain')
 
+
 @app.route("/reset/<idx>")
 def reset(idx):
     adjusted_path = abs_path(DIFF[int(idx)]['path'])
