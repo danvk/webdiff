@@ -175,7 +175,7 @@ def open_browser():
 
 
 def err_and_die(err, code=1):
-    sys.stderr.write('ERROR: ' + err + '\n' if err and err[len(err) - 1] != '\n' else '')
+    sys.stderr.write('ERROR: %s\n' % err.strip())
     sys.exit(code)
 
 
