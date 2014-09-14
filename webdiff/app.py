@@ -31,8 +31,19 @@ def determine_path():
         print "There is no __file__ variable. Please contact the author."
         sys.exit()
 
+def is_hot_reload():
+    """In debug mode, Werkzeug reloads the app on any changes."""
+    return os.environ.get('WERKZEUG_RUN_MAIN')
+
+if not is_hot_reload():
+    ORIGINAL_DIR = os.getcwd()
+    os.environ['ORIGINAL_DIR'] = os.getcwd()
+else:
+    ORIGINAL_DIR = os.environ['ORIGINAL_DIR']
+    if not ORIGINAL_DIR:
+        raise Exception("Missing ORIGINAL_DIR env var on hot reload")
+
 # This is essential when run from distutils and does no harm otherwise.
-ORIGINAL_DIR = os.getcwd()
 path = determine_path()
 os.chdir(path)
 
@@ -167,9 +178,6 @@ def kill():
     func()
     return "Shutting down..."
 
-
-def is_hot_reload():
-    return os.environ.get('WERKZEUG_RUN_MAIN')
 
 def open_browser():
     global PORT
