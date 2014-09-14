@@ -153,7 +153,6 @@ def index():
 @app.route("/<idx>")
 def file_diff(idx):
     idx = int(idx)
-    path = DIFF[idx]['a'] or DIFF[idx]['b']
     return render_template('file_diff.html',
                            idx=idx,
                            pairs=DIFF,
