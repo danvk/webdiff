@@ -8,31 +8,31 @@
 {% block body %}
 
 <div id="controls">
-<p>Prev (k): {% if idx > 0 %}
-<a class="prev" href="/{{idx - 1}}">{{pairs[idx-1].path}}</a>
-{% else %}
-<i>none</i>
-{% endif %}
-<br>
-Diff: <select id=pair-chooser>
-{% for pair in pairs %}
-<option value={{pair.idx}} {%if pair.idx == idx%}selected{%endif%}>{{pair.path}} ({{pair.type}})</option>
-{% endfor %}
-</select>
-<br>Next (j):
-{% if idx < num_pairs - 1 %}
-<a class="next" href="/{{idx + 1}}">{{pairs[idx+1].path}}</a>
-{% else %}
-<i>none</i>
-{% endif %}
-</p>
-<p id="imagediff-controls" style="display:none">
-<br>
-Image diff mode:
-<a id="image-side-by-side" onclick="handleSideBySide()" style="font-weight:bold">side-by-side</a>
--
-<a href="#" id="image-blink" onclick="handleBlink()">blink (b)</a>
-</p>
+  <p>Prev (k): {% if idx > 0 %}
+    <a class="prev" href="/{{idx - 1}}">{{pairs[idx-1].path}}</a>
+    {% else %}
+    <i>none</i>
+    {% endif %}
+    <br>
+    Diff: <select id=pair-chooser>
+      {% for pair in pairs %}
+      <option value={{pair.idx}} {%if pair.idx == idx%}selected{%endif%}>{{pair.path}} ({{pair.type}})</option>
+      {% endfor %}
+    </select>
+    <br>Next (j):
+    {% if idx < num_pairs - 1 %}
+    <a class="next" href="/{{idx + 1}}">{{pairs[idx+1].path}}</a>
+    {% else %}
+    <i>none</i>
+    {% endif %}
+  </p>
+  <p id="imagediff-controls" style="display:none">
+    <br>
+    Image diff mode:
+    <a id="image-side-by-side" onclick="handleSideBySide()" style="font-weight:bold">side-by-side</a>
+    -
+    <a href="#" id="image-blink" onclick="handleBlink()">blink (b)</a>
+  </p>
 </div>
 
 <div id="thediff">
