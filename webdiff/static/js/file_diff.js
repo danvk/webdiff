@@ -96,4 +96,12 @@ function attachHandlers() {
     .on('change', '#pair-chooser', function() {
       document.location = '/' + $('#pair-chooser').val();
     });
+
+  $('#add-button').click(function(e) {
+    $.ajax('/add/' + $('#pair-chooser').val());
+  });
+
+  $('#reset-button').click(function(e) {
+    $.ajax('/reset/' + $('#pair-chooser').val());
+  });
 }

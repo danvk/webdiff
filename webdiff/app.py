@@ -9,6 +9,7 @@ import logging
 import mimetypes
 import os
 import socket
+import subprocess
 import sys
 from threading import Timer
 import webbrowser
@@ -128,6 +129,18 @@ def get_image(side, path):
         response.status_code = 400
         return response
 
+
+@app.route("/add/<idx>")
+def add(idx):
+    adjusted_path = abs_path(DIFF[int(idx)]['path'])
+    subprocess.check_output(['git', 'add', adjusted_path])
+    return Response("OK", mimetype='text/plain')
+
+@app.route("/reset/<idx>")
+def reset(idx):
+    adjusted_path = abs_path(DIFF[int(idx)]['path'])
+    subprocess.check_output(['git', 'reset', adjusted_path])
+    return Response("OK", mimetype='text/plain')
 
 # Show the first diff by default
 @app.route("/")
