@@ -17,6 +17,7 @@
   "dependencies": {
     "jquery": "~2.1.1",
     "highlightjs": "~8.0.0",
-    "underscore": "~1.6.0"
+    "underscore": "~1.6.0",
+    "react": "~0.11.1"
   }
 }

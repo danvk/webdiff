@@ -30,9 +30,10 @@ You can also start webdiff via:
 You can pass all the same arguments that you would to "git diff", e.g.
 "1234..5678" or "HEAD".
 
-webdiff can also be invoked directly to diff two directories:
+webdiff can also be invoked directly to diff two directories or files:
 
-    webdiff [left_dir] [right_dir]
+    webdiff <left_dir> <right_dir>
+    webdiff <left_file> <right_file>
 
 Preview
 ----------
@@ -59,14 +60,11 @@ Development
 
     pip install -r requirements.txt
     bower install
-    cd webdiff
-    ./app.py ../testdata/dygraphsjs/{left,right}
+    ./webdiff/app.py testdata/dygraphsjs/{left,right}
 
 or to launch in debug mode:
 
-    cd webdiff
-    export WEBDIFF_CONFIG=$(pwd)/../testing.cfg
-    ./app.py $(pwd)/../testdata/webdiffdiff/{left,right}
+    ./test.sh $(pwd)/../testdata/webdiffdiff/{left,right}
 
 (or any other directory in testdata)
 
@@ -78,8 +76,8 @@ To iterate on the PyPI package, run:
     # from inside the webdiff virtualenv, adjust for current version
     python setup.py sdist
     mkdir /tmp/webdiff-test
-    cp dist/webdiff-0.6.0.tar.gz /tmp/webdiff-test
+    cp dist/webdiff-X.Y.Z.tar.gz /tmp/webdiff-test
 
     deactivate
     cd /tmp/webdiff-test
-    pip install webdiff-0.6.0.tar.gz
+    pip install webdiff-X.Y.Z.tar.gz

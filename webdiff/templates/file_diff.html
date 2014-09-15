@@ -1,12 +1,74 @@
 {%- extends "base.html" -%}
 
-{% block title %} {{this_pair.path}} - diff {% endblock %}
+{% block title %} Diff {% endblock %}
 
 {% block head %}
 {% endblock %}
 
 {% block body %}
 
+<div id="application"></div>
+
+<script src="/static/js/file_diff.js"></script>
+<!--<script src="/static/js/components.js"></script>-->
+
+<script>var pairs = {{pairs|tojson}};</script>
+
+<script type="text/jsx">
+/** @jsx React.DOM */
+
+var Root = React.createClass({
+  getInitialState: function() {
+    return {selectedFileIndex: 0};
+  },
+  fileChangeHandler: function(e) {
+    this.setState({selectedFileIndex: $(e.target).attr('data-idx')});
+  },
+  render: function() {
+    return <FileList file_pairs={this.props.file_pairs}
+                     selectedIndex={this.state.selectedFileIndex}
+                     fileChangeHandler={this.fileChangeHandler} />
+  }
+});
+
+var FileList = React.createClass({
+  render: function() {
+    var props = this.props;
+    var lis = this.props.file_pairs.map(function(file_pair, idx) {
+          if (idx != props.selectedIndex) {
+            return <li key={'fp-' + idx}><a data-idx={idx} onClick={props.fileChangeHandler} href='#'>{file_pair.path}</a></li>
+          } else {
+            return <li key={'fp-' + idx}><b>{file_pair.path}</b></li>
+          }
+        });
+    return <ul>{lis}</ul>
+  }
+});
+
+var DiffView = React.createClass({
+  render: function() {
+  }
+});
+
+var CodeDiff = React.createClass({
+  render: function() {
+  }
+});
+
+var ImageDiff = React.createClass({
+  render: function() {
+  }
+});
+
+React.renderComponent(Root({
+  file_pairs: pairs,
+  fileChangeHandler: function(e) {
+    console.log('Clicked', e);
+  }
+}), $('#application').get(0));
+</script>
+
+<!--
 <div id="controls">
   <p>Prev (k): {% if idx > 0 %}
     <a class="prev" href="/{{idx - 1}}">{{pairs[idx-1].path}}</a>
@@ -60,8 +122,9 @@ var a_file = {{this_pair.a|tojson}};
 var b_file = {{this_pair.b|tojson}};
 var is_image_diff = {{is_image_diff|tojson}};
 </script>
+-->
 
-<script src="/static/js/file_diff.js"></script>
+<!--
 <script type="text/javascript">
 
 function getOrNull(side, path) {
@@ -110,4 +173,5 @@ function updateWithBeforeAfterContents() {
   displayDiffs(a_file, b_file, beforeContents, afterContents);
 }
 </script>
+-->
 {% endblock %}
