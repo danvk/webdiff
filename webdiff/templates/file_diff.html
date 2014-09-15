@@ -25,16 +25,19 @@ var Root = React.createClass({
     this.setState({selectedFileIndex: $(e.target).attr('data-idx')});
   },
   render: function() {
-    return <FileList file_pairs={this.props.file_pairs}
-                     selectedIndex={this.state.selectedFileIndex}
-                     fileChangeHandler={this.fileChangeHandler} />
+    return <div>
+             <FileList filePairs={this.props.filePairs}
+                            selectedIndex={this.state.selectedFileIndex}
+                            fileChangeHandler={this.fileChangeHandler} />
+             <DiffView filePair={this.props.filePairs[this.state.selectedFileIndex]} />
+          </div>
   }
 });
 
 var FileList = React.createClass({
   render: function() {
     var props = this.props;
-    var lis = this.props.file_pairs.map(function(file_pair, idx) {
+    var lis = this.props.filePairs.map(function(file_pair, idx) {
           if (idx != props.selectedIndex) {
             return <li key={'fp-' + idx}><a data-idx={idx} onClick={props.fileChangeHandler} href='#'>{file_pair.path}</a></li>
           } else {
@@ -47,11 +50,36 @@ var FileList = React.createClass({
 
 var DiffView = React.createClass({
   render: function() {
+    if (this.props.filePair.is_image_diff) {
+      return <ImageDiff filePair={this.props.filePair} />
+    } else {
+      return <CodeDiff filePair={this.props.filePair} />
+    }
   }
 });
 
 var CodeDiff = React.createClass({
+  contents: {},
   render: function() {
+    return <div key={'cd-' + this.props.filePair.idx}>Loading&hellip;</div>
+  },
+  componentDidMount: function() {
+    // Do XHRs for the contents of both sides and update props when we get them.
+    var pair = this.props.filePair;
+    var beforeDeferred = getOrNull('a', pair.a);
+    var afterDeferred = getOrNull('b', pair.b);
+
+    var self = this;
+    $.when(beforeDeferred, afterDeferred).done(function(before, after) {
+      if (!self.isMounted()) return;
+      $(self.getDOMNode()).empty().append(
+          renderDiff(pair.a, pair.b, before[0], after[0]));
+    }).fail(function(e) {
+      alert("Unable to get diff!");
+    });
+  },
+  componentDidUpdate: function() {
+    this.componentDidMount();
   }
 });
 
@@ -61,7 +89,7 @@ var ImageDiff = React.createClass({
 });
 
 React.renderComponent(Root({
-  file_pairs: pairs,
+  filePairs: pairs,
   fileChangeHandler: function(e) {
     console.log('Clicked', e);
   }
@@ -126,14 +154,6 @@ var is_image_diff = {{is_image_diff|tojson}};
 
 <!--
 <script type="text/javascript">
-
-function getOrNull(side, path) {
-  if (path) {
-    return $.post('/' + side + '/get_contents', { path: path })
-  } else {
-    return [null];
-  }
-}
 
 $(function() {
   if (!is_image_diff) {

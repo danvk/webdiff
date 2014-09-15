@@ -97,3 +97,11 @@ function attachHandlers() {
       document.location = '/' + $('#pair-chooser').val();
     });
 }
+
+function getOrNull(side, path) {
+  if (path) {
+    return $.post('/' + side + '/get_contents', { path: path })
+  } else {
+    return [null];
+  }
+}
