@@ -59,12 +59,11 @@ var DiffView = React.createClass({
 });
 
 var CodeDiff = React.createClass({
-  contents: {},
   render: function() {
     return <div key={'cd-' + this.props.filePair.idx}>Loading&hellip;</div>
   },
-  componentDidMount: function() {
-    // Do XHRs for the contents of both sides and update props when we get them.
+  renderDiff: function() {
+    // Do XHRs for the contents of both sides and fill in the diff.
     var pair = this.props.filePair;
     var beforeDeferred = getOrNull('a', pair.a);
     var afterDeferred = getOrNull('b', pair.b);
@@ -78,13 +77,29 @@ var CodeDiff = React.createClass({
       alert("Unable to get diff!");
     });
   },
+  componentDidMount: function() {
+    this.renderDiff();  // Called on initial display of this component.
+  },
   componentDidUpdate: function() {
-    this.componentDidMount();
+    this.componentDidMount();  // Called on updates.
   }
 });
 
 var ImageDiff = React.createClass({
   render: function() {
+    var pair = this.props.filePair;
+    var aImage = pair.a ? <img src={'/a/image/' + pair.a} /> : 'None';
+    var bImage = pair.b ? <img src={'/a/image/' + pair.b} /> : 'None';
+    return <table id="imagediff">
+      <tr class="image-diff-header">
+        <td class="diff-left"><div class="diff-header">{pair.a || 'None'}</div></td>
+        <td class="diff-right"><div class="diff-header">{pair.b || 'None'}</div></td>
+      </tr>
+      <tr class="image-diff-content">
+        <td class="diff-left">{aImage}</td>
+        <td class="diff-right">{bImage}</td>
+      </tr>
+    </table>
   }
 });
 
