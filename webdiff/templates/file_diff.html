@@ -94,17 +94,15 @@ var FileSelector = React.createClass({
 
 var FileModeSelector = React.createClass({
   render: function() {
-    return <div>
-      <button data-mode="list"
-              disabled={this.props.mode == 'list'}
-              onClick={this.changeHandler}>List</button>
-      <button data-mode="dropdown"
-              disabled={this.props.mode == 'dropdown'}
-              onClick={this.changeHandler}>Dropdown</button>
+    return <div className="file-mode-toggle" onClick={this.changeHandler}>
+      <div className="arrow-holder">
+        {this.props.mode == 'dropdown' ? '»' : '«'}
+      </div>
     </div>
   },
   changeHandler: function(e) {
-    this.props.changeHandler($(e.target).attr('data-mode'));
+    var newMode = this.props.mode == 'list' ? 'dropdown' : 'list';
+    this.props.changeHandler(newMode);
   }
 });
 
@@ -118,7 +116,7 @@ var FileList = React.createClass({
             return <li key={'fl-' + idx}><b>{file_pair.path}</b></li>
           }
         }.bind(this));
-    return <ul>{lis}</ul>
+    return <ul className="file-list">{lis}</ul>
   },
   clickHandler: function(e) {
     this.props.fileChangeHandler(parseInt($(e.target).attr('data-idx'), 10));
@@ -147,7 +145,7 @@ var FileDropdown = React.createClass({
       }
       return option;
     });
-    return <div>
+    return <div className="file-dropdown">
       Prev (k): {prevLink}<br/>
       <select onChange={this.handleDropdownChange}>{options}</select><br/>
       Next (j): {nextLink}
