@@ -67,6 +67,15 @@ function handleSideBySide() {
   $('#image-side-by-side').removeAttr('href');
 }
 
+function isLegitKeypress(e) {
+  if (e.ctrlKey || e.altKey || e.metaKey ||
+      e.target.tagName.toLowerCase() == 'input' ||
+      e.target.tagName.toLowerCase() == 'textarea') {
+    return false;
+  }
+  return true;
+}
+
 // Keyboard shortcuts:
 // j/k = next/prev file
 // n/p = next/prev diff

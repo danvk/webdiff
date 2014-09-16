@@ -62,6 +62,25 @@ var Root = React.createClass({
                               changeHandler={this.changeImageDiffModeHandler}/>
        <DiffView filePair={filePair} imageDiffMode={this.state.imageDiffMode} />
     </div>
+  },
+  componentDidMount: function() {
+    $(document).on('keydown', function(e) {
+      if (!isLegitKeypress(e)) return;
+      var idx = this.state.selectedFileIndex;
+      if (e.keyCode == 75) {  // j
+        if (idx > 0) {
+          this.setState({selectedFileIndex: idx - 1});
+        }
+      } else if (e.keyCode == 74) {  // k
+        if (idx < this.props.filePairs.length - 1) {
+          this.setState({selectedFileIndex: idx + 1});
+        }
+      } else if (e.keyCode == 83) {  // s
+        this.setState({imageDiffMode: 'side-by-side'});
+      } else if (e.keyCode == 66) {  // b
+        this.setState({imageDiffMode: 'blink'});
+      }
+    }.bind(this));
   }
 });
 
@@ -124,18 +143,19 @@ var ImageDiffModeSelector = React.createClass({
       return <span/>;  // have to return something.
     }
 
-    var linkOrB = function(isSelected, val, text) {
-      if (!isSelected) {
-        return <a href='#' onClick={this.handleClick} value={val}>{text}</a>
+    var linkOrB = function(isLink, isB, val, text) {
+      var inner = isB ? <b>{text}</b> : text;
+      if (isLink) {
+        return <a href='#' onClick={this.handleClick} value={val}>{inner}</a>
       } else {
-        return <b>{text}</b>
+        return inner;
       }
     }.bind(this);
 
-    var isSxS = this.props.mode == 'side-by-side';
+    var isBlink = this.props.mode == 'blink';
     return <div>
-      {linkOrB(isSxS, 'side-by-side', 'Side by Side (s)')} |
-      {linkOrB(false, 'blink', 'Blink (b)')}
+      {linkOrB(isBlink, !isBlink, 'side-by-side', 'Side by Side (s)')} |
+      {linkOrB(true, isBlink, 'blink', 'Blink (b)')}
     </div>
   },
   handleClick: function(e) {
@@ -229,11 +249,7 @@ var ImageBlinker = React.createClass({
     }.bind(this);
 
     $(document).on('keydown.blink', function(e) {
-      if (e.ctrlKey || e.altKey || e.metaKey ||
-          e.target.tagName.toLowerCase() == 'input' ||
-          e.target.tagName.toLowerCase() == 'textarea') {
-        return;
-      }
+      if (!isLegitKeypress(e)) return;
       if (e.keyCode == 66) {  // 'b'
         toggle();
       }
@@ -244,9 +260,8 @@ var ImageBlinker = React.createClass({
   }
 });
 
-React.renderComponent(Root({
-  filePairs: pairs
-}), $('#application').get(0));
+var applicationRoot = Root({filePairs: pairs});
+React.renderComponent(applicationRoot, $('#application').get(0));
 </script>
 
 <!--
