@@ -31,7 +31,6 @@ var Root = React.createClass({
     this.setState({imageDiffMode: mode});
   },
   render: function() {
-
     var filePair = this.props.filePairs[this.state.selectedFileIndex];
 
     // TODO: move ImageDiffModeSelector into <DiffView>?
@@ -180,7 +179,8 @@ var ImageDiffModeSelector = React.createClass({
 
     var isBlink = this.props.mode == 'blink';
     return <div>
-      {linkOrB(isBlink, !isBlink, 'side-by-side', 'Side by Side (s)')} |
+      {linkOrB(isBlink, !isBlink, 'side-by-side', 'Side by Side (s)')}
+      &nbsp;|&nbsp;
       {linkOrB(true, isBlink, 'blink', 'Blink (b)')}
     </div>
   },
@@ -242,8 +242,8 @@ var ImageSideBySide = React.createClass({
     var bImage = pair.b ? <img src={'/a/image/' + pair.b} /> : 'None';
     return <table id="imagediff">
       <tr className="image-diff-header">
-        <td className="diff-left">{pair.a || 'None'}</td>
-        <td className="diff-right">{pair.b || 'None'}</td>
+        <td className="diff-left diff-header">{pair.a || 'None'}</td>
+        <td className="diff-right diff-header">{pair.b || 'None'}</td>
       </tr>
       <tr className="image-diff-content">
         <td className="diff-left">{aImage}</td>
@@ -261,11 +261,15 @@ var ImageBlinker = React.createClass({
     var pair = this.props.filePair;
     var side = ['a', 'b'][this.state.idx];
     var path = [pair.a, pair.b][this.state.idx];
-    var img = path ? <img src={'/' + side + '/image/' + path} /> : 'None'
-    return <div>
-      <h3>{path} ({side == 'a' ? 'left' : 'right'})</h3>
-      {img}
-    </div>
+    var img = path ? <img src={'/' + side + '/image/' + path} /> : 'None';
+    return <table id="imagediff">
+      <tr className="image-diff-header">
+        <td className="diff-header">{path} ({side == 'a' ? 'left' : 'right'})</td>
+      </tr>
+      <tr className="image-diff-content">
+        <td>{img}</td>
+      </tr>
+    </table>;
   },
   componentDidMount: function() {
     var toggle = function() {
