@@ -32,15 +32,13 @@ var Root = React.createClass({
   render: function() {
     var filePair = this.props.filePairs[this.state.selectedFileIndex];
 
-    // TODO: move ImageDiffModeSelector into <DiffView>?
     return <div>
        <FileSelector selectedFileIndex={this.state.selectedFileIndex}
                      filePairs={this.props.filePairs}
                      fileChangeHandler={this.fileChangeHandler} />
-       <ImageDiffModeSelector filePair={filePair}
-                              mode={this.state.imageDiffMode}
-                              changeHandler={this.changeImageDiffModeHandler}/>
-       <DiffView filePair={filePair} imageDiffMode={this.state.imageDiffMode} />
+       <DiffView filePair={filePair}
+                 imageDiffMode={this.state.imageDiffMode}
+                 changeImageDiffModeHandler={this.changeImageDiffModeHandler} />
     </div>
   },
   componentDidMount: function() {
@@ -175,7 +173,7 @@ var ImageDiffModeSelector = React.createClass({
     }.bind(this);
 
     var isBlink = this.props.mode == 'blink';
-    return <div>
+    return <div>Image diff mode:&nbsp;
       {linkOrB(isBlink, !isBlink, 'side-by-side', 'Side by Side (s)')}
       &nbsp;|&nbsp;
       {linkOrB(true, isBlink, 'blink', 'Blink (b)')}
@@ -190,7 +188,8 @@ var DiffView = React.createClass({
   render: function() {
     if (this.props.filePair.is_image_diff) {
       return <ImageDiff mode={this.props.imageDiffMode}
-                        filePair={this.props.filePair} />
+                        filePair={this.props.filePair}
+                        changeImageDiffModeHandler={this.props.changeImageDiffModeHandler} />
     } else {
       return <CodeDiff filePair={this.props.filePair} />
     }
@@ -227,9 +226,16 @@ var CodeDiff = React.createClass({
 
 var ImageDiff = React.createClass({
   render: function() {
-    return this.props.mode == 'side-by-side' ?
+    var image = this.props.mode == 'side-by-side' ?
       <ImageSideBySide filePair={this.props.filePair} /> :
       <ImageBlinker filePair={this.props.filePair} />;
+
+    return <div>
+      <ImageDiffModeSelector filePair={this.props.filePair}
+                             mode={this.props.mode}
+                             changeHandler={this.props.changeImageDiffModeHandler}/>
+      {image}
+    </div>
   }
 });
 
@@ -288,7 +294,7 @@ var ImageBlinker = React.createClass({
   }
 });
 
-React.renderComponent(<Root filePairs=pairs />, $('#application').get(0));
+React.renderComponent(<Root filePairs={pairs} />, $('#application').get(0));
 </script>
 
 {% endblock %}
