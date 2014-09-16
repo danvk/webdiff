@@ -118,7 +118,7 @@ var FileDropdown = React.createClass({
 var ImageDiffModeSelector = React.createClass({
   render: function() {
     if (!this.props.filePair.is_image_diff) {
-      return;
+      return <span/>;  // have to return something.
     }
 
     var linkOrB = function(isSelected, val, text) {
