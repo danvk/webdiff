@@ -1,10 +1,46 @@
 /** @jsx React.DOM */
 
+// Property validation mixin.
+var PropertyValidationMixin = {
+  getInitialState: function() {
+    if (typeof(Proxy) == 'undefined') {
+      console.warn('Proxy is not available in this browser; props will be unchecked.');
+      return;
+    }
+
+    // "this" here refers to the Component.
+    var component = this;
+    var rawProps = this.props;
+    var propTypes = this._descriptor.type.propTypes;
+
+    this.props = new Proxy(rawProps, {
+      get: function(obj, prop) {
+        if (prop == 'ref') {
+          // ... what is this?
+        } else {
+          if (!(prop in propTypes)) {
+            console.warn('Accessing property', prop, 'in', component,
+                         'which is not declared in its propTypes.');
+          } else {
+            console.log('Validated', prop);
+          }
+        }
+
+        return rawProps[prop];
+      }
+    });
+
+    return {};  // Otherwise you can get Invariant Violation.
+  }
+};
+
+
 // Webdiff application root.
 var Root = React.createClass({
   propTypes: {
     filePairs: React.PropTypes.array.isRequired
   },
+  mixins: [PropertyValidationMixin],
   getInitialState: () => ({
     selectedFileIndex: 0,
     imageDiffMode: 'side-by-side'
@@ -55,6 +91,7 @@ var FileSelector = React.createClass({
     selectedFileIndex: React.PropTypes.number.isRequired,
     fileChangeHandler: React.PropTypes.func.isRequired
   },
+  mixins: [PropertyValidationMixin],
   getInitialState: () => ({mode: 'list'}),
   render: function() {
     var selector;
@@ -85,6 +122,7 @@ var FileModeSelector = React.createClass({
     mode: React.PropTypes.oneOf(['list', 'dropdown']).isRequired,
     changeHandler: React.PropTypes.func.isRequired
   },
+  mixins: [PropertyValidationMixin],
   render: function() {
     return <div className="file-mode-toggle" onClick={this.changeHandler}>
       <div className="arrow-holder">
@@ -106,6 +144,7 @@ var FileList = React.createClass({
     selectedIndex: React.PropTypes.number.isRequired,
     fileChangeHandler: React.PropTypes.func.isRequired
   },
+  mixins: [PropertyValidationMixin],
   render: function() {
     var props = this.props;
     var lis = this.props.filePairs.map((filePair, idx) => {
@@ -132,6 +171,7 @@ var FileDropdown = React.createClass({
     selectedIndex: React.PropTypes.number.isRequired,
     fileChangeHandler: React.PropTypes.func.isRequired
   },
+  mixins: [PropertyValidationMixin],
   render: function() {
     var props = this.props;
 
@@ -173,6 +213,7 @@ var ImageDiffModeSelector = React.createClass({
     mode: React.PropTypes.oneOf(['side-by-side', 'blink']).isRequired,
     changeHandler: React.PropTypes.func.isRequired
   },
+  mixins: [PropertyValidationMixin],
   render: function() {
     // Returns the text, optionally wrapped in a link and/or <b> tag.
     var linkOrB = (isLink, isB, val, text) => {
@@ -203,6 +244,7 @@ var DiffView = React.createClass({
     imageDiffMode: React.PropTypes.oneOf(['side-by-side', 'blink']).isRequired,
     changeImageDiffModeHandler: React.PropTypes.func.isRequired
   },
+  mixins: [PropertyValidationMixin],
   render: function() {
     if (this.props.filePair.is_image_diff) {
       return <ImageDiff imageDiffMode={this.props.imageDiffMode}
@@ -220,6 +262,7 @@ var CodeDiff = React.createClass({
   propTypes: {
     filePair: React.PropTypes.object.isRequired
   },
+  mixins: [PropertyValidationMixin],
   render: function() {
     return <div key={this.props.filePair.idx}>Loading&hellip;</div>;
   },
@@ -257,6 +300,7 @@ var ImageDiff = React.createClass({
     imageDiffMode: React.PropTypes.oneOf(['side-by-side', 'blink']).isRequired,
     changeImageDiffModeHandler: React.PropTypes.func.isRequired
   },
+  mixins: [PropertyValidationMixin],
   render: function() {
     var image = this.props.imageDiffMode == 'side-by-side' ?
       <ImageSideBySide filePair={this.props.filePair} /> :
@@ -276,6 +320,7 @@ var ImageSideBySide = React.createClass({
   propTypes: {
     filePair: React.PropTypes.object.isRequired
   },
+  mixins: [PropertyValidationMixin],
   render: function() {
     var pair = this.props.filePair;
     var aImage = pair.a ? <img src={'/a/image/' + pair.a} /> : 'None';
@@ -299,6 +344,7 @@ var ImageBlinker = React.createClass({
   propTypes: {
     filePair: React.PropTypes.object.isRequired
   },
+  mixins: [PropertyValidationMixin],
   getInitialState: function() {
     return {idx: 0};
   },
