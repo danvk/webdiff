@@ -10,7 +10,6 @@
 <div id="application"></div>
 
 <script src="/static/js/file_diff.js"></script>
-<!--<script src="/static/js/components.js"></script>-->
 
 <script>var pairs = {{pairs|tojson}};</script>
 
@@ -211,6 +210,7 @@ var CodeDiff = React.createClass({
     var self = this;
     $.when(beforeDeferred, afterDeferred).done(function(before, after) {
       if (!self.isMounted()) return;
+      // Call out to codediff.js to construct the side-by-side diff.
       $(self.getDOMNode()).empty().append(
           renderDiff(pair.a, pair.b, before[0], after[0]));
     }).fail(function(e) {
@@ -288,8 +288,7 @@ var ImageBlinker = React.createClass({
   }
 });
 
-var applicationRoot = Root({filePairs: pairs});
-React.renderComponent(applicationRoot, $('#application').get(0));
+React.renderComponent(<Root filePairs=pairs />, $('#application').get(0));
 </script>
 
 {% endblock %}
