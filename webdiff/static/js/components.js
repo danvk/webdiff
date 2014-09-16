@@ -113,12 +113,15 @@ var FileList = React.createClass({
   render: function() {
     var props = this.props;
     var lis = this.props.filePairs.map(function(file_pair, idx) {
-          if (idx != props.selectedIndex) {
-            return <li key={'fl-' + idx}><a data-idx={idx} onClick={this.clickHandler} href='#'>{file_pair.path}</a></li>
-          } else {
-            return <li key={'fl-' + idx}><b>{file_pair.path}</b></li>
-          }
-        }.bind(this));
+      var content;
+      if (idx != props.selectedIndex) {
+        content = <a data-idx={idx} onClick={this.clickHandler} href='#'>
+          {file_pair.path}</a>;
+      } else {
+        content = <b>{file_pair.path}</b>
+      }
+      return <li key={idx}>{content}</li>
+    }.bind(this));
     return <ul className="file-list">{lis}</ul>
   },
   clickHandler: function(e) {
@@ -140,7 +143,9 @@ var FileDropdown = React.createClass({
       if (idx < 0 || idx >= props.filePairs.length) {
         return <i>none</i>;
       } else {
-        return <a href='#' data-idx={idx} onClick={this.handleLinkClick}>{props.filePairs[idx].path}</a>;
+        return <a href='#' data-idx={idx} onClick={this.handleLinkClick}>
+          {props.filePairs[idx].path}
+        </a>;
       }
     }.bind(this);
 
@@ -148,15 +153,14 @@ var FileDropdown = React.createClass({
     var nextLink = linkOrNone(props.selectedIndex + 1);
 
     var options = this.props.filePairs.map(function(file_pair, idx) {
-      var option = <option key={'fd-' + idx} value={idx}>{file_pair.path} ({file_pair.type})</option>;
-      if (idx == props.selectedIndex) {
-        option.props.selected = true;
-      }
-      return option;
+      return <option key={idx} value={idx}>
+        {file_pair.path} ({file_pair.type})
+      </option>;
     });
     return <div className="file-dropdown">
       Prev (k): {prevLink}<br/>
-      <select onChange={this.handleDropdownChange}>{options}</select><br/>
+      <select value={props.selectedIndex}
+              onChange={this.handleDropdownChange}>{options}</select><br/>
       Next (j): {nextLink}
     </div>
   },
@@ -226,7 +230,7 @@ var CodeDiff = React.createClass({
     filePair: React.PropTypes.object.isRequired
   },
   render: function() {
-    return <div key={'cd-' + this.props.filePair.idx}>Loading&hellip;</div>
+    return <div key={this.props.filePair.idx}>Loading&hellip;</div>
   },
   renderDiff: function() {
     // Do XHRs for the contents of both sides and fill in the diff.
