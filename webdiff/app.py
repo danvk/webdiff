@@ -219,7 +219,8 @@ def shim_for_file_diff(a_file, b_file):
     a_file = os.path.basename(a_file)
     B_DIR = os.path.dirname(b_file)
     b_file = os.path.basename(b_file)
-    DIFF = annotate_pairs([{'a': a_file,
+    DIFF = annotate_pairs([{
+             'a': a_file,
              'b': b_file,
              'idx': 0,
              'path': a_file,
