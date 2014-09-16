@@ -13,8 +13,8 @@
 
 <script>var pairs = {{pairs|tojson}};</script>
 
-<script type="text/jsx" src="/static/js/components.jsx"></script>
-<script type="text/jsx">
+<script type="text/jsx;harmony=true" src="/static/js/components.jsx"></script>
+<script type="text/jsx;harmony=true">
 /** @jsx React.DOM */
 React.renderComponent(<Root filePairs={pairs} />, $('#application').get(0));
 </script>
