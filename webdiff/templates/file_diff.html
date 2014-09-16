@@ -132,7 +132,7 @@ var ImageDiffModeSelector = React.createClass({
     var isSxS = this.props.mode == 'side-by-side';
     return <div>
       {linkOrB(isSxS, 'side-by-side', 'Side by Side (s)')} |
-      {linkOrB(!isSxS, 'blink', 'Blink (b)')}
+      {linkOrB(false, 'blink', 'Blink (b)')}
     </div>
   },
   handleClick: function(e) {
@@ -219,6 +219,12 @@ var ImageBlinker = React.createClass({
     </div>
   },
   componentDidMount: function() {
+    var toggle = function() {
+      if (this.isMounted()) {
+        this.setState({idx: 1 - this.state.idx});
+      }
+    }.bind(this);
+
     $(document).on('keydown.blink', function(e) {
       if (e.ctrlKey || e.altKey || e.metaKey ||
           e.target.tagName.toLowerCase() == 'input' ||
@@ -226,12 +232,12 @@ var ImageBlinker = React.createClass({
         return;
       }
       if (e.keyCode == 66) {  // 'b'
-        this.setState({idx: 1 - this.state.idx});
+        toggle();
       }
-    }.bind(this));
+    }).on('click.blink', 'a[value="blink"]', toggle);
   },
   componentDidUnmount: function(e) {
-    $(document).off('keydown.blink');
+    $(document).off('keydown.blink').off('click.blink');
   }
 });
 
