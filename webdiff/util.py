@@ -68,6 +68,7 @@ def annotate_pairs(pairs):
         elif b is None:
             d['type'] = 'delete'
         diffs.append(d)
+        d['is_image_diff'] = is_image_diff(d)
     return diffs
 
 

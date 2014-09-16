@@ -1,113 +1,22 @@
 {%- extends "base.html" -%}
 
-{% block title %} {{this_pair.path}} - diff {% endblock %}
+{% block title %} Diff {% endblock %}
 
 {% block head %}
 {% endblock %}
 
 {% block body %}
 
-<div id="controls">
-  <p>Prev (k): {% if idx > 0 %}
-    <a class="prev" href="/{{idx - 1}}">{{pairs[idx-1].path}}</a>
-    {% else %}
-    <i>none</i>
-    {% endif %}
-    <br>
-    Diff: <select id=pair-chooser>
-      {% for pair in pairs %}
-      <option value={{pair.idx}} {%if pair.idx == idx%}selected{%endif%}>{{pair.path}} ({{pair.type}})</option>
-      {% endfor %}
-    </select>
-    <br>Next (j):
-    {% if idx < num_pairs - 1 %}
-    <a class="next" href="/{{idx + 1}}">{{pairs[idx+1].path}}</a>
-    {% else %}
-    <i>none</i>
-    {% endif %}
-  </p>
-  <p id="imagediff-controls" style="display:none">
-    <br>
-    Image diff mode:
-    <a id="image-side-by-side" onclick="handleSideBySide()" style="font-weight:bold">side-by-side</a>
-    -
-    <a href="#" id="image-blink" onclick="handleBlink()">blink (b)</a>
-  </p>
-</div>
-
-<div id="thediff">
-  Loading diff&hellip;
-</div>
-
-<table id="imagediff" style="display:none">
-  <tr class="image-diff-header">
-    <td class="diff-left"><div class="diff-header"></div></td>
-    <td class="diff-right"><div class="diff-header"></div></td>
-  </tr>
-  <tr class="image-diff-content">
-    <td class="diff-left"><img /></td>
-    <td class="diff-right"><img /></td>
-  </tr>
-</table>
-
-<script type="text/javascript">
-// Filled in via XHR below.
-// Inlining is appealing, but can result in too much data.
-var beforeContents;
-var afterContents;
-
-var a_file = {{this_pair.a|tojson}};
-var b_file = {{this_pair.b|tojson}};
-var is_image_diff = {{is_image_diff|tojson}};
-</script>
+<div id="application"></div>
 
 <script src="/static/js/file_diff.js"></script>
-<script type="text/javascript">
 
-function getOrNull(side, path) {
-  if (path) {
-    return $.post('/' + side + '/get_contents', { path: path })
-  } else {
-    return [null];
-  }
-}
+<script>var pairs = {{pairs|tojson}};</script>
 
-$(function() {
-  if (!is_image_diff) {
-    var beforeDeferred = getOrNull('a', a_file);
-    var afterDeferred = getOrNull('b', b_file);
-
-    $.when(beforeDeferred, afterDeferred).done(function(before, after) {
-      beforeContents = before[0];
-      afterContents = after[0];
-      updateWithBeforeAfterContents();
-    }).fail(function(e) {
-      alert("Unable to get diff!");
-    });
-  } else {
-    $('#imagediff .diff-left .diff-header').text(a_file || 'None');
-    $('#imagediff .diff-right .diff-header').text(b_file || 'None');
-
-    if (a_file) {
-      $('#imagediff .diff-left img').attr('src', '/a/image/' + a_file);
-    } else {
-      $('#imagediff .diff-left').text('None');
-    }
-    if (b_file) {
-      $('#imagediff .diff-right img').attr('src', '/b/image/' + b_file);
-    } else {
-      $('#imagediff .diff-right').text('None');
-    }
-
-    $('#thediff').hide();
-    $('#imagediff').show();
-    $('#imagediff-controls').show();
-  }
-  attachHandlers();
-});
-
-function updateWithBeforeAfterContents() {
-  displayDiffs(a_file, b_file, beforeContents, afterContents);
-}
+<script type="text/jsx;harmony=true" src="/static/js/components.jsx"></script>
+<script type="text/jsx;harmony=true">
+/** @jsx React.DOM */
+React.renderComponent(<Root filePairs={pairs} />, $('#application').get(0));
 </script>
+
 {% endblock %}

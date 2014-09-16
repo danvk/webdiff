@@ -20,3 +20,30 @@ div#thediff {
 #imagediff-controls {
   margin-left: 25px;
 }
+
+.file-selector {
+  padding-bottom: 5px;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 15px;
+}
+
+ul.file-list {
+  padding: 0;
+}
+.file-list li {
+  list-style-type: none;
+}
+
+.file-mode-toggle {
+  position: absolute;
+  right: 0;
+  cursor: pointer;
+  width: 20px;
+  height: 10px;
+}
+
+.arrow-holder {
+  font-size: 20px;
+  line-height: 20px;
+  transform: rotate(90deg);
+}
