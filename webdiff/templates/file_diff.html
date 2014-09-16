@@ -48,15 +48,18 @@ var Root = React.createClass({
 
     var filePair = this.props.filePairs[this.state.selectedFileIndex];
 
+    // TODO: move ImageDiffModeSelector into <DiffView>?
     return <div>
        {selector}
+       <div>
+         <button data-mode="list"
+                 onClick={this.changeSelectionModeHandler}>List</button>
+         <button data-mode="dropdown"
+                 onClick={this.changeSelectionModeHandler}>Dropdown</button>
+       </div>
        <ImageDiffModeSelector filePair={filePair}
                               mode={this.state.imageDiffMode}
                               changeHandler={this.changeImageDiffModeHandler}/>
-       <button data-mode="list"
-               onClick={this.changeSelectionModeHandler}>List</button>
-       <button data-mode="dropdown"
-               onClick={this.changeSelectionModeHandler}>Dropdown</button>
        <DiffView filePair={filePair} imageDiffMode={this.state.imageDiffMode} />
     </div>
   }
