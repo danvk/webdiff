@@ -19,18 +19,46 @@
 
 var Root = React.createClass({
   getInitialState: function() {
-    return {selectedFileIndex: 0};
+    return {
+      selectedFileIndex: 0,
+      fileSelectionMode: 'list',
+      imageDiffMode: 'side-by-side'
+    };
   },
-  fileChangeHandler: function(e) {
-    this.setState({selectedFileIndex: $(e.target).attr('data-idx')});
+  fileChangeHandler: function(idx) {
+    this.setState({selectedFileIndex: idx});
+  },
+  changeSelectionModeHandler: function(e) {
+    this.setState({fileSelectionMode: $(e.target).attr('data-mode')});
+  },
+  changeImageDiffModeHandler: function(mode) {
+    this.setState({imageDiffMode: mode});
   },
   render: function() {
+    var selector;
+    if (this.state.fileSelectionMode == 'list') {
+      selector = <FileList filePairs={this.props.filePairs}
+                           selectedIndex={this.state.selectedFileIndex}
+                           fileChangeHandler={this.fileChangeHandler} />;
+    } else {
+      selector = <FileDropdown filePairs={this.props.filePairs}
+                               selectedIndex={this.state.selectedFileIndex}
+                               fileChangeHandler={this.fileChangeHandler} />;
+    }
+
+    var filePair = this.props.filePairs[this.state.selectedFileIndex];
+
     return <div>
-             <FileList filePairs={this.props.filePairs}
-                            selectedIndex={this.state.selectedFileIndex}
-                            fileChangeHandler={this.fileChangeHandler} />
-             <DiffView filePair={this.props.filePairs[this.state.selectedFileIndex]} />
-          </div>
+       {selector}
+       <ImageDiffModeSelector filePair={filePair}
+                              mode={this.state.imageDiffMode}
+                              changeHandler={this.changeImageDiffModeHandler}/>
+       <button data-mode="list"
+               onClick={this.changeSelectionModeHandler}>List</button>
+       <button data-mode="dropdown"
+               onClick={this.changeSelectionModeHandler}>Dropdown</button>
+       <DiffView filePair={filePair} imageDiffMode={this.state.imageDiffMode} />
+    </div>
   }
 });
 
@@ -39,19 +67,84 @@ var FileList = React.createClass({
     var props = this.props;
     var lis = this.props.filePairs.map(function(file_pair, idx) {
           if (idx != props.selectedIndex) {
-            return <li key={'fp-' + idx}><a data-idx={idx} onClick={props.fileChangeHandler} href='#'>{file_pair.path}</a></li>
+            return <li key={'fl-' + idx}><a data-idx={idx} onClick={this.clickHandler} href='#'>{file_pair.path}</a></li>
           } else {
-            return <li key={'fp-' + idx}><b>{file_pair.path}</b></li>
+            return <li key={'fl-' + idx}><b>{file_pair.path}</b></li>
           }
-        });
+        }.bind(this));
     return <ul>{lis}</ul>
+  },
+  clickHandler: function(e) {
+    this.props.fileChangeHandler(parseInt($(e.target).attr('data-idx'), 10));
+  }
+});
+
+var FileDropdown = React.createClass({
+  render: function() {
+    var props = this.props;
+
+    var linkOrNone = function(idx) {
+      if (idx < 0 || idx >= props.filePairs.length) {
+        return <i>none</i>;
+      } else {
+        return <a href='#' data-idx={idx} onClick={this.handleLinkClick}>{props.filePairs[idx].path}</a>;
+      }
+    }.bind(this);
+
+    var prevLink = linkOrNone(props.selectedIndex - 1);
+    var nextLink = linkOrNone(props.selectedIndex + 1);
+
+    var options = this.props.filePairs.map(function(file_pair, idx) {
+      var option = <option key={'fd-' + idx} value={idx}>{file_pair.path} ({file_pair.type})</option>;
+      if (idx == props.selectedIndex) {
+        option.props.selected = true;
+      }
+      return option;
+    });
+    return <div>
+      Prev (k): {prevLink}<br/>
+      <select onChange={this.handleDropdownChange}>{options}</select><br/>
+      Next (j): {nextLink}
+    </div>
+  },
+  handleDropdownChange: function(e) {
+    this.props.fileChangeHandler(parseInt($(e.target).val(), 10));
+  },
+  handleLinkClick: function(e) {
+    this.props.fileChangeHandler(parseInt($(e.target).attr('data-idx'), 10));
+  }
+});
+
+var ImageDiffModeSelector = React.createClass({
+  render: function() {
+    if (!this.props.filePair.is_image_diff) {
+      return;
+    }
+
+    var linkOrB = function(isSelected, val, text) {
+      if (!isSelected) {
+        return <a href='#' onClick={this.handleClick} value={val}>{text}</a>
+      } else {
+        return <b>{text}</b>
+      }
+    }.bind(this);
+
+    var isSxS = this.props.mode == 'side-by-side';
+    return <div>
+      {linkOrB(isSxS, 'side-by-side', 'Side by Side (s)')} |
+      {linkOrB(!isSxS, 'blink', 'Blink (b)')}
+    </div>
+  },
+  handleClick: function(e) {
+    this.props.changeHandler($(e.target).attr('value'));
   }
 });
 
 var DiffView = React.createClass({
   render: function() {
     if (this.props.filePair.is_image_diff) {
-      return <ImageDiff filePair={this.props.filePair} />
+      return <ImageDiff mode={this.props.imageDiffMode}
+                        filePair={this.props.filePair} />
     } else {
       return <CodeDiff filePair={this.props.filePair} />
     }
@@ -87,27 +180,63 @@ var CodeDiff = React.createClass({
 
 var ImageDiff = React.createClass({
   render: function() {
+    return this.props.mode == 'side-by-side' ?
+      <ImageSideBySide filePair={this.props.filePair} /> :
+      <ImageBlinker filePair={this.props.filePair} />;
+  }
+});
+
+var ImageSideBySide = React.createClass({
+  render: function() {
     var pair = this.props.filePair;
     var aImage = pair.a ? <img src={'/a/image/' + pair.a} /> : 'None';
     var bImage = pair.b ? <img src={'/a/image/' + pair.b} /> : 'None';
     return <table id="imagediff">
-      <tr class="image-diff-header">
-        <td class="diff-left"><div class="diff-header">{pair.a || 'None'}</div></td>
-        <td class="diff-right"><div class="diff-header">{pair.b || 'None'}</div></td>
+      <tr className="image-diff-header">
+        <td className="diff-left">{pair.a || 'None'}</td>
+        <td className="diff-right">{pair.b || 'None'}</td>
       </tr>
-      <tr class="image-diff-content">
-        <td class="diff-left">{aImage}</td>
-        <td class="diff-right">{bImage}</td>
+      <tr className="image-diff-content">
+        <td className="diff-left">{aImage}</td>
+        <td className="diff-right">{bImage}</td>
       </tr>
     </table>
   }
 });
 
-React.renderComponent(Root({
-  filePairs: pairs,
-  fileChangeHandler: function(e) {
-    console.log('Clicked', e);
+var ImageBlinker = React.createClass({
+  getInitialState: function() {
+    return {idx: 0};
+  },
+  render: function() {
+    var pair = this.props.filePair;
+    var side = ['a', 'b'][this.state.idx];
+    var path = [pair.a, pair.b][this.state.idx];
+    var img = path ? <img src={'/' + side + '/image/' + path} /> : 'None'
+    return <div>
+      <h3>{path} ({side == 'a' ? 'left' : 'right'})</h3>
+      {img}
+    </div>
+  },
+  componentDidMount: function() {
+    $(document).on('keydown.blink', function(e) {
+      if (e.ctrlKey || e.altKey || e.metaKey ||
+          e.target.tagName.toLowerCase() == 'input' ||
+          e.target.tagName.toLowerCase() == 'textarea') {
+        return;
+      }
+      if (e.keyCode == 66) {  // 'b'
+        this.setState({idx: 1 - this.state.idx});
+      }
+    }.bind(this));
+  },
+  componentDidUnmount: function(e) {
+    $(document).off('keydown.blink');
   }
+});
+
+React.renderComponent(Root({
+  filePairs: pairs
 }), $('#application').get(0));
 </script>
 
