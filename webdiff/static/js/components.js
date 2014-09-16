@@ -1,9 +1,10 @@
 /** @jsx React.DOM */
 
 // Webdiff application root.
-// Required props:
-// - filePairs
 var Root = React.createClass({
+  propTypes: {
+    filePairs: React.PropTypes.array.isRequired
+  },
   getInitialState: function() {
     return {
       selectedFileIndex: 0,
@@ -50,12 +51,12 @@ var Root = React.createClass({
 });
 
 // Shows a list of files in one of two possible modes (list or dropdown).
-// Required props:
-// - filePairs
-// - selectedFileIndex
-// - mode
-// - fileChangeHandler
 var FileSelector = React.createClass({
+  propTypes: {
+    filePairs: React.PropTypes.array.isRequired,
+    selectedFileIndex: React.PropTypes.number.isRequired,
+    fileChangeHandler: React.PropTypes.func.isRequired
+  },
   getInitialState: function() {
     return {mode: 'list'};
   },
@@ -83,10 +84,11 @@ var FileSelector = React.createClass({
 });
 
 // A widget for toggling between file selection modes.
-// Required props:
-// - mode
-// - changeHandler
 var FileModeSelector = React.createClass({
+  propTypes: {
+    mode: React.PropTypes.oneOf(['list', 'dropdown']).isRequired,
+    changeHandler: React.PropTypes.func.isRequired
+  },
   render: function() {
     return <div className="file-mode-toggle" onClick={this.changeHandler}>
       <div className="arrow-holder">
@@ -102,11 +104,12 @@ var FileModeSelector = React.createClass({
 
 // A list of all the files. Clicking a non-selected file selects it.
 // This view is simpler and generally preferable for short lists of files.
-// Required props:
-// - filePairs
-// - selectedIndex
-// - fileChangeHandler
 var FileList = React.createClass({
+  propTypes: {
+    filePairs: React.PropTypes.array.isRequired,
+    selectedIndex: React.PropTypes.number.isRequired,
+    fileChangeHandler: React.PropTypes.func.isRequired
+  },
   render: function() {
     var props = this.props;
     var lis = this.props.filePairs.map(function(file_pair, idx) {
@@ -124,11 +127,12 @@ var FileList = React.createClass({
 });
 
 // A list of files in a dropdown menu. This is more compact with many files.
-// Required props:
-// - filePairs
-// - selectedIndex
-// - fileChangeHandler
 var FileDropdown = React.createClass({
+  propTypes: {
+    filePairs: React.PropTypes.array.isRequired,
+    selectedIndex: React.PropTypes.number.isRequired,
+    fileChangeHandler: React.PropTypes.func.isRequired
+  },
   render: function() {
     var props = this.props;
 
@@ -165,11 +169,12 @@ var FileDropdown = React.createClass({
 });
 
 // A widget to toggle between image diff modes (blink or side-by-side).
-// Required props:
-// - filePair
-// - mode
-// - changeHandler
 var ImageDiffModeSelector = React.createClass({
+  propTypes: {
+    filePair: React.PropTypes.object.isRequired,
+    mode: React.PropTypes.oneOf(['side-by-side', 'blink']).isRequired,
+    changeHandler: React.PropTypes.func.isRequired
+  },
   render: function() {
     if (!this.props.filePair.is_image_diff) {
       return <span/>;  // have to return something.
@@ -197,12 +202,13 @@ var ImageDiffModeSelector = React.createClass({
   }
 });
 
-// A diff for one file.
-// Required props:
-// - imageDiffMode
-// - filePair
-// - changeImageDiffModeHandler
+// A diff for a single pair of files (left/right).
 var DiffView = React.createClass({
+  propTypes: {
+    filePair: React.PropTypes.object.isRequired,
+    imageDiffMode: React.PropTypes.oneOf(['side-by-side', 'blink']).isRequired,
+    changeImageDiffModeHandler: React.PropTypes.func.isRequired
+  },
   render: function() {
     if (this.props.filePair.is_image_diff) {
       return <ImageDiff mode={this.props.imageDiffMode}
@@ -215,9 +221,10 @@ var DiffView = React.createClass({
 });
 
 // A side-by-side diff of source code.
-// Required props:
-// - filePair
 var CodeDiff = React.createClass({
+  propTypes: {
+    filePair: React.PropTypes.object.isRequired
+  },
   render: function() {
     return <div key={'cd-' + this.props.filePair.idx}>Loading&hellip;</div>
   },
@@ -246,11 +253,12 @@ var CodeDiff = React.createClass({
 });
 
 // A diff between two images.
-// Required props:
-// - filePair
-// - mode
-// - changeImageDiffModeHandler
 var ImageDiff = React.createClass({
+  propTypes: {
+    filePair: React.PropTypes.object.isRequired,
+    mode: React.PropTypes.oneOf(['side-by-side', 'blink']).isRequired,
+    changeImageDiffModeHandler: React.PropTypes.func.isRequired
+  },
   render: function() {
     var image = this.props.mode == 'side-by-side' ?
       <ImageSideBySide filePair={this.props.filePair} /> :
@@ -266,9 +274,10 @@ var ImageDiff = React.createClass({
 });
 
 // Two images placed side-by-side.
-// Required props:
-// - filePair
 var ImageSideBySide = React.createClass({
+  propTypes: {
+    filePair: React.PropTypes.object.isRequired
+  },
   render: function() {
     var pair = this.props.filePair;
     var aImage = pair.a ? <img src={'/a/image/' + pair.a} /> : 'None';
@@ -288,9 +297,10 @@ var ImageSideBySide = React.createClass({
 
 // Two images on top of one another (i.e. "blinked").
 // This component handles toggling between the two images itself.
-// Required props:
-// - filePair
 var ImageBlinker = React.createClass({
+  propTypes: {
+    filePair: React.PropTypes.object.isRequired
+  },
   getInitialState: function() {
     return {idx: 0};
   },
