@@ -180,10 +180,6 @@ var ImageDiffModeSelector = React.createClass({
     changeHandler: React.PropTypes.func.isRequired
   },
   render: function() {
-    if (!this.props.filePair.is_image_diff) {
-      return <span/>;  // have to return something.
-    }
-
     // Returns the text, optionally wrapped in a link and/or <b> tag.
     var linkOrB = function(isLink, isB, val, text) {
       var inner = isB ? <b>{text}</b> : text;
