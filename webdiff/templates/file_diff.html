@@ -21,42 +21,24 @@ var Root = React.createClass({
   getInitialState: function() {
     return {
       selectedFileIndex: 0,
-      fileSelectionMode: 'list',
       imageDiffMode: 'side-by-side'
     };
   },
   fileChangeHandler: function(idx) {
     this.setState({selectedFileIndex: idx});
   },
-  changeSelectionModeHandler: function(e) {
-    this.setState({fileSelectionMode: $(e.target).attr('data-mode')});
-  },
   changeImageDiffModeHandler: function(mode) {
     this.setState({imageDiffMode: mode});
   },
   render: function() {
-    var selector;
-    if (this.state.fileSelectionMode == 'list') {
-      selector = <FileList filePairs={this.props.filePairs}
-                           selectedIndex={this.state.selectedFileIndex}
-                           fileChangeHandler={this.fileChangeHandler} />;
-    } else {
-      selector = <FileDropdown filePairs={this.props.filePairs}
-                               selectedIndex={this.state.selectedFileIndex}
-                               fileChangeHandler={this.fileChangeHandler} />;
-    }
 
     var filePair = this.props.filePairs[this.state.selectedFileIndex];
 
     // TODO: move ImageDiffModeSelector into <DiffView>?
     return <div>
-       {selector}
-       <div>
-         <button data-mode="list"
-                 onClick={this.changeSelectionModeHandler}>List</button>
-         <button data-mode="dropdown"
-                 onClick={this.changeSelectionModeHandler}>Dropdown</button>
-       </div>
+       <FileSelector selectedFileIndex={this.state.selectedFileIndex}
+                     filePairs={this.props.filePairs}
+                     fileChangeHandler={this.fileChangeHandler} />
        <ImageDiffModeSelector filePair={filePair}
                               mode={this.state.imageDiffMode}
                               changeHandler={this.changeImageDiffModeHandler}/>
@@ -81,6 +63,49 @@ var Root = React.createClass({
         this.setState({imageDiffMode: 'blink'});
       }
     }.bind(this));
+  }
+});
+
+var FileSelector = React.createClass({
+  getInitialState: function() {
+    return {mode: 'list'};
+  },
+  render: function() {
+    var selector;
+    if (this.state.mode == 'list') {
+      selector = <FileList filePairs={this.props.filePairs}
+                           selectedIndex={this.props.selectedFileIndex}
+                           fileChangeHandler={this.props.fileChangeHandler} />;
+    } else {
+      selector = <FileDropdown filePairs={this.props.filePairs}
+                               selectedIndex={this.props.selectedFileIndex}
+                               fileChangeHandler={this.props.fileChangeHandler} />;
+    }
+
+    return <div className="file-selector">
+      {selector}
+      <FileModeSelector mode={this.state.mode}
+                        changeHandler={this.changeSelectionModeHandler} />
+    </div>
+  },
+  changeSelectionModeHandler: function(mode) {
+    this.setState({mode: mode});
+  }
+});
+
+var FileModeSelector = React.createClass({
+  render: function() {
+    return <div>
+      <button data-mode="list"
+              disabled={this.props.mode == 'list'}
+              onClick={this.changeHandler}>List</button>
+      <button data-mode="dropdown"
+              disabled={this.props.mode == 'dropdown'}
+              onClick={this.changeHandler}>Dropdown</button>
+    </div>
+  },
+  changeHandler: function(e) {
+    this.props.changeHandler($(e.target).attr('data-mode'));
   }
 });
 
@@ -143,6 +168,7 @@ var ImageDiffModeSelector = React.createClass({
       return <span/>;  // have to return something.
     }
 
+    // Returns the text, optionally wrapped in a link and/or <b> tag.
     var linkOrB = function(isLink, isB, val, text) {
       var inner = isB ? <b>{text}</b> : text;
       if (isLink) {
