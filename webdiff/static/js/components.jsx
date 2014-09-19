@@ -18,14 +18,16 @@ var Root = React.createClass({
   render: function() {
     var filePair = this.props.filePairs[this.state.selectedFileIndex];
 
-    return <div>
-       <FileSelector selectedFileIndex={this.state.selectedFileIndex}
-                     filePairs={this.props.filePairs}
-                     fileChangeHandler={this.fileChangeHandler} />
-       <DiffView filePair={filePair}
-                 imageDiffMode={this.state.imageDiffMode}
-                 changeImageDiffModeHandler={this.changeImageDiffModeHandler} />
-    </div>;
+    return (
+      <div>
+        <FileSelector selectedFileIndex={this.state.selectedFileIndex}
+                      filePairs={this.props.filePairs}
+                      fileChangeHandler={this.fileChangeHandler} />
+        <DiffView filePair={filePair}
+                  imageDiffMode={this.state.imageDiffMode}
+                  changeImageDiffModeHandler={this.changeImageDiffModeHandler} />
+      </div>
+    );
   },
   componentDidMount: function() {
     $(document).on('keydown', (e) => {
@@ -55,7 +57,10 @@ var FileSelector = React.createClass({
     selectedFileIndex: React.PropTypes.number.isRequired,
     fileChangeHandler: React.PropTypes.func.isRequired
   },
-  getInitialState: () => ({mode: 'list'}),
+  getInitialState: function() {
+    // An explicit list is better, unless there are a ton of files.
+    return {mode: this.props.filePairs.length <= 6 ? 'list' : 'dropdown'}
+  },
   render: function() {
     var selector;
     if (this.state.mode == 'list') {
