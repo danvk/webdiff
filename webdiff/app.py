@@ -5,16 +5,14 @@ For usage, see README.md.
 '''
 
 import argparse
+from git import CommitEncoder, repo
 import json
-from pygit2 import Repository
-from _pygit2 import Signature, Commit
 import logging
 import mimetypes
 import os
 import socket
 import sys
 from threading import Timer
-from util import get_fields
 import webbrowser
 
 from flask import (Flask, render_template, send_from_directory,
@@ -151,27 +149,6 @@ def file_diff(idx):
                            this_pair=DIFF[idx],
                            is_image_diff=util.is_image_diff(DIFF[idx]),
                            num_pairs=len(DIFF))
-
-
-_repo = None
-try:
-    _repo = Repository('.git')
-except KeyError:
-    pass
-
-def repo():
-    if _repo:
-        return _repo
-    raise Exception('Not in a git repository')
-
-
-class CommitEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, Commit):
-            return get_fields(obj, ['hex', 'message', 'author'])
-        if isinstance(obj, Signature):
-            return get_fields(obj, ['name', 'email', 'time'])
-        return super(CommitEncoder, self).default(obj)
 
 
 @app.route("/commits")
