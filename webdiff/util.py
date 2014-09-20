@@ -119,3 +119,13 @@ def is_image_diff(diff):
     elif right_img and diff['a'] is None:
         return True
     return False
+
+
+def get_fields(obj, fields):
+    ret = {}
+    def add_field(field):
+        ret[field] = obj.__getattribute__(field)
+    map(add_field, fields)
+    return ret
+
+

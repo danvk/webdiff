@@ -14,6 +14,7 @@ import os
 import socket
 import sys
 from threading import Timer
+from util import get_fields
 import webbrowser
 
 from flask import (Flask, render_template, send_from_directory,
@@ -162,14 +163,6 @@ def repo():
     if _repo:
         return _repo
     raise Exception('Not in a git repository')
-
-
-def get_fields(obj, fields):
-    ret = {}
-    def add_field(field):
-        ret[field] = obj.__getattribute__(field)
-    map(add_field, fields)
-    return ret
 
 
 class CommitEncoder(json.JSONEncoder):
