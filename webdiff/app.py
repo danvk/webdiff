@@ -5,6 +5,9 @@ For usage, see README.md.
 '''
 
 import argparse
+import json
+from pygit2 import Repository
+from _pygit2 import Signature, Commit
 import logging
 import mimetypes
 import os
@@ -147,6 +150,32 @@ def file_diff(idx):
                            this_pair=DIFF[idx],
                            is_image_diff=util.is_image_diff(DIFF[idx]),
                            num_pairs=len(DIFF))
+
+
+repo = Repository('.git')
+
+def get_fields(obj, fields):
+    ret = {}
+    def add_field(field):
+        ret[field] = obj.__getattribute__(field)
+    map(add_field, fields)
+    return ret
+
+
+class CommitEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Commit):
+            return get_fields(obj, ['hex', 'message', 'author'])
+        if isinstance(obj, Signature):
+            return get_fields(obj, ['name', 'email', 'time'])
+        return super(CommitEncoder, self).default(obj)
+
+
+@app.route("/commits")
+def commits():
+    walk = repo.walk(repo.head.target)
+    commits = [walk.next() for i in range(40)]
+    return render_template("commits.html", commits=json.dumps(commits, cls=CommitEncoder))
 
 
 @app.route('/favicon.ico')
