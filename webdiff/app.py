@@ -152,7 +152,17 @@ def file_diff(idx):
                            num_pairs=len(DIFF))
 
 
-repo = Repository('.git')
+_repo = None
+try:
+    _repo = Repository('.git')
+except KeyError:
+    pass
+
+def repo():
+    if _repo:
+        return _repo
+    raise Exception('Not in a git repository')
+
 
 def get_fields(obj, fields):
     ret = {}
@@ -173,7 +183,7 @@ class CommitEncoder(json.JSONEncoder):
 
 @app.route("/commits")
 def commits():
-    walk = repo.walk(repo.head.target)
+    walk = repo().walk(repo().head.target)
     commits = [walk.next() for i in range(40)]
     return render_template("commits.html", commits=json.dumps(commits, cls=CommitEncoder))
 
