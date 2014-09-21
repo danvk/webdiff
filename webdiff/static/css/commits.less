@@ -1,0 +1,41 @@
+
+@tableTop: 35px;
+@tableHeaderBodyDelta: 15px;
+@tableBodyTop: @tableTop + @tableHeaderBodyDelta;
+
+.commits-div {
+
+  max-height: 300px;
+  overflow-y: scroll;
+  position: relative;
+  top: @tableBodyTop;
+
+  @commitsDivMargin: 20px;
+  margin-left: @commitsDivMargin;
+  margin-right: @commitsDivMargin;
+
+  .commits {
+
+    font-family: inconsolata;
+
+    th, td {
+      padding-left: 10px;
+    }
+
+    .header {
+      position: fixed;
+      top: @tableTop;
+    }
+
+    tr.selected {
+      background-color: #ACF;
+    }
+
+    .message {
+      white-space: nowrap;
+      overflow-x: hidden;
+      max-width: 300px;
+    }
+
+  }
+}

@@ -5,6 +5,8 @@ For usage, see README.md.
 '''
 
 import argparse
+from git import CommitEncoder, repo
+import json
 import logging
 import mimetypes
 import os
@@ -149,6 +151,13 @@ def file_diff(idx):
                            num_pairs=len(DIFF))
 
 
+@app.route("/git/commits")
+def commits():
+    walk = repo().walk(repo().head.target)
+    commits = [walk.next() for i in range(40)]
+    return render_template("commits.html", commits=json.dumps(commits, cls=CommitEncoder))
+
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static/img'),
@@ -219,12 +228,7 @@ def shim_for_file_diff(a_file, b_file):
     a_file = os.path.basename(a_file)
     B_DIR = os.path.dirname(b_file)
     b_file = os.path.basename(b_file)
-    DIFF = annotate_pairs([{
-             'a': a_file,
-             'b': b_file,
-             'idx': 0,
-             'path': a_file,
-             'type': 'change'}])  # 'change' is the only likely case.
+    DIFF = util.annotate_pairs([(a_file, b_file)])  # 'change' is the only likely case.
 
 
 def run():

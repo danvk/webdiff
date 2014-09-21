@@ -119,3 +119,9 @@ def is_image_diff(diff):
     elif right_img and diff['a'] is None:
         return True
     return False
+
+
+def get_fields(obj, fields):
+    return {k: obj.__getattribute__(k) for k in fields}
+
+

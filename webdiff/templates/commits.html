@@ -1,0 +1,22 @@
+{%- extends "base.html" -%}
+
+{% block title %} Diff {% endblock %}
+
+{% block head %}
+<link rel="stylesheet/less" type="text/css" href="/static/css/commits.less" />
+{% endblock %}
+
+{% block body %}
+
+<div id="application"></div>
+
+{% autoescape false %}
+<script>var commits = {{commits}}; console.log(commits);</script>
+{% endautoescape %}
+<script type="text/jsx;harmony=true" src="/static/js/commits.jsx"></script>
+<script type="text/jsx;harmony=true">
+/** @jsx React.DOM */
+React.renderComponent(<CommitsTable commits={commits} />, $('#application').get(0));
+</script>
+
+{% endblock %}
