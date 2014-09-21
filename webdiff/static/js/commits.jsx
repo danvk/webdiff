@@ -14,16 +14,29 @@ var CommitsTable = React.createClass({
   },
   render: function() {
     var commits = this.props.commits;
-    return <table className="commits"><tbody>{
-      commits.map(function(commit, idx) {
-        return <CommitRow
-            key={commit.hex}
-            commit={commit}
-            idx={idx}
-            selected={idx == this.state.selectedCommitIdx}
-            handleSelected={this.handleSelected} />;
-      }.bind(this))
-    }</tbody></table>;
+    return <div className="commits-div">
+          <table className="commits">
+            <thead>
+              <tr>
+                <th><div className="header">SHA</div></th>
+                <th><div className="header">Subject</div></th>
+                <th><div className="header">Author</div></th>
+                <th><div className="header">Time</div></th>
+              </tr>
+            </thead>
+            <tbody><div>
+            {
+              commits.map(function(commit, idx) {
+                return <CommitRow
+                    key={commit.hex}
+                    commit={commit}
+                    idx={idx}
+                    selected={idx == this.state.selectedCommitIdx}
+                    handleSelected={this.handleSelected} />;
+              }.bind(this))
+            }</div></tbody>
+          </table>
+        </div>;
   }
 });
 
