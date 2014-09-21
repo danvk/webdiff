@@ -151,7 +151,7 @@ def file_diff(idx):
                            num_pairs=len(DIFF))
 
 
-@app.route("/commits")
+@app.route("/git/commits")
 def commits():
     walk = repo().walk(repo().head.target)
     commits = [walk.next() for i in range(40)]

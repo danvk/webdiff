@@ -122,10 +122,6 @@ def is_image_diff(diff):
 
 
 def get_fields(obj, fields):
-    ret = {}
-    def add_field(field):
-        ret[field] = obj.__getattribute__(field)
-    map(add_field, fields)
-    return ret
+    return {k: obj.__getattribute__(k) for k in fields}
 
 

@@ -1,3 +1,6 @@
+"""
+Utilities for interacting with a local git repository.
+"""
 
 import json
 from pygit2 import Repository

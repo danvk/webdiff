@@ -1,31 +1,36 @@
 /** @jsx React.DOM */
 
-var Commits = React.createClass({
+var CommitsTable = React.createClass({
   propTypes: {
     commits: React.PropTypes.array.isRequired
   },
   getInitialState: function() {
     return {
-      selectedCommitIdx: -1
+      selectedCommitIdx: null
     };
   },
   handleSelected: function(commit) {
     this.setState({ selectedCommitIdx: commit.props.idx });
   },
   render: function() {
-    return <div id="commits"><table><tbody>{
-      this.props.commits.map(function(commit, idx) {
-        return <Commit
+    var commits = this.props.commits;
+    return <table className="commits"><tbody>{
+      commits.map(function(commit, idx) {
+        return <CommitRow
+            key={commit.hex}
             commit={commit}
             idx={idx}
             selected={idx == this.state.selectedCommitIdx}
             handleSelected={this.handleSelected} />;
       }.bind(this))
-    }</tbody></table></div>;
+    }</tbody></table>;
   }
 });
 
-var Commit = React.createClass({
+var CommitRow = React.createClass({
+  propTypes: {
+    commit: React.PropTypes.object.isRequired
+  },
   onClick: function(e) {
     this.props.handleSelected(this);
   },
@@ -37,4 +42,4 @@ var Commit = React.createClass({
       <td className="author-datetime">{moment(this.props.commit.author.time * 1000).format('YYYY/MM/DD hh:mm:ss a')}</td>
     </tr>;
   }
-})
+});
