@@ -121,7 +121,10 @@ var FileList = React.createClass({
       } else {
         content = <b>{filePair.path}</b>;
       }
-      return <li key={idx}><span className={'diff ' + filePair.type}/>{content}</li>;
+      return <li key={idx}>
+        <span title={filePair.type} className={'diff ' + filePair.type}/>
+        {content}
+      </li>;
     });
     return <ul className="file-list">{lis}</ul>;
   },
