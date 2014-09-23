@@ -299,7 +299,7 @@ var AnnotatedImage = React.createClass({
   },
   render: function() {
     if (!this.props.filePair[this.props.side]) {
-      return 'None';
+      return <span>None</span>;
     }
 
     var url = (this.props.side == 'a') ? '/a/image/' + this.props.filePair.a
