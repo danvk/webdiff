@@ -40,6 +40,7 @@ ul.file-list {
   cursor: pointer;
   width: 20px;
   height: 10px;
+  overflow: hidden;
 }
 
 .arrow-holder {
