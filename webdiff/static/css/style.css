@@ -48,3 +48,17 @@ ul.file-list {
   line-height: 20px;
   transform: rotate(90deg);
 }
+
+.file-list .diff {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-right: 5px;
+  background: url(/static/img/sprites.png) no-repeat left center;
+  vertical-align: top;
+}
+
+.diff.add    { background-position: 0 0; }
+.diff.change,
+.diff.move   { background-position: 0 -16px; }
+.diff.delete { background-position: 0 -32px; }
