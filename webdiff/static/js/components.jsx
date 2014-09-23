@@ -73,10 +73,12 @@ var FileSelector = React.createClass({
                                fileChangeHandler={this.props.fileChangeHandler} />;
     }
 
+    var changer = <FileModeSelector mode={this.state.mode}
+                                    changeHandler={this.changeSelectionModeHandler} />
+
     return <div className="file-selector">
       {selector}
-      <FileModeSelector mode={this.state.mode}
-                        changeHandler={this.changeSelectionModeHandler} />
+      {this.props.filePairs.length > 3 ? changer : null}
     </div>;
   },
   changeSelectionModeHandler: function(mode) {
@@ -103,6 +105,15 @@ var FileModeSelector = React.createClass({
   }
 });
 
+// Returns either "foo.txt" or "{foo -> bar}.txt"
+function filePairDisplayName(filePair) {
+  if (filePair.type != 'move') {
+    return filePair.path;
+  }
+
+  return filePair.a + ' → ' + filePair.b;
+}
+
 // A list of all the files. Clicking a non-selected file selects it.
 // This view is simpler and generally preferable for short lists of files.
 var FileList = React.createClass({
@@ -114,12 +125,13 @@ var FileList = React.createClass({
   render: function() {
     var props = this.props;
     var lis = this.props.filePairs.map((filePair, idx) => {
+      var displayName = filePairDisplayName(filePair);
       var content;
       if (idx != props.selectedIndex) {
         content = <a data-idx={idx} onClick={this.clickHandler} href='#'>
-          {filePair.path}</a>;
+          {displayName}</a>;
       } else {
-        content = <b>{filePair.path}</b>;
+        content = <b>{displayName}</b>;
       }
       return <li key={idx}>
         <span title={filePair.type} className={'diff ' + filePair.type}/>
@@ -148,7 +160,7 @@ var FileDropdown = React.createClass({
         return <i>none</i>;
       } else {
         return <a href='#' data-idx={idx} onClick={this.handleLinkClick}>
-          {props.filePairs[idx].path}
+          {filePairDisplayName(props.filePairs[idx])}
         </a>;
       }
     };
@@ -157,7 +169,7 @@ var FileDropdown = React.createClass({
     var nextLink = linkOrNone(props.selectedIndex + 1);
 
     var options = this.props.filePairs.map((filePair, idx) =>
-      <option key={idx} value={idx}>{filePair.path} ({filePair.type})</option>);
+      <option key={idx} value={idx}>{filePairDisplayName(filePair)} ({filePair.type})</option>);
 
     return <div className="file-dropdown">
       Prev (k): {prevLink}<br/>
@@ -287,7 +299,7 @@ var ImageSideBySide = React.createClass({
   render: function() {
     var pair = this.props.filePair;
     var aImage = pair.a ? <img src={'/a/image/' + pair.a} /> : 'None';
-    var bImage = pair.b ? <img src={'/a/image/' + pair.b} /> : 'None';
+    var bImage = pair.b ? <img src={'/b/image/' + pair.b} /> : 'None';
     return <table id="imagediff">
       <tr className="image-diff-header">
         <td className="diff-left diff-header">{pair.a || 'None'}</td>
