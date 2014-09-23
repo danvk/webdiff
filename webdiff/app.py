@@ -224,7 +224,8 @@ def shim_for_file_diff(a_file, b_file):
              'b': b_file,
              'idx': 0,
              'path': a_file,
-             'type': 'change'}])  # 'change' is the only likely case.
+             'type': 'change'}],  # 'change' is the only likely case.
+             A_DIR, B_DIR)
 
 
 def run():

@@ -76,11 +76,9 @@ def _convert_to_pair_objects(pairs):
 def _annotate_file_pair(d, a_dir, b_dir):
     # Attach image metadata if applicable.
     if is_image_diff(d):
-        d.update({
-            'is_image_diff': True,
-            'image_a': _image_metadata(os.path.join(a_dir, d['a'])),
-            'image_b': _image_metadata(os.path.join(b_dir, d['b']))
-        })
+        d['is_image_diff'] = True
+        if d['a']: d['image_a'] = _image_metadata(os.path.join(a_dir, d['a']))
+        if d['b']: d['image_b'] = _image_metadata(os.path.join(b_dir, d['b']))
 
     # TODO: diffstats
 
