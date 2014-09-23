@@ -79,10 +79,10 @@
 }
 
 .diff .delete {
-  background-color: #fcc;
+  background-color: #fee;
 }
 .diff .insert {
-  background-color: #cfc;
+  background-color: #efe;
 }
 
 .diff-left-content .replace {
