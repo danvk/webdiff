@@ -13,7 +13,7 @@ setup(name='webdiff',
           ],
       },
       packages=find_packages(exclude=['tests*']),
-      install_requires=['flask'],
+      install_requires=['flask', 'pillow'],
       include_package_data=True,
       package_data = {
           'static': 'webdiff/static/*',

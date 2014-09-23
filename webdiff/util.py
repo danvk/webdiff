@@ -4,6 +4,7 @@ import hashlib
 from collections import defaultdict
 import copy
 import mimetypes
+from PIL import Image
 
 textchars = ''.join(map(chr, [7,8,9,10,12,13,27] + range(0x20, 0x100)))
 is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
@@ -31,8 +32,8 @@ def find_diff(a, b):
     a_files = [os.path.relpath(x, start=a) for x in a_files]
     b_files = [os.path.relpath(x, start=b) for x in b_files]
 
-    pairs = pair_files(a_files, b_files)
-    diff = find_moves(annotate_pairs(pairs), a, b)
+    pairs = _convert_to_pair_objects(pair_files(a_files, b_files))
+    diff = annotate_file_pairs(pairs, a, b)
 
     # this sorts "changes" before "delete" in a move, which is much easier to understand.
     diff.sort(key=lambda x: (x['path'], 0 if x['b'] else 1))
@@ -59,7 +60,8 @@ def pair_files(a_files, b_files):
     return pairs
 
 
-def annotate_pairs(pairs):
+def _convert_to_pair_objects(pairs):
+    '''Convert (a, b) pairs to {a, b, path, type} filePair objects.'''
     diffs = []
     for i, (a, b) in enumerate(pairs):
         d = { 'a': a, 'b': b, 'path': b or a, 'type': 'change' }
@@ -68,8 +70,29 @@ def annotate_pairs(pairs):
         elif b is None:
             d['type'] = 'delete'
         diffs.append(d)
-        d['is_image_diff'] = is_image_diff(d)
     return diffs
+
+
+def _annotate_file_pair(d, a_dir, b_dir):
+    # Attach image metadata if applicable.
+    if is_image_diff(d):
+        d.update({
+            'is_image_diff': True,
+            'image_a': _image_metadata(os.path.join(a_dir, d['a'])),
+            'image_b': _image_metadata(os.path.join(b_dir, d['b']))
+        })
+
+    # TODO: diffstats
+
+
+def annotate_file_pairs(file_pairs, a_dir, b_dir):
+    '''Add annotations (e.g. stats, image info, moves) to filePair objects.'''
+    file_pairs = find_moves(file_pairs, a_dir, b_dir)
+
+    for d in file_pairs:
+        _annotate_file_pair(d, a_dir, b_dir)
+
+    return file_pairs
 
 
 def find_moves(diff, a_dir, b_dir):
@@ -119,3 +142,14 @@ def is_image_diff(diff):
     elif right_img and diff['a'] is None:
         return True
     return False
+
+
+def _image_metadata(path):
+    md = { 'num_bytes': os.path.getsize(path) }
+    try:
+        im = Image.open(path)
+        width, height = im.size
+        md.update({'width': width, 'height': height})
+    except:
+        pass
+    return md

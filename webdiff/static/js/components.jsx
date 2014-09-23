@@ -291,6 +291,33 @@ var ImageDiff = React.createClass({
   }
 });
 
+
+var AnnotatedImage = React.createClass({
+  propTypes: {
+    filePair: React.PropTypes.object.isRequired,
+    side: React.PropTypes.oneOf(['a', 'b']).isRequired
+  },
+  render: function() {
+    if (!this.props.filePair[this.props.side]) {
+      return 'None';
+    }
+
+    var url = (this.props.side == 'a') ? '/a/image/' + this.props.filePair.a
+                                       : '/b/image/' + this.props.filePair.b;
+    var im = this.props.filePair['image_' + this.props.side];
+    return (
+      <div>
+        <img src={url} width={im.width} height={im.height} />
+        <p className="image-props">
+          {im.width}x{im.height} pixels<br/>
+          ({im.num_bytes.toLocaleString()} bytes)
+        </p>
+      </div>
+    );
+  }
+});
+
+
 // Two images placed side-by-side.
 var ImageSideBySide = React.createClass({
   propTypes: {
@@ -298,16 +325,14 @@ var ImageSideBySide = React.createClass({
   },
   render: function() {
     var pair = this.props.filePair;
-    var aImage = pair.a ? <img src={'/a/image/' + pair.a} /> : 'None';
-    var bImage = pair.b ? <img src={'/b/image/' + pair.b} /> : 'None';
     return <table id="imagediff">
       <tr className="image-diff-header">
         <td className="diff-left diff-header">{pair.a || 'None'}</td>
         <td className="diff-right diff-header">{pair.b || 'None'}</td>
       </tr>
       <tr className="image-diff-content">
-        <td className="diff-left">{aImage}</td>
-        <td className="diff-right">{bImage}</td>
+        <td className="diff-left"><AnnotatedImage filePair={pair} side="a" /></td>
+        <td className="diff-right"><AnnotatedImage filePair={pair} side="b" /></td>
       </tr>
     </table>;
   }
@@ -326,13 +351,12 @@ var ImageBlinker = React.createClass({
     var pair = this.props.filePair;
     var side = ['a', 'b'][this.state.idx];
     var path = [pair.a, pair.b][this.state.idx];
-    var img = path ? <img src={'/' + side + '/image/' + path} /> : 'None';
     return <table id="imagediff">
       <tr className="image-diff-header">
         <td className="diff-header">{path} ({side == 'a' ? 'left' : 'right'})</td>
       </tr>
       <tr className="image-diff-content">
-        <td>{img}</td>
+        <td><AnnotatedImage filePair={pair} side={side} /></td>
       </tr>
     </table>;
   },
