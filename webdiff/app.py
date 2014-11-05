@@ -4,7 +4,6 @@
 For usage, see README.md.
 '''
 
-import argparse
 import logging
 import mimetypes
 import os
@@ -19,6 +18,8 @@ from flask import (Flask, render_template, send_from_directory,
                    request, jsonify, Response)
 
 import util
+import argparser
+import folderify
 
 
 def determine_path():
@@ -37,11 +38,6 @@ def is_hot_reload():
     """In debug mode, Werkzeug reloads the app on any changes."""
     return os.environ.get('WERKZEUG_RUN_MAIN')
 
-parser = argparse.ArgumentParser(description='Run webdiff.')
-parser.add_argument('--port', '-p', type=int, help="Port to run webdiff on.", default=-1)
-parser.add_argument('a', type=str, help="'Left' file to diff")
-parser.add_argument('b', type=str, help="'Right' file to diff")
-args = parser.parse_args()
 
 class Config:
     pass
@@ -199,11 +195,6 @@ def open_browser():
             webbrowser.open_new_tab('http://localhost:%s' % PORT)
 
 
-def err_and_die(err, code=1):
-    sys.stderr.write('ERROR: %s\n' % err.strip())
-    sys.exit(code)
-
-
 def usage_and_die():
     sys.stderr.write(
 '''Usage: webdiff <left_dir> <right_dir>
@@ -214,9 +205,9 @@ Or run "git webdiff" from a git repository.
     sys.exit(1)
 
 
-def pick_a_port():
-    if args.port != -1:
-        return args.port
+def pick_a_port(args):
+    if 'port' in args != -1:
+        return args['port']
 
     if os.environ.get('WEBDIFF_PORT'):
         return int(os.environ.get('WEBDIFF_PORT'))
@@ -236,43 +227,20 @@ def abs_path(path):
         return os.path.join(os.getcwd(), path)
 
 
-def shim_for_file_diff(a_file, b_file):
-    '''Sets A_DIR, B_DIR and DIFF to do a one-file diff.'''
-    global A_DIR, B_DIR, DIFF
-    A_DIR = os.path.dirname(a_file)
-    a_file = os.path.basename(a_file)
-    B_DIR = os.path.dirname(b_file)
-    b_file = os.path.basename(b_file)
-    DIFF = util.annotate_file_pairs([{
-             'a': a_file,
-             'b': b_file,
-             'idx': 0,
-             'path': a_file,
-             'type': 'change'}],  # 'change' is the only likely case.
-             A_DIR, B_DIR)
-
-
 def run():
     global A_DIR, B_DIR, DIFF, PORT
-    A_DIR = abs_path(args.a)
-    B_DIR = abs_path(args.b)
+    try:
+        parsed_args = argparser.parse(sys.argv[1:])
+    except argparser.UsageError as e:
+        sys.stderr.write(e.message + '\n')
+        usage_and_die()
 
-    if not os.path.exists(A_DIR):
-        err_and_die("'%s' doesn't exist" % A_DIR)
-
-    if not os.path.exists(B_DIR):
-        err_and_die("'%s' doesn't exist" % B_DIR)
-
-    if os.path.isdir(A_DIR) and not os.path.isdir(B_DIR):
-        err_and_die("'%s' is a directory but '%s' is not" % (A_DIR, B_DIR))
-
-    if not os.path.isdir(A_DIR) and os.path.isdir(B_DIR):
-        err_and_die("'%s' is a directory but '%s' is not" % (B_DIR, A_DIR))
+    A_DIR, B_DIR = folderify.two_folders(parsed_args)
 
     if app.config['TESTING'] or app.config['DEBUG']:
         sys.stderr.write('Diffing:\nA: %s\nB: %s\n\n' % (A_DIR, B_DIR))
 
-    PORT = pick_a_port()
+    PORT = pick_a_port(parsed_args)
 
     sys.stderr.write('''Serving diffs on http://localhost:%s
 Close the browser tab or hit Ctrl-C when you're done.
