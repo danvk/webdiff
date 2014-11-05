@@ -235,7 +235,7 @@ def run():
         sys.stderr.write(e.message + '\n')
         usage_and_die()
 
-    A_DIR, B_DIR = folderify.two_folders(parsed_args)
+    A_DIR, B_DIR, DIFF = util.diff_for_args(parsed_args)
 
     if app.config['TESTING'] or app.config['DEBUG']:
         sys.stderr.write('Diffing:\nA: %s\nB: %s\n\n' % (A_DIR, B_DIR))
@@ -245,10 +245,6 @@ def run():
     sys.stderr.write('''Serving diffs on http://localhost:%s
 Close the browser tab or hit Ctrl-C when you're done.
 ''' % PORT)
-    if os.path.isdir(A_DIR):
-        DIFF = util.find_diff(A_DIR, B_DIR)
-    else:
-        shim_for_file_diff(A_DIR, B_DIR)
     logging.info('Diff: %r', DIFF)
     Timer(0.1, open_browser).start()
     app.run(host='0.0.0.0', port=PORT)

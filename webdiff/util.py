@@ -151,3 +151,32 @@ def _image_metadata(path):
     except:
         pass
     return md
+
+
+def _shim_for_file_diff(a_file, b_file):
+    '''Sets A_DIR, B_DIR and DIFF to do a one-file diff.'''
+    print 'XXX' + str((a_file, b_file))
+    a_dir = os.path.dirname(a_file)
+    a_file = os.path.basename(a_file)
+    b_dir = os.path.dirname(b_file)
+    b_file = os.path.basename(b_file)
+    diff = annotate_file_pairs([{
+             'a': a_file,
+             'b': b_file,
+             'idx': 0,
+             'path': a_file,
+             'type': 'change'}],  # 'change' is the only likely case.
+             a_dir, b_dir)
+    return a_dir, b_dir, diff
+
+
+def diff_for_args(args):
+    """Returns A_DIR, B_DIR, find_diff() for parsed command line args."""
+    if 'dirs' in args:
+        return args['dir'] + [find_diff(*args['dirs'])]
+
+    if 'files' in args:
+        return _shim_for_file_diff(*args['files'])
+
+    if 'github' in args:
+        pass
