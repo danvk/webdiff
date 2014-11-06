@@ -110,15 +110,6 @@ var FileModeSelector = React.createClass({
   }
 });
 
-// Returns either "foo.txt" or "{foo -> bar}.txt"
-function filePairDisplayName(filePair) {
-  if (filePair.type != 'move') {
-    return filePair.path;
-  }
-
-  return filePair.a + ' → ' + filePair.b;
-}
-
 // A list of all the files. Clicking a non-selected file selects it.
 // This view is simpler and generally preferable for short lists of files.
 var FileList = React.createClass({
