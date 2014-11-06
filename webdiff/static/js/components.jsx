@@ -208,7 +208,7 @@ var ImageDiffModeSelector = React.createClass({
     </div>;
   },
   handleClick: function(e) {
-    this.props.changeHandler($(e.target).attr('value'));
+    this.props.changeHandler($(e.currentTarget).attr('value'));
   }
 });
 
