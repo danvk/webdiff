@@ -6,6 +6,8 @@ import copy
 import mimetypes
 from PIL import Image
 
+import github_fetcher
+
 textchars = ''.join(map(chr, [7,8,9,10,12,13,27] + range(0x20, 0x100)))
 is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
 
@@ -151,3 +153,33 @@ def _image_metadata(path):
     except:
         pass
     return md
+
+
+def _shim_for_file_diff(a_file, b_file):
+    '''Sets A_DIR, B_DIR and DIFF to do a one-file diff.'''
+    a_dir = os.path.dirname(a_file)
+    a_file = os.path.basename(a_file)
+    b_dir = os.path.dirname(b_file)
+    b_file = os.path.basename(b_file)
+    diff = annotate_file_pairs([{
+             'a': a_file,
+             'b': b_file,
+             'idx': 0,
+             'path': a_file,
+             'type': 'change'}],  # 'change' is the only likely case.
+             a_dir, b_dir)
+    return a_dir, b_dir, diff
+
+
+def diff_for_args(args):
+    """Returns A_DIR, B_DIR, find_diff() for parsed command line args."""
+    if 'dirs' in args:
+        return args['dir'] + [find_diff(*args['dirs'])]
+
+    if 'files' in args:
+        return _shim_for_file_diff(*args['files'])
+
+    if 'github' in args:
+        gh = args['github']
+        a_dir, b_dir = github_fetcher.fetch_pull_request(gh['owner'], gh['repo'], gh['num'])
+        return [a_dir, b_dir] + [find_diff(a_dir, b_dir)]
