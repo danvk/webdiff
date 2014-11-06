@@ -6,12 +6,20 @@ import re
 class UsageError(Exception):
     pass
 
+USAGE = (
+'''Usage: webdiff <left_dir> <right_dir>
+       webdiff <left_file> <right_file>
+       webdiff https://github.com/<owner>/<repo>/pull/<num>
+
+Or run "git webdiff" from a git repository.
+''')
+
 # e.g. https://github.com/danvk/dygraphs/pull/292
 PULL_REQUEST_RE = re.compile(r'http[s]://(?:www.)?github.com\/([^/]+)/([^/]+)/pull/([0-9]+)(?:/.*)?')
 
 def parse(args):
     """Returns {port, dirs: [], files: [], pr: {owner, repo, number}}."""
-    parser = argparse.ArgumentParser(description='Run webdiff.')
+    parser = argparse.ArgumentParser(description='Run webdiff.', usage=USAGE)
     parser.add_argument('--port', '-p', type=int, help="Port to run webdiff on.", default=-1)
     parser.add_argument('dirs', type=str, nargs='+',
                         help="Directories to diff, or a github pull request URL.")

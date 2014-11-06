@@ -157,7 +157,6 @@ def _image_metadata(path):
 
 def _shim_for_file_diff(a_file, b_file):
     '''Sets A_DIR, B_DIR and DIFF to do a one-file diff.'''
-    print 'XXX' + str((a_file, b_file))
     a_dir = os.path.dirname(a_file)
     a_file = os.path.basename(a_file)
     b_dir = os.path.dirname(b_file)

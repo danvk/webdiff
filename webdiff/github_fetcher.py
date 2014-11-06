@@ -35,7 +35,7 @@ def fetch_pull_request(owner, repo, num):
     Returns before_dir, after_dir.
     """
     sys.stderr.write('Loading pull request %s/%s#%s from github...\n' % (owner, repo, num))
-    g = Github('danvk', open('/tmp/gp').read().strip())
+    g = Github()  # TODO(danvk): add a way to pass an OAuth token here
     pr = g.get_user(owner).get_repo(repo).get_pull(num)
     base_repo = pr.base.repo
     head_repo = pr.head.repo

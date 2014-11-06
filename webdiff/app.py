@@ -197,12 +197,7 @@ def open_browser():
 
 
 def usage_and_die():
-    sys.stderr.write(
-'''Usage: webdiff <left_dir> <right_dir>
-       webdiff <left_file> <right_file>
-
-Or run "git webdiff" from a git repository.
-''')
+    sys.stderr.write(argparser.USAGE)
     sys.exit(1)
 
 
@@ -233,7 +228,7 @@ def run():
     try:
         parsed_args = argparser.parse(sys.argv[1:])
     except argparser.UsageError as e:
-        sys.stderr.write(e.message + '\n')
+        sys.stderr.write('Error: %s\n\n' % e.message)
         usage_and_die()
 
     A_DIR, B_DIR, DIFF = util.diff_for_args(parsed_args)
