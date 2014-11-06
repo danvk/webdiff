@@ -3,6 +3,8 @@ import argparse
 import os
 import re
 
+import github_fetcher
+
 class UsageError(Exception):
     pass
 
@@ -16,6 +18,7 @@ Or run "git webdiff" from a git repository.
 
 # e.g. https://github.com/danvk/dygraphs/pull/292
 PULL_REQUEST_RE = re.compile(r'http[s]://(?:www.)?github.com\/([^/]+)/([^/]+)/pull/([0-9]+)(?:/.*)?')
+PULL_REQUEST_NUM_RE = re.compile(r'^#([0-9]+)$')
 
 def parse(args):
     """Returns {port, dirs: [], files: [], pr: {owner, repo, number}}."""
@@ -34,11 +37,20 @@ def parse(args):
 
     if len(args.dirs) == 1:
         # must be a github pull request URL
+        owner, repo, num = None, None, None
         m = re.match(PULL_REQUEST_RE, args.dirs[0])
-        if not m:
+        if m:
+            owner, repo, num = m.groups()
+
+        # Or perhaps something simpler like '#292'?
+        m = re.match(PULL_REQUEST_NUM_RE, args.dirs[0])
+        if m:
+            num = int(m.group(1))
+            owner, repo, num = github_fetcher.get_pr_repo(num)
+
+        if not owner:
             raise UsageError('You must either specify two files, two '
-                             'directories or a github pull request URL.')
-        owner, repo, num = m.groups()
+                             'directories or a github pull request URL/#number')
         out['github'] = {'owner': owner, 'repo': repo, 'num': int(num)}
 
     else:
