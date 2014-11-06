@@ -294,15 +294,16 @@ var AnnotatedImage = React.createClass({
     side: React.PropTypes.oneOf(['a', 'b']).isRequired
   },
   render: function() {
-    if (!this.props.filePair[this.props.side]) {
+    var side = this.props.side;
+    if (!this.props.filePair[side]) {
       return <span>None</span>;
     }
 
-    var url = (this.props.side == 'a') ? '/a/image/' + this.props.filePair.a
-                                       : '/b/image/' + this.props.filePair.b;
-    var im = this.props.filePair['image_' + this.props.side];
+    var url = (side == 'a') ? '/a/image/' + this.props.filePair.a
+                            : '/b/image/' + this.props.filePair.b;
+    var im = this.props.filePair['image_' + side];
     return (
-      <div>
+      <div className={'image-' + side}>
         <img src={url} width={im.width} height={im.height} />
         <p className="image-props">
           {im.width}x{im.height} pixels<br/>
