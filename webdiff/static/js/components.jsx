@@ -62,6 +62,11 @@ var FileSelector = React.createClass({
     return {mode: this.props.filePairs.length <= 6 ? 'list' : 'dropdown'}
   },
   render: function() {
+    // For single file diffs, a file selector is a waste of space.
+    if (this.props.filePairs.length == 1) {
+      return null;
+    }
+
     var selector;
     if (this.state.mode == 'list') {
       selector = <FileList filePairs={this.props.filePairs}
