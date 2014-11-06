@@ -68,6 +68,13 @@ or to launch in debug mode:
 
 (or any other directory in testdata)
 
+To run the tests:
+
+    nosetests  # Run python tests
+    # Runs JS tests
+    python -m SimpleHTTPServer
+    open tests/runner.html
+
 To iterate on the PyPI package, run:
 
     # from outside the webdiff virtualenv:
