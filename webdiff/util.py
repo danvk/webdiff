@@ -6,6 +6,8 @@ import copy
 import mimetypes
 from PIL import Image
 
+import github_fetcher
+
 textchars = ''.join(map(chr, [7,8,9,10,12,13,27] + range(0x20, 0x100)))
 is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
 
@@ -179,4 +181,6 @@ def diff_for_args(args):
         return _shim_for_file_diff(*args['files'])
 
     if 'github' in args:
-        pass
+        gh = args['github']
+        a_dir, b_dir = github_fetcher.fetch_pull_request(gh['owner'], gh['repo'], gh['num'])
+        return [a_dir, b_dir] + [find_diff(a_dir, b_dir)]

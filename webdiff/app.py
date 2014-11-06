@@ -59,10 +59,11 @@ if app.config['TESTING'] or app.config['DEBUG']:
     handler.setFormatter(formatter)
 
     app.logger.addHandler(handler)
-    for logname in ['github', '']:
+    for logname in ['']:
         log = logging.getLogger(logname)
         log.setLevel(logging.DEBUG)
         log.addHandler(handler)
+    logging.getLogger('github').setLevel(logging.ERROR)
 else:
     # quiet down werkzeug -- no need to log every request.
     logging.getLogger('werkzeug').setLevel(logging.ERROR)
