@@ -8,9 +8,11 @@ import argparse
 import logging
 import mimetypes
 import os
+import requests
 import socket
 import sys
 from threading import Timer
+import time
 import webbrowser
 
 from flask import (Flask, render_template, send_from_directory,
@@ -68,6 +70,13 @@ if app.config['TESTING'] or app.config['DEBUG']:
 else:
     # quiet down werkzeug -- no need to log every request.
     logging.getLogger('werkzeug').setLevel(logging.ERROR)
+
+
+LAST_REQUEST_MS = 0
+@app.before_request
+def update_last_request_ms():
+    global LAST_REQUEST_MS
+    LAST_REQUEST_MS = time.time() * 1000
 
 
 @app.route("/<side>/get_contents", methods=['POST'])
@@ -156,13 +165,28 @@ def favicon():
                                mimetype='image/vnd.microsoft.icon')
 
 
-@app.route('/kill', methods=['POST'])
-def kill():
-    if 'STAY_RUNNING' in app.config: return
+@app.route('/seriouslykill', methods=['POST'])
+def seriouslykill():
     func = request.environ.get('werkzeug.server.shutdown')
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
+    return "Shutting down..."
+
+
+@app.route('/kill', methods=['POST'])
+def kill():
+    if 'STAY_RUNNING' in app.config: return
+
+    last_ms = LAST_REQUEST_MS
+    def shutdown():
+        if LAST_REQUEST_MS <= last_ms:  # subsequent requests abort shutdown
+            requests.post('http://localhost:%d/seriouslykill' % PORT)
+        else:
+            pass
+
+    Timer(0.5, shutdown).start()
+    
     return "Shutting down..."
 
 
