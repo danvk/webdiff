@@ -174,7 +174,7 @@ def _shim_for_file_diff(a_file, b_file):
 def diff_for_args(args):
     """Returns A_DIR, B_DIR, find_diff() for parsed command line args."""
     if 'dirs' in args:
-        return args['dir'] + [find_diff(*args['dirs'])]
+        return list(args['dirs']) + [find_diff(*args['dirs'])]
 
     if 'files' in args:
         return _shim_for_file_diff(*args['files'])
