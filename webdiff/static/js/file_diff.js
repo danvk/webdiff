@@ -14,8 +14,18 @@ function renderDiff(pathBefore, pathAfter, contentsBefore, contentsAfter) {
     afterName: pathAfter || '(none)',
     contextSize: 10
   };
-  var language = guessLanguage(pathBefore || pathAfter);
-  if (language && hljs.getLanguage(language)) {
+
+  // First guess a language based on the file name.
+  // Fall back to guessing based on the contents of the longer version.
+  var language = codediff.guessLanguageUsingFileName(pathBefore || pathAfter);
+  if (!language) {
+    var byLength = [contentsBefore, contentsAfter];
+    if (contentsAfter.length > contentsBefore.length) {
+      byLength = [byLength[1], byLength[0]];
+    }
+    language = codediff.guessLanguageUsingContents(byLength[0]);
+  }
+  if (language) {
     opts.language = language;
   }
 
@@ -24,17 +34,6 @@ function renderDiff(pathBefore, pathAfter, contentsBefore, contentsAfter) {
   return diffDiv;
 }
 
-// Guess the language of code based on its file name.
-function guessLanguage(filename) {
-  var m = /\.([^.]+)$/.exec(filename);
-  if (m) {
-    var ext = m[1];
-    if (ext == 'py') return 'python';
-    return m[1];
-  } else {
-    return undefined;
-  }
-}
 
 // Useful for avoiding capturing keyboard shortcuts and text entry.
 function isLegitKeypress(e) {
