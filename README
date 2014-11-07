@@ -29,7 +29,6 @@ Release Notes
   * More aggressive syntax highlighting (makes a guess based on file contents)
   * Refresh no longer kills the webdiff server (useful if file changes on disk)
   * Renames/moves are displayed more compactly (ala GitHub)
-  https://github.com/danvk/webdiff/issues?q=milestone%3A0.8+is%3Aclosed
 
 - 0.7
   * Support for file vs. file diffs (i.e. webdiff as a replacement for diff)
