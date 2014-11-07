@@ -1,0 +1,23 @@
+<DiffView filePair={filePair}
+
+imageDiffMode={this.state.imageDiffMode}
+
+changeImageDiffModeHandler={this.changeImageDiffModeHandler} />
+
+var lis = this.props.filePairs.map((filePair, idx) => {
+
+      return <li key={idx}>{content}</li>;
+
+import htsjdk.samtools._
+
+  foo: "bar",
+
+
+
+  
+
+        <div className="examine-page">
+
+  foobar
+
+foobar

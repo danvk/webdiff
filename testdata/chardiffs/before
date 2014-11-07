@@ -1,0 +1,23 @@
+<ImageDiffModeSelector filePair={filePair}
+
+mode={this.state.imageDiffMode}
+
+changeHandler={this.changeImageDiffModeHandler}/>
+
+var lis = this.props.filePairs.map((file_pair, idx) => {
+
+      return <li key={idx}>{content}</li>
+
+import net.sf.samtools._
+
+  foo: "bar"
+
+  
+
+
+
+       <div className="examine-page">
+
+foobar
+
+    foobar
