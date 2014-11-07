@@ -1,0 +1,4 @@
+#!/usr/bin/env python
+
+print "Hello"
+print "You might not guess the type w/o the content"
