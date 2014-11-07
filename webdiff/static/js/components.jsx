@@ -1,5 +1,7 @@
 /** @jsx React.DOM */
 
+IMAGE_DIFF_MODES = ['side-by-side', 'blink', 'onion-skin', 'swipe'];
+
 // Webdiff application root.
 var Root = React.createClass({
   propTypes: {
@@ -186,7 +188,7 @@ var FileDropdown = React.createClass({
 var ImageDiffModeSelector = React.createClass({
   propTypes: {
     filePair: React.PropTypes.object.isRequired,
-    mode: React.PropTypes.oneOf(['side-by-side', 'blink']).isRequired,
+    mode: React.PropTypes.oneOf(IMAGE_DIFF_MODES).isRequired,
     changeHandler: React.PropTypes.func.isRequired
   },
   render: function() {
@@ -200,11 +202,18 @@ var ImageDiffModeSelector = React.createClass({
       }
     };
 
-    var isBlink = this.props.mode == 'blink';
+    var isBlink = this.props.mode == 'blink',
+        isSxS = this.props.mode == 'side-by-side',
+        isOnion = this.props.mode == 'onion-skin',
+        isSwipe = this.props.mode == 'swipe';
     return <div>Image diff mode:&nbsp;
-      {linkOrB(isBlink, !isBlink, 'side-by-side', 'Side by Side (s)')}
+      {linkOrB(!isSxS, isSxS, 'side-by-side', 'Side by Side (s)')}
       &nbsp;|&nbsp;
       {linkOrB(true, isBlink, 'blink', 'Blink (b)')}
+      &nbsp;|&nbsp;
+      {linkOrB(!isOnion, isOnion, 'onion-skin', 'Onion Skin')}
+      &nbsp;|&nbsp;
+      {linkOrB(!isSwipe, isSwipe, 'swipe', 'Swipe')}
     </div>;
   },
   handleClick: function(e) {
@@ -216,7 +225,7 @@ var ImageDiffModeSelector = React.createClass({
 var DiffView = React.createClass({
   propTypes: {
     filePair: React.PropTypes.object.isRequired,
-    imageDiffMode: React.PropTypes.oneOf(['side-by-side', 'blink']).isRequired,
+    imageDiffMode: React.PropTypes.oneOf(IMAGE_DIFF_MODES).isRequired,
     changeImageDiffModeHandler: React.PropTypes.func.isRequired
   },
   render: function() {
@@ -270,19 +279,26 @@ var CodeDiff = React.createClass({
 var ImageDiff = React.createClass({
   propTypes: {
     filePair: React.PropTypes.object.isRequired,
-    imageDiffMode: React.PropTypes.oneOf(['side-by-side', 'blink']).isRequired,
+    imageDiffMode: React.PropTypes.oneOf(IMAGE_DIFF_MODES).isRequired,
     changeImageDiffModeHandler: React.PropTypes.func.isRequired
   },
   render: function() {
-    var image = this.props.imageDiffMode == 'side-by-side' ?
-      <ImageSideBySide filePair={this.props.filePair} /> :
-      <ImageBlinker filePair={this.props.filePair} />;
+    var mode = this.props.imageDiffMode;
+    var component = {
+      'side-by-side': ImageSideBySide,
+      'blink': ImageBlinker,
+      'onion-skin': ImageOnionSkin,
+      'swipe': ImageSwipe
+    }[this.props.imageDiffMode];
+    var image = component({filePair: this.props.filePair});
 
     return <div>
       <ImageDiffModeSelector filePair={this.props.filePair}
                              mode={this.props.imageDiffMode}
                              changeHandler={this.props.changeImageDiffModeHandler}/>
-      {image}
+      <div className={"image-diff " + mode}>
+        {image}
+      </div>
     </div>;
   }
 });
@@ -299,17 +315,48 @@ var AnnotatedImage = React.createClass({
       return <span>None</span>;
     }
 
-    var url = (side == 'a') ? '/a/image/' + this.props.filePair.a
-                            : '/b/image/' + this.props.filePair.b;
     var im = this.props.filePair['image_' + side];
     return (
       <div className={'image-' + side}>
-        <img src={url} width={im.width} height={im.height} />
-        <p className="image-props">
-          {im.width}x{im.height} pixels<br/>
-          ({im.num_bytes.toLocaleString()} bytes)
-        </p>
+        <Image filePair={this.props.filePair} side={side} />
+        <ImageMetadata image={im} />
       </div>
+    );
+  }
+});
+
+
+var Image = React.createClass({
+  propTypes: {
+    filePair: React.PropTypes.object.isRequired,
+    side: React.PropTypes.oneOf(['a', 'b']).isRequired,
+    style: React.PropTypes.object
+  },
+  render: function() {
+    var side = this.props.side;
+    if (!this.props.filePair[side]) {
+      return null;  // or: return empty <img> same size as other image?
+    }
+
+    var url = (side == 'a') ? '/a/image/' + this.props.filePair.a
+                            : '/b/image/' + this.props.filePair.b;
+    var im = this.props.filePair['image_' + side];
+    return <img style={this.props.style} className={'side-' + side} src={url} width={im.width} height={im.height} />;
+  }
+});
+
+
+var ImageMetadata = React.createClass({
+  propTypes: {
+    image: React.PropTypes.object.isRequired
+  },
+  render: function() {
+    var im = this.props.image;
+    return (
+      <p className="image-props">
+        {im.width}x{im.height} pixels<br/>
+        ({im.num_bytes.toLocaleString()} bytes)
+      </p>
     );
   }
 });
@@ -373,5 +420,83 @@ var ImageBlinker = React.createClass({
   },
   componentDidUnmount: function(e) {
     $(document).off('keydown.blink').off('click.blink');
+  }
+});
+
+// Two images on top of one another with a cross-fader
+var ImageOnionSkin = React.createClass({
+  propTypes: {
+    filePair: React.PropTypes.object.isRequired
+  },
+  render: function() {
+    return <ImageSwipe filePair={this.props.filePair} mode="onion-skin" />;
+  }
+});
+
+// Two images on top of one another with a slider to move the divider from left
+// to right.
+var ImageSwipe = React.createClass({
+  propTypes: {
+    filePair: React.PropTypes.object.isRequired,
+    mode: React.PropTypes.oneOf(['swipe', 'onion-skin'])
+  },
+  getDefaultProps: function() {
+    return {mode: 'swipe'};
+  },
+  getInitialState: function() {
+    return {percent: 50};
+  },
+  onSlide: function(e) {
+    this.setState({percent: Number(this.refs.slider.getDOMNode().value)});
+  },
+  render: function() {
+    var pair = this.props.filePair;
+    var pct = this.state.percent,
+        frac = pct / 100.0;
+    var imA = pair.image_a, imB = pair.image_b;
+    var styleA = {}, styleB = {}, styleContainer = {
+      width: Math.max(imA.width, imB.width) + 'px',
+      height: Math.max(imA.height, imB.height) + 'px'
+    };
+    var urlA = '/a/image/' + pair.a,
+        urlB = '/b/image/' + pair.b;
+    _.extend(styleA, {
+      'background-image': 'url(' + urlA + ')',
+      'width': imA.width + 'px',
+      'height': imA.height + 'px'
+    });
+    _.extend(styleB, {
+      'background-image': 'url(' + urlB + ')',
+      'width': imB.width + 'px',
+      'height': imB.height + 'px'
+    });
+    if (this.props.mode == 'swipe') {
+      _.extend(styleA, {
+        width: Math.floor(frac * imA.width) + 'px'
+      });
+      _.extend(styleB, {
+        left: Math.floor(frac * imB.width) + 'px',
+        width: null,
+        right: Math.max(imA.width, imB.width) - imB.width + 'px',
+        'background-position-x': -Math.floor(frac * imB.width) + 'px'
+      });
+    } else {
+      _.extend(styleA, {opacity: (1.0 - frac)});
+      _.extend(styleB, {opacity: frac});
+    }
+
+    return (
+      <div>
+        <div className="overlapping-images" style={styleContainer}>
+          <div style={styleA} className="side-a" />
+          <div style={styleB} className="side-b" />
+        </div>
+        <input type="range" min="0" max="100" defaultValue="50" ref="slider" onChange={this.onSlide} />
+        <div className="overlapping-images-metadata">
+          <ImageMetadata image={imA} />
+          <ImageMetadata image={imA} />
+        </div>
+      </div>
+    );
   }
 });
