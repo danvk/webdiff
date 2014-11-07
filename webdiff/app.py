@@ -19,7 +19,6 @@ from flask import (Flask, render_template, send_from_directory,
 
 import util
 import argparser
-import folderify
 
 
 def determine_path():
