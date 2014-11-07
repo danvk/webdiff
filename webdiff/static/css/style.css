@@ -13,14 +13,6 @@ div#thediff {
     min-width: 50ch;
 }
 
-#controls > p {
-  vertical-align: top;
-  display: inline-block;
-}
-#imagediff-controls {
-  margin-left: 25px;
-}
-
 .file-selector {
   padding-bottom: 5px;
   border-bottom: 1px solid #ccc;
@@ -66,6 +58,32 @@ ul.file-list {
 .side-a { border: 1px solid red; }
 .side-b { border: 1px solid green; }
 
+.image-diff-controls {
+  text-align: center;
+  background-color: #f7f7f7;
+  padding: 5px;
+}
+.image-diff-controls > input {
+  margin-left: 20px;
+}
+.image-diff-controls a {
+  text-decoration: none;
+}
+.image-diff-controls a, .image-diff-controls a:visited {
+  color: #666;
+}
+.image-diff-controls b {
+  color: black;
+}
+.image-diff-controls .mode {
+  padding-left: 5px;
+  padding-right: 5px;
+  border-right: 1px solid #ccc;
+}
+.image-diff-controls .mode:last-child {
+  border-right: none;
+}
+
 .overlapping-images {
   position: relative;
   margin: 5px;
@@ -96,4 +114,7 @@ ul.file-list {
 }
 .onion-skin input {
   width: 200px;
+}
+.shrink-to-fit {
+  max-width: 100%;
 }

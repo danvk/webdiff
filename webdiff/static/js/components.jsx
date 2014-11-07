@@ -206,15 +206,12 @@ var ImageDiffModeSelector = React.createClass({
         isSxS = this.props.mode == 'side-by-side',
         isOnion = this.props.mode == 'onion-skin',
         isSwipe = this.props.mode == 'swipe';
-    return <div>Image diff mode:&nbsp;
-      {linkOrB(!isSxS, isSxS, 'side-by-side', 'Side by Side (s)')}
-      &nbsp;|&nbsp;
-      {linkOrB(true, isBlink, 'blink', 'Blink (b)')}
-      &nbsp;|&nbsp;
-      {linkOrB(!isOnion, isOnion, 'onion-skin', 'Onion Skin')}
-      &nbsp;|&nbsp;
-      {linkOrB(!isSwipe, isSwipe, 'swipe', 'Swipe')}
-    </div>;
+    return <span>
+      <span className="mode">{linkOrB(!isSxS, isSxS, 'side-by-side', 'Side by Side (s)')}</span>
+      <span className="mode">{linkOrB(true, isBlink, 'blink', 'Blink (b)')}</span>
+      <span className="mode">{linkOrB(!isOnion, isOnion, 'onion-skin', 'Onion Skin')}</span>
+      <span className="mode">{linkOrB(!isSwipe, isSwipe, 'swipe', 'Swipe')}</span>
+    </span>;
   },
   handleClick: function(e) {
     this.props.changeHandler($(e.currentTarget).attr('value'));
@@ -282,6 +279,20 @@ var ImageDiff = React.createClass({
     imageDiffMode: React.PropTypes.oneOf(IMAGE_DIFF_MODES).isRequired,
     changeImageDiffModeHandler: React.PropTypes.func.isRequired
   },
+  getInitialState: function() {
+    return {shrinkToFit: true};
+  },
+  toggleShrinkToFit: function(e) {
+    this.setState({shrinkToFit: e.target.checked});
+  },
+  componentDidMount: function() {
+    $(window).on('resize.shrink-to-fit', () => {
+      if (this.state.shrinkToFit) this.forceUpdate();
+    });
+  },
+  componentWillUnmount: function() {
+    $(window).off('resize.shrink-to-fit');
+  },
   render: function() {
     var mode = this.props.imageDiffMode;
     var component = {
@@ -290,13 +301,20 @@ var ImageDiff = React.createClass({
       'onion-skin': ImageOnionSkin,
       'swipe': ImageSwipe
     }[this.props.imageDiffMode];
-    var image = component({filePair: this.props.filePair});
+    var image = component({
+      filePair: this.props.filePair,
+      shrinkToFit: this.state.shrinkToFit
+    });
 
     return <div>
-      <ImageDiffModeSelector filePair={this.props.filePair}
-                             mode={this.props.imageDiffMode}
-                             changeHandler={this.props.changeImageDiffModeHandler}/>
-      <div className={"image-diff " + mode}>
+      <div className="image-diff-controls">
+        <ImageDiffModeSelector filePair={this.props.filePair}
+                               mode={this.props.imageDiffMode}
+                               changeHandler={this.props.changeImageDiffModeHandler}/>
+        <input type="checkbox" id="shrink-to-fit" checked={this.state.shrinkToFit} onChange={this.toggleShrinkToFit} />
+        <label htmlFor="shrink-to-fit"> Shrink to fit</label>
+      </div>
+      <div className={'image-diff ' + mode}>
         {image}
       </div>
     </div>;
@@ -307,7 +325,8 @@ var ImageDiff = React.createClass({
 var AnnotatedImage = React.createClass({
   propTypes: {
     filePair: React.PropTypes.object.isRequired,
-    side: React.PropTypes.oneOf(['a', 'b']).isRequired
+    side: React.PropTypes.oneOf(['a', 'b']).isRequired,
+    maxWidth: React.PropTypes.number
   },
   render: function() {
     var side = this.props.side;
@@ -318,7 +337,7 @@ var AnnotatedImage = React.createClass({
     var im = this.props.filePair['image_' + side];
     return (
       <div className={'image-' + side}>
-        <Image filePair={this.props.filePair} side={side} />
+        <Image filePair={this.props.filePair} side={side} maxWidth={this.props.maxWidth} />
         <ImageMetadata image={im} />
       </div>
     );
@@ -330,7 +349,7 @@ var Image = React.createClass({
   propTypes: {
     filePair: React.PropTypes.object.isRequired,
     side: React.PropTypes.oneOf(['a', 'b']).isRequired,
-    style: React.PropTypes.object
+    maxWidth: React.PropTypes.number
   },
   render: function() {
     var side = this.props.side;
@@ -340,8 +359,13 @@ var Image = React.createClass({
 
     var url = (side == 'a') ? '/a/image/' + this.props.filePair.a
                             : '/b/image/' + this.props.filePair.b;
-    var im = this.props.filePair['image_' + side];
-    return <img style={this.props.style} className={'side-' + side} src={url} width={im.width} height={im.height} />;
+    var im = _.clone(this.props.filePair['image_' + side]);
+    if (this.props.maxWidth !== null && this.props.maxWidth < im.width) {
+      var scaleDown = this.props.maxWidth / im.width;
+      im.width *= scaleDown;
+      im.height *= scaleDown;
+    }
+    return <img className={'side-' + side} src={url} width={im.width} height={im.height} />;
   }
 });
 
@@ -365,18 +389,16 @@ var ImageMetadata = React.createClass({
 // Two images placed side-by-side.
 var ImageSideBySide = React.createClass({
   propTypes: {
-    filePair: React.PropTypes.object.isRequired
+    filePair: React.PropTypes.object.isRequired,
+    shrinkToFit: React.PropTypes.bool
   },
   render: function() {
     var pair = this.props.filePair;
+    var maxWidth = this.props.shrinkToFit ? (window.innerWidth - 30) / 2 : null;
     return <table id="imagediff">
-      <tr className="image-diff-header">
-        <td className="diff-left diff-header">{pair.a || 'None'}</td>
-        <td className="diff-right diff-header">{pair.b || 'None'}</td>
-      </tr>
       <tr className="image-diff-content">
-        <td className="diff-left"><AnnotatedImage filePair={pair} side="a" /></td>
-        <td className="diff-right"><AnnotatedImage filePair={pair} side="b" /></td>
+        <td className="diff-left"><AnnotatedImage filePair={pair} side="a" maxWidth={maxWidth} /></td>
+        <td className="diff-right"><AnnotatedImage filePair={pair} side="b" maxWidth={maxWidth} /></td>
       </tr>
     </table>;
   }
@@ -386,7 +408,8 @@ var ImageSideBySide = React.createClass({
 // This component handles toggling between the two images itself.
 var ImageBlinker = React.createClass({
   propTypes: {
-    filePair: React.PropTypes.object.isRequired
+    filePair: React.PropTypes.object.isRequired,
+    shrinkToFit: React.PropTypes.bool
   },
   getInitialState: function() {
     return {idx: 0};
@@ -395,12 +418,10 @@ var ImageBlinker = React.createClass({
     var pair = this.props.filePair;
     var side = ['a', 'b'][this.state.idx];
     var path = [pair.a, pair.b][this.state.idx];
+    var maxWidth = this.props.shrinkToFit ? window.innerWidth - 30 : null;
     return <table id="imagediff">
-      <tr className="image-diff-header">
-        <td className="diff-header">{path} ({side == 'a' ? 'left' : 'right'})</td>
-      </tr>
       <tr className="image-diff-content">
-        <td><AnnotatedImage filePair={pair} side={side} /></td>
+        <td><AnnotatedImage filePair={pair} side={side} maxWidth={maxWidth} /></td>
       </tr>
     </table>;
   },
@@ -426,10 +447,13 @@ var ImageBlinker = React.createClass({
 // Two images on top of one another with a cross-fader
 var ImageOnionSkin = React.createClass({
   propTypes: {
-    filePair: React.PropTypes.object.isRequired
+    filePair: React.PropTypes.object.isRequired,
+    shrinkToFit: React.PropTypes.bool
   },
   render: function() {
-    return <ImageSwipe filePair={this.props.filePair} mode="onion-skin" />;
+    return <ImageSwipe filePair={this.props.filePair}
+                       shrinkToFit={this.props.shrinkToFit}
+                       mode="onion-skin" />;
   }
 });
 
@@ -438,7 +462,8 @@ var ImageOnionSkin = React.createClass({
 var ImageSwipe = React.createClass({
   propTypes: {
     filePair: React.PropTypes.object.isRequired,
-    mode: React.PropTypes.oneOf(['swipe', 'onion-skin'])
+    mode: React.PropTypes.oneOf(['swipe', 'onion-skin']),
+    shrinkToFit: React.PropTypes.bool
   },
   getDefaultProps: function() {
     return {mode: 'swipe'};
@@ -451,25 +476,36 @@ var ImageSwipe = React.createClass({
   },
   render: function() {
     var pair = this.props.filePair;
-    var imA = pair.image_a, imB = pair.image_b;
+    var imA = _.clone(pair.image_a), imB = _.clone(pair.image_b);
     var containerWidth = Math.max(imA.width, imB.width),
+        rangeMax = containerWidth,
         rangePosition = this.state.rangePosition,
-        rangePosition = rangePosition === null ? containerWidth / 2 : rangePosition,
-        pct = 100.0 * (rangePosition / containerWidth),
+        rangePosition = rangePosition === null ? rangeMax / 2 : rangePosition,
+        pct = 100.0 * (rangePosition / rangeMax),
         frac = pct / 100.0;
+    if (this.props.shrinkToFit) {
+      var scaleDown = Math.min(1.0, (window.innerWidth - 30) / containerWidth);
+      imA.width *= scaleDown;
+      imA.height *= scaleDown;
+      imB.width *= scaleDown;
+      imB.height *= scaleDown;
+      containerWidth = Math.max(imA.width, imB.width);
+    }
     var styleA = {}, styleB = {}, styleContainer = {
-      width: Math.max(imA.width, imB.width) + 'px',
+      width: containerWidth + 'px',
       height: Math.max(imA.height, imB.height) + 'px'
     };
     var urlA = '/a/image/' + pair.a,
         urlB = '/b/image/' + pair.b;
     _.extend(styleA, {
       'background-image': 'url(' + urlA + ')',
+      'background-size': imA.width + 'px ' + imA.height + 'px',
       'width': imA.width + 'px',
       'height': imA.height + 'px'
     });
     _.extend(styleB, {
       'background-image': 'url(' + urlB + ')',
+      'background-size': imB.width + 'px ' + imB.height + 'px',
       'width': imB.width + 'px',
       'height': imB.height + 'px'
     });
@@ -480,7 +516,7 @@ var ImageSwipe = React.createClass({
       _.extend(styleB, {
         left: Math.floor(frac * imB.width) + 'px',
         width: null,
-        right: Math.max(imA.width, imB.width) - imB.width + 'px',
+        right: containerWidth - imB.width + 'px',
         'background-position-x': -Math.floor(frac * imB.width) + 'px'
       });
     } else {
@@ -490,14 +526,14 @@ var ImageSwipe = React.createClass({
 
     return (
       <div>
-        <input type="range" min="0" max={containerWidth} defaultValue={containerWidth/2} ref="slider" onChange={this.onSlide} />
+        <input type="range" min="0" max={rangeMax} defaultValue={rangeMax/2} ref="slider" onChange={this.onSlide} />
         <div className="overlapping-images" style={styleContainer}>
           <div style={styleA} className="side-a" />
           <div style={styleB} className="side-b" />
         </div>
         <div className="overlapping-images-metadata">
-          <ImageMetadata image={imA} />
-          <ImageMetadata image={imA} />
+          <ImageMetadata image={pair.image_a} />
+          <ImageMetadata image={pair.image_b} />
         </div>
       </div>
     );
