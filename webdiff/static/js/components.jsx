@@ -444,16 +444,19 @@ var ImageSwipe = React.createClass({
     return {mode: 'swipe'};
   },
   getInitialState: function() {
-    return {percent: 50};
+    return {rangePosition: null};
   },
   onSlide: function(e) {
-    this.setState({percent: Number(this.refs.slider.getDOMNode().value)});
+    this.setState({rangePosition: Number(this.refs.slider.getDOMNode().value)});
   },
   render: function() {
     var pair = this.props.filePair;
-    var pct = this.state.percent,
-        frac = pct / 100.0;
     var imA = pair.image_a, imB = pair.image_b;
+    var containerWidth = Math.max(imA.width, imB.width),
+        rangePosition = this.state.rangePosition,
+        rangePosition = rangePosition === null ? containerWidth / 2 : rangePosition,
+        pct = 100.0 * (rangePosition / containerWidth),
+        frac = pct / 100.0;
     var styleA = {}, styleB = {}, styleContainer = {
       width: Math.max(imA.width, imB.width) + 'px',
       height: Math.max(imA.height, imB.height) + 'px'
@@ -487,11 +490,11 @@ var ImageSwipe = React.createClass({
 
     return (
       <div>
+        <input type="range" min="0" max={containerWidth} defaultValue={containerWidth/2} ref="slider" onChange={this.onSlide} />
         <div className="overlapping-images" style={styleContainer}>
           <div style={styleA} className="side-a" />
           <div style={styleB} className="side-b" />
         </div>
-        <input type="range" min="0" max="100" defaultValue="50" ref="slider" onChange={this.onSlide} />
         <div className="overlapping-images-metadata">
           <ImageMetadata image={imA} />
           <ImageMetadata image={imA} />

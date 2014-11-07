@@ -91,3 +91,9 @@ ul.file-list {
 .image-diff {
   display: table;
 }
+.swipe input {
+  width: 100%;
+}
+.onion-skin input {
+  width: 200px;
+}
