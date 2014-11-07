@@ -207,13 +207,10 @@ var ImageDiffModeSelector = React.createClass({
         isOnion = this.props.mode == 'onion-skin',
         isSwipe = this.props.mode == 'swipe';
     return <span>
-      {linkOrB(!isSxS, isSxS, 'side-by-side', 'Side by Side (s)')}
-      &nbsp;|&nbsp;
-      {linkOrB(true, isBlink, 'blink', 'Blink (b)')}
-      &nbsp;|&nbsp;
-      {linkOrB(!isOnion, isOnion, 'onion-skin', 'Onion Skin')}
-      &nbsp;|&nbsp;
-      {linkOrB(!isSwipe, isSwipe, 'swipe', 'Swipe')}
+      <span className="mode">{linkOrB(!isSxS, isSxS, 'side-by-side', 'Side by Side (s)')}</span>
+      <span className="mode">{linkOrB(true, isBlink, 'blink', 'Blink (b)')}</span>
+      <span className="mode">{linkOrB(!isOnion, isOnion, 'onion-skin', 'Onion Skin')}</span>
+      <span className="mode">{linkOrB(!isSwipe, isSwipe, 'swipe', 'Swipe')}</span>
     </span>;
   },
   handleClick: function(e) {
@@ -399,10 +396,6 @@ var ImageSideBySide = React.createClass({
     var pair = this.props.filePair;
     var maxWidth = this.props.shrinkToFit ? (window.innerWidth - 30) / 2 : null;
     return <table id="imagediff">
-      <tr className="image-diff-header">
-        <td className="diff-left diff-header">{pair.a || 'None'}</td>
-        <td className="diff-right diff-header">{pair.b || 'None'}</td>
-      </tr>
       <tr className="image-diff-content">
         <td className="diff-left"><AnnotatedImage filePair={pair} side="a" maxWidth={maxWidth} /></td>
         <td className="diff-right"><AnnotatedImage filePair={pair} side="b" maxWidth={maxWidth} /></td>
@@ -427,9 +420,6 @@ var ImageBlinker = React.createClass({
     var path = [pair.a, pair.b][this.state.idx];
     var maxWidth = this.props.shrinkToFit ? window.innerWidth - 30 : null;
     return <table id="imagediff">
-      <tr className="image-diff-header">
-        <td className="diff-header">{path} ({side == 'a' ? 'left' : 'right'})</td>
-      </tr>
       <tr className="image-diff-content">
         <td><AnnotatedImage filePair={pair} side={side} maxWidth={maxWidth} /></td>
       </tr>
