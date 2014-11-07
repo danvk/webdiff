@@ -97,3 +97,6 @@ ul.file-list {
 .onion-skin input {
   width: 200px;
 }
+.shrink-to-fit {
+  max-width: 100%;
+}
