@@ -17,10 +17,16 @@ function renderDiff(pathBefore, pathAfter, contentsBefore, contentsAfter) {
 
   // First guess a language based on the file name.
   // Fall back to guessing based on the contents of the longer version.
-  var language = codediff.guessLanguageUsingFileName(pathBefore || pathAfter);
-  if (!language) {
+  var path = pathBefore || pathAfter;
+  var language = codediff.guessLanguageUsingFileName(path);
+
+  var lengthOrZero = function (data) {
+    return data ? data.length : 0;
+  };
+
+  if (!language && !_.contains(HIGHLIGHT_BLACKLIST, extractFilename(path))) {
     var byLength = [contentsBefore, contentsAfter];
-    if (contentsAfter.length > contentsBefore.length) {
+    if (contentsAfter && lengthOrZero(contentsAfter) > lengthOrZero(contentsBefore)) {
       byLength = [byLength[1], byLength[0]];
     }
     language = codediff.guessLanguageUsingContents(byLength[0]);
@@ -33,6 +39,17 @@ function renderDiff(pathBefore, pathAfter, contentsBefore, contentsAfter) {
 
   return diffDiv;
 }
+
+
+function extractFilename(path) {
+  var parts = path.split('/');
+  return parts[parts.length - 1];
+}
+var HIGHLIGHT_BLACKLIST = [
+  'TODO',
+  'README',
+  'NOTES'
+];
 
 
 // Useful for avoiding capturing keyboard shortcuts and text entry.
