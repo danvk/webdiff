@@ -8,7 +8,7 @@ Features include:
 * Runs in the browser of your choice on any platform.
 * Syntax highlighting via highlight.js
 * Step back and forth through multiple files in a single diff
-* Long stretches of common lines are elided (but can be shown if desired)
+* Rich support for image diffs
 
 Installation
 ------------
@@ -25,15 +25,21 @@ Instead of running "git diff", run:
 You can also start webdiff via:
 
     git webdiff [args]
-    git difftool -d -x webdiff [args]
 
-You can pass all the same arguments that you would to "git diff", e.g.
-"1234..5678" or "HEAD".
+You can pass all the same arguments that you would to `git diff`, e.g.
+`1234..5678` or `HEAD`.
 
-webdiff can also be invoked directly to diff two directories or files:
+`webdiff` can also be invoked directly to diff two directories or files:
 
     webdiff <left_dir> <right_dir>
     webdiff <left_file> <right_file>
+
+You can also use `webdiff` to view GitHub pull requests:
+
+    webdiff https://github.com/owner/repo/pull/123
+    webdiff #123  # if you're in a git repo with a github remote
+
+This will download the files relevant to the Pull Request and run `webdiff`.
 
 Preview
 ----------
@@ -68,10 +74,12 @@ or to launch in debug mode:
 
 (or any other directory in testdata)
 
-To run the tests:
+To run the Python tests:
 
-    nosetests  # Run python tests
-    # Runs JS tests
+    nosetests
+
+To run the JavaScript tests:
+
     python -m SimpleHTTPServer
     open tests/runner.html
 

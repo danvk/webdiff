@@ -16,9 +16,27 @@ Then run via one of these:
 
   webdiff <left_dir> <right_dir>
 
+  webdiff https://github.com/owner/repo/pull/123
+
+  webdiff #123
+
 See https://github.com/danvk/webdiff/ for more information.
 
 Release Notes
+- 0.8
+  * New image diff modes: onion skin, swipe
+  * Shrink to fit for image diffs
+  * More aggressive syntax highlighting (makes a guess based on file contents)
+  * Refresh no longer kills the webdiff server (useful if file changes on disk)
+  * Renames/moves are displayed more compactly (ala GitHub)
+  https://github.com/danvk/webdiff/issues?q=milestone%3A0.8+is%3Aclosed
+
+- 0.7
+  * Support for file vs. file diffs (i.e. webdiff as a replacement for diff)
+  * List of files instead of dropdown for small diffs
+  * Display resolution and file size for images
+  * Conversion to ReactJS
+
 - 0.6
   * Support for image diffs
   * Basic move/rename detection
