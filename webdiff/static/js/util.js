@@ -39,3 +39,11 @@ function filePairDisplayName(filePair) {
 
   return out;
 }
+
+
+/**
+ * Checks whether the diff is one-sided, i.e. an add or delete.
+ */
+function isOneSided(filePair) {
+  return (filePair.type == 'add' || filePair.type == 'delete');
+}

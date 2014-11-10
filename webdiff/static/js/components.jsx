@@ -203,6 +203,10 @@ var ImageDiffModeSelector = React.createClass({
     changeHandler: React.PropTypes.func.isRequired
   },
   render: function() {
+    if (isOneSided(this.props.filePair)) {
+      return null;  // Only "side-by-side" makes sense for one-sided diffs.
+    }
+
     // Returns the text, optionally wrapped in a link and/or <b> tag.
     var linkOrB = (isLink, isB, val, text) => {
       var inner = isB ? <b>{text}</b> : text;
@@ -306,6 +310,9 @@ var ImageDiff = React.createClass({
   },
   render: function() {
     var mode = this.props.imageDiffMode;
+    if (isOneSided(this.props.filePair)) {
+      mode = 'side-by-side';  // Only one that makes sense for one-sided diffs.
+    }
     var component = {
       'side-by-side': ImageSideBySide,
       'blink': ImageBlinker,
