@@ -110,7 +110,7 @@ def _get_github_remotes():
         assert m, 'Unable to parse github remote %s' % remote
         return {'owner': m.group(1), 'repo': m.group(2)}
 
-    return [parse(remote.group(3)) for remote in remotes]
+    return [parse(remote.group('path')) for remote in remotes]
 
 
 # e.g. 'origin	git@github.com:danvk/expandable-image-grid.git (push)'
