@@ -1,30 +1,41 @@
 /** @jsx React.DOM */
+var Route = ReactRouter.Route;
+var Routes = ReactRouter.Routes;
+var Link = ReactRouter.Link;
 
 IMAGE_DIFF_MODES = ['side-by-side', 'blink', 'onion-skin', 'swipe'];
 
 // Webdiff application root.
 var Root = React.createClass({
   propTypes: {
-    filePairs: React.PropTypes.array.isRequired
+    filePairs: React.PropTypes.array.isRequired,
+    initiallySelectedIndex: React.PropTypes.number,
+    params: React.PropTypes.object
   },
+  mixins: [ReactRouter.Navigation],
   getInitialState: () => ({
-    selectedFileIndex: 0,
     imageDiffMode: 'side-by-side'
   }),
-  fileChangeHandler: function(idx) {
-    this.setState({selectedFileIndex: idx});
+  selectIndex: function(idx) {
+    this.transitionTo('pair', {index:idx});
+  },
+  getIndex: function() {
+    var idx = this.props.params.index;
+    if (idx == null) idx = this.props.initiallySelectedIndex;
+    return Number(idx);
   },
   changeImageDiffModeHandler: function(mode) {
     this.setState({imageDiffMode: mode});
   },
   render: function() {
-    var filePair = this.props.filePairs[this.state.selectedFileIndex];
+    var idx = this.getIndex(),
+        filePair = this.props.filePairs[idx];
 
     return (
       <div>
-        <FileSelector selectedFileIndex={this.state.selectedFileIndex}
+        <FileSelector selectedFileIndex={idx}
                       filePairs={this.props.filePairs}
-                      fileChangeHandler={this.fileChangeHandler} />
+                      fileChangeHandler={this.selectIndex} />
         <DiffView filePair={filePair}
                   imageDiffMode={this.state.imageDiffMode}
                   changeImageDiffModeHandler={this.changeImageDiffModeHandler} />
@@ -34,14 +45,14 @@ var Root = React.createClass({
   componentDidMount: function() {
     $(document).on('keydown', (e) => {
       if (!isLegitKeypress(e)) return;
-      var idx = this.state.selectedFileIndex;
+      var idx = this.getIndex();
       if (e.keyCode == 75) {  // j
         if (idx > 0) {
-          this.setState({selectedFileIndex: idx - 1});
+          this.selectIndex(idx - 1);
         }
       } else if (e.keyCode == 74) {  // k
         if (idx < this.props.filePairs.length - 1) {
-          this.setState({selectedFileIndex: idx + 1});
+          this.selectIndex(idx + 1);
         }
       } else if (e.keyCode == 83) {  // s
         this.setState({imageDiffMode: 'side-by-side'});

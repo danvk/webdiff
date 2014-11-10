@@ -11,13 +11,42 @@
 
 <script src="/static/js/file_diff.js"></script>
 
-<script>var pairs = {{pairs|tojson}};</script>
+<script>
+var pairs = {{pairs|tojson}};
+var initialIdx = {{idx|tojson}};
+</script>
 
 <script type="text/jsx;harmony=true" src="/static/js/util.js"></script>
 <script type="text/jsx;harmony=true" src="/static/js/components.jsx"></script>
 <script type="text/jsx;harmony=true">
 /** @jsx React.DOM */
-React.renderComponent(<Root filePairs={pairs} />, $('#application').get(0));
+
+var Route = ReactRouter.Route;
+var Routes = ReactRouter.Routes;
+
+var App = React.createClass({
+  render: function() {
+    return this.props.activeRouteHandler();
+  }
+});
+
+var routes = (
+  <Routes location="history">
+    <Route handler={App}>
+      <Route name="pair" path="/:index?" handler={Root}
+             filePairs={pairs}
+             initiallySelectedIndex={initialIdx} />
+    </Route>
+  </Routes>
+);
+
+React.renderComponent(routes, $('#application').get(0));
+</script>
+
+<script>
+window.addEventListener('beforeunload', function(e) {
+  $.post('/kill');
+});
 </script>
 
 {% endblock %}
