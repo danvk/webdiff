@@ -524,6 +524,17 @@ var ImageSwipe = React.createClass({
       _.extend(styleB, {opacity: frac});
     }
 
+    // Add an opaque grid under each image to expose transparency.
+    [styleA, styleB].forEach(function(o) {
+      o['background-image'] += ', url(/static/img/trans_bg.gif)';
+      if (_.has(o, 'background-size')) {
+        o['background-size'] += ', auto auto';
+      }
+      if (_.has(o, 'background-position-x')) {
+        o['background-position-x'] += ', ' + o['background-position-x'];
+      }
+    });
+
     return (
       <div>
         <input type="range" min="0" max={rangeMax} defaultValue={rangeMax/2} ref="slider" onChange={this.onSlide} />

@@ -91,10 +91,6 @@ ul.file-list {
 .overlapping-images div {
   position: absolute;
 }
-.swipe div.side-a, .swipe div.side-b {
-  background-position: 0 0;
-  background-repeat: no-repeat;
-}
 .overlapping-images-metadata .image-props:first-child {
   margin-right: 5px;
   float: left;
@@ -117,4 +113,8 @@ ul.file-list {
 }
 .shrink-to-fit {
   max-width: 100%;
+}
+
+table .side-a, table .side-b {
+  background: url(/static/img/trans_bg.gif);
 }
