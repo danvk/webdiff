@@ -538,7 +538,6 @@ var ImageSwipe = React.createClass({
         'background-position-x': -Math.floor(frac * imB.width) + 'px'
       });
     } else {
-      _.extend(styleA, {opacity: (1.0 - frac)});
       _.extend(styleB, {opacity: frac});
     }
 
