@@ -252,13 +252,32 @@ var DiffView = React.createClass({
   }
 });
 
+// A "no changes" sign which only appears when applicable.
+var NoChanges = React.createClass({
+  propTypes: {
+    filePair: React.PropTypes.object.isRequired
+  },
+  render: function() {
+    if (this.props.filePair.no_changes) {
+      return <div className="no-changes">(No Changes)</div>;
+    } else {
+      return null;
+    }
+  }
+});
+
 // A side-by-side diff of source code.
 var CodeDiff = React.createClass({
   propTypes: {
     filePair: React.PropTypes.object.isRequired
   },
   render: function() {
-    return <div key={this.props.filePair.idx}>Loading&hellip;</div>;
+    return (
+      <div style={{display: 'table'}}>
+        <NoChanges filePair={this.props.filePair} />
+        <div ref="codediff" key={this.props.filePair.idx}>Loading&hellip;</div>
+      </div>
+    );
   },
   renderDiff: function() {
     // Either side can be empty (i.e. an add or a delete), in which case
@@ -274,7 +293,7 @@ var CodeDiff = React.createClass({
     $.when(beforeDeferred, afterDeferred).done((before, after) => {
       if (!this.isMounted()) return;
       // Call out to codediff.js to construct the side-by-side diff.
-      $(this.getDOMNode()).empty().append(
+      $(this.refs.codediff.getDOMNode()).empty().append(
           renderDiff(pair.a, pair.b, before[0], after[0]));
     })
     .fail((e) => alert("Unable to get diff!"));
@@ -333,6 +352,7 @@ var ImageDiff = React.createClass({
         <label htmlFor="shrink-to-fit"> Shrink to fit</label>
       </div>
       <div className={'image-diff ' + mode}>
+        <NoChanges filePair={this.props.filePair} />
         {image}
       </div>
     </div>;

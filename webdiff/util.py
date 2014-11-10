@@ -76,13 +76,19 @@ def _convert_to_pair_objects(pairs):
 
 
 def _annotate_file_pair(d, a_dir, b_dir):
+    a_path = os.path.join(a_dir, d['a']) if d['a'] else None
+    b_path = os.path.join(b_dir, d['b']) if d['b'] else None
+
     # Attach image metadata if applicable.
     if is_image_diff(d):
         d['is_image_diff'] = True
-        if d['a']: d['image_a'] = _image_metadata(os.path.join(a_dir, d['a']))
-        if d['b']: d['image_b'] = _image_metadata(os.path.join(b_dir, d['b']))
+        if d['a']: d['image_a'] = _image_metadata(a_path)
+        if d['b']: d['image_b'] = _image_metadata(b_path)
 
-    # TODO: diffstats
+    if a_path and b_path:
+        d['no_changes'] = _are_files_identical(a_path, b_path)
+    else:
+        d['no_changes'] = False
 
 
 def annotate_file_pairs(file_pairs, a_dir, b_dir):
@@ -97,7 +103,7 @@ def annotate_file_pairs(file_pairs, a_dir, b_dir):
 
 def find_moves(diff, a_dir, b_dir):
     def hash(d, path):
-        return hashlib.sha512(open(os.path.join(d, path)).read()).digest()
+        return _contentHash(os.path.join(d, path))
 
     out = copy.deepcopy(diff)
     add_delete_pairs = defaultdict(lambda: [None,None])
@@ -142,6 +148,24 @@ def is_image_diff(diff):
     elif right_img and diff['a'] is None:
         return True
     return False
+
+
+hash_cache = {}
+def _contentHash(path):
+    global hash_cache
+    if path in hash_cache:
+        return hash_cache[path]
+    sha = hashlib.sha512(open(path).read()).digest()
+    hash_cache[path] = sha
+    return sha
+
+
+def _are_files_identical(path1, path2):
+    # Check if anything has changed.
+    # Compare lengths & then checksums.
+    if os.path.getsize(path1) != os.path.getsize(path2):
+        return False
+    return _contentHash(path1) == _contentHash(path2) 
 
 
 def _image_metadata(path):
