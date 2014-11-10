@@ -143,15 +143,12 @@ def index():
         return file_diff('0')
 
 
-@app.route("/<idx>")
+@app.route("/<int:idx>")
 def file_diff(idx):
     idx = int(idx)
     return render_template('file_diff.html',
                            idx=idx,
-                           pairs=DIFF,
-                           this_pair=DIFF[idx],
-                           is_image_diff=util.is_image_diff(DIFF[idx]),
-                           num_pairs=len(DIFF))
+                           pairs=DIFF)
 
 
 @app.route('/favicon.ico')
@@ -172,7 +169,8 @@ def seriouslykill():
 
 @app.route('/kill', methods=['POST'])
 def kill():
-    if 'STAY_RUNNING' in app.config: return
+    if 'STAY_RUNNING' in app.config:
+        return 'Will stay running.'
 
     last_ms = LAST_REQUEST_MS
     def shutdown():
@@ -183,7 +181,7 @@ def kill():
 
     Timer(0.5, shutdown).start()
     
-    return "Shutting down..."
+    return 'Shutting down...'
 
 
 def open_browser():
