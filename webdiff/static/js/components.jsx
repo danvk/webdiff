@@ -337,7 +337,7 @@ var ImageDiff = React.createClass({
       'blink': ImageBlinker,
       'onion-skin': ImageOnionSkin,
       'swipe': ImageSwipe
-    }[this.props.imageDiffMode];
+    }[mode];
     var image = component({
       filePair: this.props.filePair,
       shrinkToFit: this.state.shrinkToFit
@@ -449,19 +449,31 @@ var ImageBlinker = React.createClass({
     filePair: React.PropTypes.object.isRequired,
     shrinkToFit: React.PropTypes.bool
   },
+  mixins: [SetIntervalMixin],
   getInitialState: function() {
-    return {idx: 0};
+    return {idx: 0, autoBlink: true};
+  },
+  toggleAutoBlink: function(e) {
+    this.setState({
+      autoBlink: $(this.refs.autoblink.getDOMNode()).is(':checked')
+    });
   },
   render: function() {
     var pair = this.props.filePair;
     var side = ['a', 'b'][this.state.idx];
     var path = [pair.a, pair.b][this.state.idx];
     var maxWidth = this.props.shrinkToFit ? window.innerWidth - 30 : null;
-    return <table id="imagediff">
-      <tr className="image-diff-content">
-        <td><AnnotatedImage filePair={pair} side={side} maxWidth={maxWidth} /></td>
-      </tr>
-    </table>;
+    return (
+      <div>
+        <input ref="autoblink" type="checkbox" id="autoblink" checked={this.state.autoBlink} onChange={this.toggleAutoBlink} />
+        <label htmlFor="autoblink"> Auto-blink (hit ‘b’ to blink manually)</label>
+        <table id="imagediff">
+          <tr className="image-diff-content">
+            <td><AnnotatedImage filePair={pair} side={side} maxWidth={maxWidth} /></td>
+          </tr>
+        </table>
+      </div>
+    );
   },
   componentDidMount: function() {
     var toggle = () => {
@@ -473,9 +485,16 @@ var ImageBlinker = React.createClass({
     $(document).on('keydown.blink', (e) => {
       if (!isLegitKeypress(e)) return;
       if (e.keyCode == 66) {  // 'b'
-        toggle();
+        if (this.isMounted()) {
+          this.setState({autoBlink: false});
+          toggle();
+        }
       }
     }).on('click.blink', 'a[value="blink"]', toggle);
+
+    this.setInterval(() => {
+      if (this.state.autoBlink) toggle();
+    }, 500);
   },
   componentDidUnmount: function(e) {
     $(document).off('keydown.blink').off('click.blink');

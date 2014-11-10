@@ -47,3 +47,17 @@ function filePairDisplayName(filePair) {
 function isOneSided(filePair) {
   return (filePair.type == 'add' || filePair.type == 'delete');
 }
+
+
+// From http://facebook.github.io/react/docs/reusable-components.html
+var SetIntervalMixin = {
+  componentWillMount: function() {
+    this.intervals = [];
+  },
+  setInterval: function() {
+    this.intervals.push(setInterval.apply(null, arguments));
+  },
+  componentWillUnmount: function() {
+    this.intervals.map(clearInterval);
+  }
+};
