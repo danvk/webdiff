@@ -137,10 +137,7 @@ def get_image(side, path):
 # Show the first diff by default
 @app.route("/")
 def index():
-    if not 'NO_FRAME' in app.config:
-        return render_template('heartbeat.html', src='/0')
-    else:
-        return file_diff('0')
+    return file_diff('0')
 
 
 @app.route("/<int:idx>")
