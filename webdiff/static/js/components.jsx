@@ -273,7 +273,7 @@ var CodeDiff = React.createClass({
   },
   render: function() {
     return (
-      <div style={{display: 'table'}}>
+      <div>
         <NoChanges filePair={this.props.filePair} />
         <div ref="codediff" key={this.props.filePair.idx}>Loading&hellip;</div>
       </div>
