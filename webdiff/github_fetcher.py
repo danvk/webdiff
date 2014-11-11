@@ -17,6 +17,39 @@ from github import Github, UnknownObjectException
 
 temp_dirs = []
 
+_github_memo = None
+def _github():
+    global _github_memo
+    if _github_memo: return _github_memo
+
+    def simple_fallback(message=None):
+        global _github_memo
+        if message: sys.stderr.write(message + '\n')
+        _github_memo = Github()
+        return _github_memo
+
+    github_rc = os.path.join(os.path.expanduser('~'), '.githubrc')
+    if os.path.exists(github_rc):
+        try:
+            pairs = open(github_rc).read()
+        except IOError:
+            return simple_fallback('Unable to read .githubrc file. Using anonymous API access.')
+        else:
+            kvs = {}
+            for line in pairs.split('\n'):
+                if ':' not in line: continue
+                k, v = line.split(': ', 1)
+                kvs[k] = v
+
+            if not kvs.get('user.login'):
+                return simple_fallback('.githubrc missing user.login. Using anonymous API access.')
+            if not kvs.get('user.password'):
+                return simple_fallback('.githubrc missing user.password. Using anonymous API access.')
+            _github_memo = Github(kvs['user.login'], kvs['user.password'])
+    else:
+        _github_memo = Github()
+    return _github_memo
+
 
 def put_in_dir(dirname, filename, contents):
     """Puts contents into filename in dirname.
@@ -39,7 +72,7 @@ def fetch_pull_request(owner, repo, num):
     Returns before_dir, after_dir.
     """
     sys.stderr.write('Loading pull request %s/%s#%s from github...\n' % (owner, repo, num))
-    g = Github()  # TODO(danvk): add a way to pass an OAuth token here
+    g = _github()
     pr = g.get_user(owner).get_repo(repo).get_pull(num)
     base_repo = pr.base.repo
     head_repo = pr.head.repo
@@ -80,7 +113,7 @@ def get_pr_repo(num):
                             'directory. Are you in a git repo? Try running '
                             '`git remote -v` to debug.')
 
-    g = Github()
+    g = _github()
     for remote in remotes:
         owner = remote['owner']
         repo = remote['repo']
