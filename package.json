@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "assert": "*",
+    "es5-shim": "^4.0.3",
     "grunt": "~0.4.0",
     "grunt-cli": "0.1.6",
     "grunt-contrib-qunit": "~0.5.1",
@@ -18,6 +19,5 @@
     "grunt-qunit-junit": "~0.1.0",
     "qunitjs": "^1.14.0"
   },
-  "scripts": {
-  }
+  "scripts": {}
 }
