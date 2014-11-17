@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/danvk/webdiff.svg?branch=master)](https://travis-ci.org/danvk/webdiff)
 git webdiff
 ===========
 
