@@ -87,7 +87,8 @@ def get_contents(side):
         return response
 
     try:
-        abs_path = os.path.join(A_DIR if side == 'a' else B_DIR, path)
+        abs_path = os.path.join(A_DIR if side == 'a' else B_DIR,
+                                os.path.normpath(path))  # / --> \ on windows
         is_binary = util.is_binary_file(abs_path)
         if is_binary:
             size = os.path.getsize(abs_path)
@@ -123,7 +124,8 @@ def get_image(side, path):
         return response
 
     try:
-        abs_path = os.path.join(A_DIR if side == 'a' else B_DIR, path)
+        abs_path = os.path.join(A_DIR if side == 'a' else B_DIR,
+                                os.path.normpath(path))  # / --> \ on windows
         contents = open(abs_path).read()
         return Response(contents, mimetype=mime_type)
     except Exception:
