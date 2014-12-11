@@ -375,7 +375,7 @@ var AnnotatedImage = React.createClass({
     var im = this.props.filePair['image_' + side];
     return (
       <div className={'image-' + side}>
-        <Image filePair={this.props.filePair} side={side} maxWidth={this.props.maxWidth} />
+        <SingleImage filePair={this.props.filePair} side={side} maxWidth={this.props.maxWidth} />
         <ImageMetadata image={im} />
       </div>
     );
@@ -383,7 +383,7 @@ var AnnotatedImage = React.createClass({
 });
 
 
-var Image = React.createClass({
+var SingleImage = React.createClass({
   propTypes: {
     filePair: React.PropTypes.object.isRequired,
     side: React.PropTypes.oneOf(['a', 'b']).isRequired,
@@ -424,19 +424,45 @@ var ImageMetadata = React.createClass({
 });
 
 
+// Global Resemble.js config.
+resemble.outputSettings({
+  errorColor: {
+    red: 255,
+    green: 0,
+    blue: 0
+  },
+  errorType: 'movement',
+  transparency: 0.3
+});
+
+
 // Two images placed side-by-side.
 var ImageSideBySide = React.createClass({
   propTypes: {
     filePair: React.PropTypes.object.isRequired,
     shrinkToFit: React.PropTypes.bool
   },
+  renderDiff: function() {
+    resemble('/b/image/' + this.props.filePair.a)
+        .compareTo('/a/image/' + this.props.filePair.b)
+        .onComplete(function(data) {
+          var diffImage = new Image();
+          diffImage.src = data.getImageDataUrl();
+          $('#image-diff-differences').html(diffImage);
+        })
+  },
   render: function() {
     var pair = this.props.filePair;
     var maxWidth = this.props.shrinkToFit ? (window.innerWidth - 30) / 2 : null;
+    this.renderDiff();
     return <table id="imagediff">
       <tr className="image-diff-content">
         <td className="diff-left"><AnnotatedImage filePair={pair} side="a" maxWidth={maxWidth} /></td>
         <td className="diff-right"><AnnotatedImage filePair={pair} side="b" maxWidth={maxWidth} /></td>
+      </tr>
+      <tr>
+        <td colSpan="2" id="image-diff-differences">
+        </td>
       </tr>
     </table>;
   }
