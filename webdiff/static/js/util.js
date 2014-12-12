@@ -61,3 +61,41 @@ var SetIntervalMixin = {
     this.intervals.map(clearInterval);
   }
 };
+
+
+// Global Resemble.js config.
+resemble.outputSettings({
+  errorColor: {
+    red: 255,
+    green: 0,
+    blue: 0
+  },
+  errorType: 'movement',
+  transparency: 0.3
+});
+
+// Compute a perceptual diff using Resemble.js.
+// This memoizes the diff to facilitate working with React.
+// Returns deferred Resemble diff data.
+function computePerceptualDiff(fileA, fileB) {
+  if (!resemble.cache) resemble.cache = {};
+
+  return new Promise(function(resolve, reject) {
+    var key = [fileA, fileB].join(':');
+    var v = resemble.cache[key];
+    if (v) {
+      resolve(v);
+    } else {
+      resemble(fileB).compareTo(fileA).onComplete(function(data) {
+        resemble.cache[key] = data;
+        resolve(data);
+      });
+    }
+  });
+}
+
+function makeImage(dataURI) {
+  var img = new Image();
+  img.src = dataURI;
+  return img;
+}

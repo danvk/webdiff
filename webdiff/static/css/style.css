@@ -133,3 +133,7 @@ table .side-a, table .side-b {
 .image-diff .no-changes {
   margin-top: 10px;
 }
+
+.perceptual-diff {
+  position: absolute;
+}

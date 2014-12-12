@@ -196,7 +196,21 @@ def _shim_for_file_diff(a_file, b_file):
 
 
 def diff_for_args(args):
-    """Returns A_DIR, B_DIR, find_diff() for parsed command line args."""
+    """Returns A_DIR, B_DIR, find_diff() for parsed command line args.
+    
+    DIFF looks something like:
+    [ {
+        'a': '1_normal.jpg',
+        'is_image_diff': True,
+        'b': '1_normal.jpg',
+        'idx': 0,
+        'no_changes': False,
+        'image_a': {'width': 300, 'num_bytes': 20831, 'height': 300},
+        'image_b': {'width': 300, 'num_bytes': 20713, 'height': 300},
+        'path': '1_normal.jpg',
+        'type': 'change'
+      }, ... ]
+    """
     if 'dirs' in args:
         return list(args['dirs']) + [find_diff(*args['dirs'])]
 

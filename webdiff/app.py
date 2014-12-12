@@ -229,6 +229,8 @@ def run():
 
     A_DIR, B_DIR, DIFF = util.diff_for_args(parsed_args)
 
+    print 'DIFF:\n%r\n' % DIFF
+
     if app.config['TESTING'] or app.config['DEBUG']:
         sys.stderr.write('Diffing:\nA: %s\nB: %s\n\n' % (A_DIR, B_DIR))
 

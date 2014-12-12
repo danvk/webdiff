@@ -18,6 +18,7 @@ var Root = React.createClass({
   }),
   selectIndex: function(idx) {
     this.transitionTo('pair', {index:idx});
+    computePerceptualDiff();
   },
   getIndex: function() {
     var idx = this.props.params.index;
@@ -26,6 +27,18 @@ var Root = React.createClass({
   },
   changeImageDiffModeHandler: function(mode) {
     this.setState({imageDiffMode: mode});
+  },
+  togglePerceptualDiff: function() {
+    var fp = this.props.filePairs[this.getIndex()];
+    computePerceptualDiff('/a/image/' + fp.a, '/b/image/' + fp.b)
+      .then((diffData) => {
+        console.log(diffData);
+        fp.diffData = diffData;
+        this.forceUpdate();  // tell react about this change
+      })
+      .catch(function(reason) {
+        console.error(reason);
+      });
   },
   render: function() {
     var idx = this.getIndex(),
@@ -390,20 +403,34 @@ var SingleImage = React.createClass({
     maxWidth: React.PropTypes.number
   },
   render: function() {
+    var filePair = this.props.filePair;
     var side = this.props.side;
-    if (!this.props.filePair[side]) {
+    if (!filePair[side]) {
       return null;  // or: return empty <img> same size as other image?
     }
 
-    var url = (side == 'a') ? '/a/image/' + this.props.filePair.a
-                            : '/b/image/' + this.props.filePair.b;
-    var im = _.clone(this.props.filePair['image_' + side]);
+    var url = (side == 'a') ? '/a/image/' + filePair.a
+                            : '/b/image/' + filePair.b;
+    var im = _.clone(filePair['image_' + side]);
     if (this.props.maxWidth !== null && this.props.maxWidth < im.width) {
       var scaleDown = this.props.maxWidth / im.width;
       im.width *= scaleDown;
       im.height *= scaleDown;
     }
-    return <img className={'side-' + side} src={url} width={im.width} height={im.height} />;
+    var diffImg = null;
+    if (filePair.diffData) {
+      diffImg = <img className='perceptual-diff'
+                     src={filePair.diffData.getImageDataUrl()}
+                     width={im.width}
+                     height={im.height} />;
+    }
+
+    return (
+      <div>
+        {diffImg}
+        <img className={'side-' + side} src={url} width={im.width} height={im.height} />;
+      </div>
+    );
   }
 });
 
@@ -424,18 +451,6 @@ var ImageMetadata = React.createClass({
 });
 
 
-// Global Resemble.js config.
-resemble.outputSettings({
-  errorColor: {
-    red: 255,
-    green: 0,
-    blue: 0
-  },
-  errorType: 'movement',
-  transparency: 0.3
-});
-
-
 // Two images placed side-by-side.
 var ImageSideBySide = React.createClass({
   propTypes: {
@@ -443,26 +458,14 @@ var ImageSideBySide = React.createClass({
     shrinkToFit: React.PropTypes.bool
   },
   renderDiff: function() {
-    resemble('/b/image/' + this.props.filePair.a)
-        .compareTo('/a/image/' + this.props.filePair.b)
-        .onComplete(function(data) {
-          var diffImage = new Image();
-          diffImage.src = data.getImageDataUrl();
-          $('#image-diff-differences').html(diffImage);
-        })
   },
   render: function() {
     var pair = this.props.filePair;
     var maxWidth = this.props.shrinkToFit ? (window.innerWidth - 30) / 2 : null;
-    this.renderDiff();
     return <table id="imagediff">
       <tr className="image-diff-content">
         <td className="diff-left"><AnnotatedImage filePair={pair} side="a" maxWidth={maxWidth} /></td>
         <td className="diff-right"><AnnotatedImage filePair={pair} side="b" maxWidth={maxWidth} /></td>
-      </tr>
-      <tr>
-        <td colSpan="2" id="image-diff-differences">
-        </td>
       </tr>
     </table>;
   }
