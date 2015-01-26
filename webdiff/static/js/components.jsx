@@ -15,7 +15,7 @@ var Root = React.createClass({
   mixins: [ReactRouter.Navigation],
   getInitialState: () => ({
     imageDiffMode: 'side-by-side',
-    showPerceptualDiffBox: true
+    showPerceptualDiffBox: false
   }),
   selectIndex: function(idx) {
     this.transitionTo('pair', {index:idx});
@@ -28,11 +28,13 @@ var Root = React.createClass({
   changeImageDiffModeHandler: function(mode) {
     this.setState({imageDiffMode: mode});
   },
+  changeShowPerceptualDiffBox: function(shouldShow) {
+    this.setState({showPerceptualDiffBox: shouldShow});
+  },
   computePerceptualDiff: function() {
     var fp = this.props.filePairs[this.getIndex()];
     computePerceptualDiff('/a/image/' + fp.a, '/b/image/' + fp.b)
       .then((diffData) => {
-        console.log(diffData);
         fp.diffData = diffData;
         this.forceUpdate();  // tell react about this change
       })
@@ -56,7 +58,8 @@ var Root = React.createClass({
         <DiffView filePair={filePair}
                   imageDiffMode={this.state.imageDiffMode}
                   showPerceptualDiffBox={this.state.showPerceptualDiffBox}
-                  changeImageDiffModeHandler={this.changeImageDiffModeHandler} />
+                  changeImageDiffModeHandler={this.changeImageDiffModeHandler}
+                  changeShowPerceptualDiffBox={this.changeShowPerceptualDiffBox} />
       </div>
     );
   },
@@ -262,7 +265,8 @@ var DiffView = React.createClass({
     filePair: React.PropTypes.object.isRequired,
     imageDiffMode: React.PropTypes.oneOf(IMAGE_DIFF_MODES).isRequired,
     showPerceptualDiffBox: React.PropTypes.bool,
-    changeImageDiffModeHandler: React.PropTypes.func.isRequired
+    changeImageDiffModeHandler: React.PropTypes.func.isRequired,
+    changeShowPerceptualDiffBox: React.PropTypes.func.isRequired
   },
   render: function() {
     if (this.props.filePair.is_image_diff) {
@@ -333,13 +337,17 @@ var ImageDiff = React.createClass({
     filePair: React.PropTypes.object.isRequired,
     imageDiffMode: React.PropTypes.oneOf(IMAGE_DIFF_MODES).isRequired,
     showPerceptualDiffBox: React.PropTypes.bool,
-    changeImageDiffModeHandler: React.PropTypes.func.isRequired
+    changeImageDiffModeHandler: React.PropTypes.func.isRequired,
+    changeShowPerceptualDiffBox: React.PropTypes.func.isRequired
   },
   getInitialState: function() {
     return {shrinkToFit: true};
   },
   toggleShrinkToFit: function(e) {
     this.setState({shrinkToFit: e.target.checked});
+  },
+  toggleDiffBox: function(e) {
+    this.props.changeShowPerceptualDiffBox(e.target.checked);
   },
   componentDidMount: function() {
     $(window).on('resize.shrink-to-fit', () => {
@@ -351,7 +359,8 @@ var ImageDiff = React.createClass({
   },
   render: function() {
     var mode = this.props.imageDiffMode;
-    if (isOneSided(this.props.filePair)) {
+    var pair = this.props.filePair;
+    if (isOneSided(pair)) {
       mode = 'side-by-side';  // Only one that makes sense for one-sided diffs.
     }
     var component = {
@@ -361,16 +370,26 @@ var ImageDiff = React.createClass({
       'swipe': ImageSwipe
     }[mode];
     var image = component({
-      filePair: this.props.filePair,
+      filePair: pair,
       shrinkToFit: this.state.shrinkToFit,
       showPerceptualDiffBox: this.props.showPerceptualDiffBox
     });
+    var diffBoxEnabled = isSameSizeImagePair(pair);
+    var boxClasses = diffBoxEnabled ? '' : 'diff-box-disabled';
 
     return <div>
       <div className="image-diff-controls">
         <ImageDiffModeSelector {...this.props} />
         <input type="checkbox" id="shrink-to-fit" checked={this.state.shrinkToFit} onChange={this.toggleShrinkToFit} />
         <label htmlFor="shrink-to-fit"> Shrink to fit</label>
+        &nbsp;
+        <span className={boxClasses}>
+          <input type="checkbox" id="show-diff-box"
+                 checked={this.props.showPerceptualDiffBox}
+                 disabled={!diffBoxEnabled}
+                 onChange={this.toggleDiffBox} />
+          <label htmlFor="show-diff-box"> Show diff box (p)</label>
+        </span>
       </div>
       <div className={'image-diff ' + mode}>
         <NoChanges filePair={this.props.filePair} />
@@ -379,6 +398,27 @@ var ImageDiff = React.createClass({
     </div>;
   }
 });
+
+
+/**
+ * Returns a React.DIV which boxes the changed parts of the image pair.
+ * scaleDown is in [0, 1], with 1 being full-size
+ */
+function makePerceptualBoxDiv(filePair, scaleDown) {
+  var padding = 5;  // try not to obscure anything inside the box
+  if (filePair.diffData && filePair.diffData.isSameDimensions) {
+    var bbox = filePair.diffData.diffBounds;
+    var styles = {
+      top: Math.floor(scaleDown * (bbox.top - padding)) + 'px',
+      left: Math.floor(scaleDown * (bbox.left - padding)) + 'px',
+      width: Math.ceil(scaleDown * (bbox.right - bbox.left + 2 * padding)) + 'px',
+      height: Math.ceil(scaleDown * (bbox.bottom - bbox.top + 2 * padding)) + 'px'
+    };
+    return <div className='perceptual-diff' style={styles} />;
+  } else {
+    return null;
+  }
+}
 
 
 var AnnotatedImage = React.createClass({
@@ -422,22 +462,14 @@ var SingleImage = React.createClass({
     var url = (side == 'a') ? '/a/image/' + filePair.a
                             : '/b/image/' + filePair.b;
     var im = _.clone(filePair['image_' + side]);
+    var scaleDown = 1.0;
     if (this.props.maxWidth !== null && this.props.maxWidth < im.width) {
-      var scaleDown = this.props.maxWidth / im.width;
+      scaleDown = this.props.maxWidth / im.width;
       im.width *= scaleDown;
       im.height *= scaleDown;
     }
-    var diffBoxDiv = null;
-    if (this.props.showPerceptualDiffBox && filePair.diffData) {
-      var bbox = filePair.diffData.diffBounds;
-      var styles = {
-        top: bbox.top + 'px',
-        left: bbox.left + 'px',
-        width: (bbox.right - bbox.left) + 'px',
-        height: (bbox.bottom - bbox.top) + 'px'
-      };
-      diffBoxDiv = <div className='perceptual-diff' style={styles} />;
-    }
+    var diffBoxDiv = this.props.showPerceptualDiffBox ?
+        makePerceptualBoxDiv(filePair, scaleDown) : null;
 
     return (
       <div className='image-holder'>
@@ -555,12 +587,11 @@ var ImageBlinker = React.createClass({
 var ImageOnionSkin = React.createClass({
   propTypes: {
     filePair: React.PropTypes.object.isRequired,
-    shrinkToFit: React.PropTypes.bool
+    shrinkToFit: React.PropTypes.bool,
+    showPerceptualDiffBox: React.PropTypes.bool
   },
   render: function() {
-    return <ImageSwipe filePair={this.props.filePair}
-                       shrinkToFit={this.props.shrinkToFit}
-                       mode="onion-skin" />;
+    return <ImageSwipe {...this.props} mode="onion-skin" />;
   }
 });
 
@@ -570,7 +601,8 @@ var ImageSwipe = React.createClass({
   propTypes: {
     filePair: React.PropTypes.object.isRequired,
     mode: React.PropTypes.oneOf(['swipe', 'onion-skin']),
-    shrinkToFit: React.PropTypes.bool
+    shrinkToFit: React.PropTypes.bool,
+    showPerceptualDiffBox: React.PropTypes.bool
   },
   getDefaultProps: function() {
     return {mode: 'swipe'};
@@ -598,6 +630,8 @@ var ImageSwipe = React.createClass({
       imB.height *= scaleDown;
       containerWidth = Math.max(imA.width, imB.width);
     }
+    var diffBoxDiv = this.props.showPerceptualDiffBox ?
+        makePerceptualBoxDiv(pair, scaleDown) : null;
     var styleA = {}, styleB = {}, styleContainer = {
       width: containerWidth + 'px',
       height: Math.max(imA.height, imB.height) + 'px'
@@ -643,10 +677,13 @@ var ImageSwipe = React.createClass({
 
     return (
       <div>
-        <input type="range" min="0" max={rangeMax} defaultValue={rangeMax/2} ref="slider" onChange={this.onSlide} />
+        <div className="range-holder">
+          <input type="range" min="0" max={rangeMax} defaultValue={rangeMax/2} ref="slider" onChange={this.onSlide} />
+        </div>
         <div className="overlapping-images" style={styleContainer}>
           <div style={styleA} className="side-a" />
           <div style={styleB} className="side-b" />
+          {diffBoxDiv}
         </div>
         <div className="overlapping-images-metadata">
           <ImageMetadata image={pair.image_a} />

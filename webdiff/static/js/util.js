@@ -49,6 +49,19 @@ function isOneSided(filePair) {
 }
 
 
+/**
+ * Determines whether the before & after images are the same size.
+ */
+function isSameSizeImagePair(filePair) {
+  if (!filePair.is_image_diff) return false;
+  if (isOneSided(filePair)) return false;
+  if (!filePair.a || !filePair.b) return false;
+  var imA = filePair.image_a,
+      imB = filePair.image_b;
+  return (imA.width == imB.width && imA.height == imB.height);
+}
+
+
 // From http://facebook.github.io/react/docs/reusable-components.html
 var SetIntervalMixin = {
   componentWillMount: function() {

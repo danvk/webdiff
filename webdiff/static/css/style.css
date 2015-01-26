@@ -109,6 +109,10 @@ ul.file-list {
 .swipe input {
   width: 100%;
 }
+.onion-skin .range-holder {
+  margin: 0 auto;  /* center the slider */
+  display: table;
+}
 .onion-skin input {
   width: 200px;
 }
@@ -139,5 +143,10 @@ table .side-a, table .side-b {
 }
 .perceptual-diff {
   position: absolute;
-  border: 2px solid red;
+  border: 2px solid hotpink;
+  box-shadow: 0 0 5px 0 rgba(50, 50, 50, 0.75);
+}
+
+.diff-box-disabled {
+  color: gray;
 }
