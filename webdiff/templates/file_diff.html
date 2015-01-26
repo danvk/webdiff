@@ -26,21 +26,19 @@ var Routes = ReactRouter.Routes;
 
 var App = React.createClass({
   render: function() {
-    return this.props.activeRouteHandler();
+    return <ReactRouter.RouteHandler />;
   }
 });
 
 var routes = (
-  <Routes location="history">
-    <Route handler={App}>
-      <Route name="pair" path="/:index?" handler={Root}
-             filePairs={pairs}
-             initiallySelectedIndex={initialIdx} />
-    </Route>
-  </Routes>
+  <Route handler={App}>
+    <Route name="pair" path="/:index?" handler={makeRoot(pairs, initialIdx)} />
+  </Route>
 );
 
-React.renderComponent(routes, $('#application').get(0));
+ReactRouter.run(routes, ReactRouter.HistoryLocation, function(Handler) {
+  React.render(<Handler/>, $('#application').get(0));
+});
 </script>
 
 <script>

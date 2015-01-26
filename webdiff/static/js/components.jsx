@@ -1,92 +1,93 @@
 /** @jsx React.DOM */
-var Route = ReactRouter.Route;
-var Routes = ReactRouter.Routes;
-var Link = ReactRouter.Link;
-
 IMAGE_DIFF_MODES = ['side-by-side', 'blink', 'onion-skin', 'swipe'];
 
 // Webdiff application root.
-var Root = React.createClass({
-  propTypes: {
-    filePairs: React.PropTypes.array.isRequired,
-    initiallySelectedIndex: React.PropTypes.number,
-    params: React.PropTypes.object
-  },
-  mixins: [ReactRouter.Navigation],
-  getInitialState: () => ({
-    imageDiffMode: 'side-by-side',
-    showPerceptualDiffBox: false
-  }),
-  selectIndex: function(idx) {
-    this.transitionTo('pair', {index:idx});
-  },
-  getIndex: function() {
-    var idx = this.props.params.index;
-    if (idx == null) idx = this.props.initiallySelectedIndex;
-    return Number(idx);
-  },
-  changeImageDiffModeHandler: function(mode) {
-    this.setState({imageDiffMode: mode});
-  },
-  changeShowPerceptualDiffBox: function(shouldShow) {
-    this.setState({showPerceptualDiffBox: shouldShow});
-  },
-  computePerceptualDiff: function() {
-    var fp = this.props.filePairs[this.getIndex()];
-    computePerceptualDiff('/a/image/' + fp.a, '/b/image/' + fp.b)
-      .then((diffData) => {
-        fp.diffData = diffData;
-        this.forceUpdate();  // tell react about this change
-      })
-      .catch(function(reason) {
-        console.error(reason);
-      });
-  },
-  render: function() {
-    var idx = this.getIndex(),
-        filePair = this.props.filePairs[idx];
-
-    if (this.state.showPerceptualDiffBox && !filePair.diffData) {
-      this.computePerceptualDiff();
-    }
-
-    return (
-      <div>
-        <FileSelector selectedFileIndex={idx}
-                      filePairs={this.props.filePairs}
-                      fileChangeHandler={this.selectIndex} />
-        <DiffView filePair={filePair}
-                  imageDiffMode={this.state.imageDiffMode}
-                  showPerceptualDiffBox={this.state.showPerceptualDiffBox}
-                  changeImageDiffModeHandler={this.changeImageDiffModeHandler}
-                  changeShowPerceptualDiffBox={this.changeShowPerceptualDiffBox} />
-      </div>
-    );
-  },
-  componentDidMount: function() {
-    $(document).on('keydown', (e) => {
-      if (!isLegitKeypress(e)) return;
-      var idx = this.getIndex();
-      if (e.keyCode == 75) {  // j
-        if (idx > 0) {
-          this.selectIndex(idx - 1);
-        }
-      } else if (e.keyCode == 74) {  // k
-        if (idx < this.props.filePairs.length - 1) {
-          this.selectIndex(idx + 1);
-        }
-      } else if (e.keyCode == 83) {  // s
-        this.setState({imageDiffMode: 'side-by-side'});
-      } else if (e.keyCode == 66) {  // b
-        this.setState({imageDiffMode: 'blink'});
-      } else if (e.keyCode == 80) {  // p
-        this.setState({
-          showPerceptualDiffBox: !this.state.showPerceptualDiffBox
+var makeRoot = function(filePairs, initiallySelectedIndex) {
+  return React.createClass({
+    propTypes: {
+      filePairs: React.PropTypes.array.isRequired,
+      initiallySelectedIndex: React.PropTypes.number,
+      params: React.PropTypes.object
+    },
+    mixins: [ReactRouter.Navigation, ReactRouter.State],
+    getInitialState: () => ({
+      imageDiffMode: 'side-by-side',
+      showPerceptualDiffBox: false
+    }),
+    getDefaultProps: function() {
+      return {filePairs, initiallySelectedIndex};
+    },
+    selectIndex: function(idx) {
+      this.transitionTo('pair', {index:idx});
+    },
+    getIndex: function() {
+      var idx = this.getParams().index;
+      if (idx == null) idx = this.props.initiallySelectedIndex;
+      return Number(idx);
+    },
+    changeImageDiffModeHandler: function(mode) {
+      this.setState({imageDiffMode: mode});
+    },
+    changeShowPerceptualDiffBox: function(shouldShow) {
+      this.setState({showPerceptualDiffBox: shouldShow});
+    },
+    computePerceptualDiff: function() {
+      var fp = this.props.filePairs[this.getIndex()];
+      computePerceptualDiff('/a/image/' + fp.a, '/b/image/' + fp.b)
+        .then((diffData) => {
+          fp.diffData = diffData;
+          this.forceUpdate();  // tell react about this change
+        })
+        .catch(function(reason) {
+          console.error(reason);
         });
+    },
+    render: function() {
+      var idx = this.getIndex(),
+          filePair = this.props.filePairs[idx];
+
+      if (this.state.showPerceptualDiffBox && !filePair.diffData) {
+        this.computePerceptualDiff();
       }
-    });
-  }
-});
+
+      return (
+        <div>
+          <FileSelector selectedFileIndex={idx}
+                        filePairs={this.props.filePairs}
+                        fileChangeHandler={this.selectIndex} />
+          <DiffView filePair={filePair}
+                    imageDiffMode={this.state.imageDiffMode}
+                    showPerceptualDiffBox={this.state.showPerceptualDiffBox}
+                    changeImageDiffModeHandler={this.changeImageDiffModeHandler}
+                    changeShowPerceptualDiffBox={this.changeShowPerceptualDiffBox} />
+        </div>
+      );
+    },
+    componentDidMount: function() {
+      $(document).on('keydown', (e) => {
+        if (!isLegitKeypress(e)) return;
+        var idx = this.getIndex();
+        if (e.keyCode == 75) {  // j
+          if (idx > 0) {
+            this.selectIndex(idx - 1);
+          }
+        } else if (e.keyCode == 74) {  // k
+          if (idx < this.props.filePairs.length - 1) {
+            this.selectIndex(idx + 1);
+          }
+        } else if (e.keyCode == 83) {  // s
+          this.setState({imageDiffMode: 'side-by-side'});
+        } else if (e.keyCode == 66) {  // b
+          this.setState({imageDiffMode: 'blink'});
+        } else if (e.keyCode == 80) {  // p
+          this.setState({
+            showPerceptualDiffBox: !this.state.showPerceptualDiffBox
+          });
+        }
+      });
+    }
+  });
+};
 
 // Shows a list of files in one of two possible modes (list or dropdown).
 var FileSelector = React.createClass({
@@ -369,7 +370,7 @@ var ImageDiff = React.createClass({
       'onion-skin': ImageOnionSkin,
       'swipe': ImageSwipe
     }[mode];
-    var image = component({
+    var image = React.createElement(component, {
       filePair: pair,
       shrinkToFit: this.state.shrinkToFit,
       showPerceptualDiffBox: this.props.showPerceptualDiffBox
