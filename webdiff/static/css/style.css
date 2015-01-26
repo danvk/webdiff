@@ -134,6 +134,10 @@ table .side-a, table .side-b {
   margin-top: 10px;
 }
 
+.image-holder {
+  position: relative;  /* offset parent for .perceptual-diff */
+}
 .perceptual-diff {
   position: absolute;
+  border: 2px solid red;
 }

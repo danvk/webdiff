@@ -71,7 +71,8 @@ resemble.outputSettings({
     blue: 0
   },
   errorType: 'movement',
-  transparency: 0.3
+  transparency: 0.0,  // don't include any of the original image.
+  ignoreAntialiasing: true
 });
 
 // Compute a perceptual diff using Resemble.js.
