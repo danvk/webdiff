@@ -2,80 +2,64 @@
   box-sizing: border-box;
 }
 
-.diff-column-width {
-  max-width: 101ch;
-  min-width: 40ch;
+div.diff {
+  max-width: 100%;
+  display: table;
+}
+
+table.diff {
   width: 100%;
-}
-.diff-column {
-  max-width: 50%;
+  border-spacing: 0;
 }
 
-.diff-header, .line-no-header {
-  font-weight: bold;
-  border-bottom: 1px solid #ddd;
-  padding: 2px;
+td.code {
+  /* this is the max width of each column of code. */
+  /* for table cells, `width` behaves more like `max-width`. */
+  width: 61ch;
+  white-space: pre-wrap;
+  word-wrap: break-word;
 }
 
-.diff-line-no {
-  display: table;  /* shrink to fit longest line number */
-}
-.diff-left .diff-line-no {
-  float: left;
-}
-.diff-right .diff-line-no {
-  float: right;
-}
-.diff-remainder {
-  overflow: hidden;  /* see http://stackoverflow.com/questions/5540485/how-to-make-an-inline-block-element-fill-the-remainder-of-the-line */
+table.diff td {
+  vertical-align: top;
 }
 
+/* Line numbers with thin vertical bars to indicate wrapped lines. */
 .line-no {
   color: #999;
   background-color: #f7f7f7;
 }
+.line-no:first-child {
+  background-image:
+      linear-gradient(to left, #f7f7f7, #f7f7f7 3px, transparent, transparent 6px, #f7f7f7 6px),
+      linear-gradient(#f7f7f7, #f7f7f7 1.4em, #aaa 1.4em);
+}
+.line-no:last-child {
+  background-image:
+      linear-gradient(to right, #f7f7f7, #f7f7f7 3px, transparent, transparent 6px, #f7f7f7 6px),
+      linear-gradient(#f7f7f7, #f7f7f7 1.4em, #aaa 1.4em);
+}
 
-.diff-left .line-no {
+table.diff .line-no:first-child {
   border-right: 1px solid #ddd;
   text-align: right;
 }
-.diff-right .line-no {
+table.diff .line-no:last-child {
   border-left: 1px solid #ddd;
   text-align: left;
 }
-.diff-left.diff-column {
+table.diff td:nth-child(2) {
   border-right: 1px solid #ddd;
-}
-
-.diff-line-no, .diff-wrapper, .diff-column {
-  display: inline-block;
-  vertical-align: top;
-}
-
-.diff-wrapper {
-  overflow-x: auto;
-  overflow-y: hidden;  /* shouldn't happen, but we sometimes get a pixel. */
-}
-
-.diff-content {
-  display: table;  /* "expand to fit" */
-  min-width: 100%;
 }
 
 .line-no, .code {
   padding: 2px;
   height: 1.11em;
-  white-space: pre;
   font-family: monospace;
 }
-
-.diff {
-  white-space: nowrap;
-}
-
-.diff-wrapper, .diff-wrapper > div {
-  display: inline-block;
-  vertical-align: top;
+.diff .skip {
+  text-align: center;
+  background: #f7f7f7;
 }
 
 .diff .delete {
@@ -85,17 +69,63 @@
   background-color: #efe;
 }
 
-.diff-left-content .replace {
+.before.replace {
   background-color: #fee;
 }
-.diff-right-content .replace {
+.after.replace {
   background-color: #efe;
 }
 
-.diff-left-content .char-replace, .diff-left-content .char-delete {
+.before .char-replace, .before .char-delete {
   background-color: #fcc;
 }
 
-.diff-right-content .char-replace, .diff-right-content .char-insert {
+.after .char-replace, .after .char-insert {
   background-color: #cfc;
+}
+
+/* Single column selection */
+.selecting-left  td,
+.selecting-left  td *,
+.selecting-right td,
+.selecting-right td *
+{
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.selecting-left  td.line-no::selection,
+.selecting-left  td.line-no *::selection,
+.selecting-right td.line-no::selection,
+.selecting-right td.line-no *::selection,
+.selecting-left  td.after::selection,
+.selecting-left  td.after *::selection,
+.selecting-right td.before::selection,
+.selecting-right td.before *::selection
+{
+  background: transparent;
+}
+
+.selecting-left  td.line-no::-moz-selection,
+.selecting-left  td.line-no *::-moz-selection,
+.selecting-right td.line-no::-moz-selection,
+.selecting-right td.line-no *::-moz-selection,
+.selecting-left  td.after::-moz-selection,
+.selecting-left  td.after *::-moz-selection,
+.selecting-right td.before::-moz-selection,
+.selecting-right td.before *::-moz-selection
+{
+  background: transparent;
+}
+
+.selecting-left  td.before,
+.selecting-left  td.before *,
+.selecting-right td.after,
+.selecting-right td.after * {
+  -moz-user-select: text;
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
