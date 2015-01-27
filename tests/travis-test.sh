@@ -3,4 +3,4 @@
 set -o errexit
 
 nosetests tests
-grunt test --verbose --force
+grunt test --verbose

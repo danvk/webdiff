@@ -49,6 +49,19 @@ function isOneSided(filePair) {
 }
 
 
+/**
+ * Determines whether the before & after images are the same size.
+ */
+function isSameSizeImagePair(filePair) {
+  if (!filePair.is_image_diff) return false;
+  if (isOneSided(filePair)) return false;
+  if (!filePair.a || !filePair.b) return false;
+  var imA = filePair.image_a,
+      imB = filePair.image_b;
+  return (imA.width == imB.width && imA.height == imB.height);
+}
+
+
 // From http://facebook.github.io/react/docs/reusable-components.html
 var SetIntervalMixin = {
   componentWillMount: function() {
@@ -61,3 +74,42 @@ var SetIntervalMixin = {
     this.intervals.map(clearInterval);
   }
 };
+
+
+// Global Resemble.js config.
+resemble.outputSettings({
+  errorColor: {
+    red: 255,
+    green: 0,
+    blue: 0
+  },
+  errorType: 'movement',
+  transparency: 0.0,  // don't include any of the original image.
+  ignoreAntialiasing: true
+});
+
+// Compute a perceptual diff using Resemble.js.
+// This memoizes the diff to facilitate working with React.
+// Returns deferred Resemble diff data.
+function computePerceptualDiff(fileA, fileB) {
+  if (!resemble.cache) resemble.cache = {};
+
+  return new Promise(function(resolve, reject) {
+    var key = [fileA, fileB].join(':');
+    var v = resemble.cache[key];
+    if (v) {
+      resolve(v);
+    } else {
+      resemble(fileB).compareTo(fileA).onComplete(function(data) {
+        resemble.cache[key] = data;
+        resolve(data);
+      });
+    }
+  });
+}
+
+function makeImage(dataURI) {
+  var img = new Image();
+  img.src = dataURI;
+  return img;
+}
