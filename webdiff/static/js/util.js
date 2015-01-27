@@ -1,4 +1,7 @@
-/** @jsx React.DOM */
+/**
+ * Utility functions for the webdiff UI. This is a JSX file.
+ */
+'use strict'
 
 /**
  * Returns either "foo.txt" or "{foo -> bar}.txt"
