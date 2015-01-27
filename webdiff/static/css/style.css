@@ -8,9 +8,8 @@ div#thediff {
     font-size: 13px;
 }
 
-.diff-column-width {
-    max-width: 101ch; /* 80ch for code, plus some extra wiggle room */
-    min-width: 50ch;
+td.code {
+  width: 81ch;
 }
 
 .file-selector {
