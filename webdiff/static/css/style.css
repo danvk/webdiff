@@ -9,7 +9,7 @@ div#thediff {
 }
 
 td.code {
-  width: 81ch;
+  width: 101ch;  /* per-side max line length */
 }
 
 .file-selector {
