@@ -23,6 +23,11 @@ Then run via one of these:
 See https://github.com/danvk/webdiff/ for more information.
 
 Release Notes
+- 0.9
+  * Long lines now wrap instead of scrolling horizontally.
+  * Only 10+ common lines will be elided (no more "Show 2 more lines").
+  * Show bounding boxes for the changed region in image diffs.
+
 - 0.8
   * New image diff modes: onion skin, swipe
   * Shrink to fit for image diffs
