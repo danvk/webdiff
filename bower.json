@@ -20,6 +20,6 @@
     "underscore": "~1.6.0",
     "react": "~0.12.2",
     "react-router": "~0.11.6",
-    "resemblejs": "danvk/Resemble.js#master"
+    "resemblejs": "1.2.1"
   }
 }
