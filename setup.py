@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(name='webdiff',
-      version='0.9.0',
+      version='0.9.1',
       description='Two-column web-based git difftool',
       author='Dan Vanderkam',
       author_email='danvdk@gmail.com',
