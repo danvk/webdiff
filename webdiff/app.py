@@ -219,6 +219,11 @@ def abs_path(path):
         return os.path.join(os.getcwd(), path)
 
 
+def is_webdiff_from_head():
+    '''Was webdiff invoked as `git webdiff` with no other non-flag args?'''
+    return os.environ.get('WEBDIFF_FROM_HEAD') != None
+
+
 def run():
     global A_DIR, B_DIR, DIFF, PORT
     try:
