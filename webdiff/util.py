@@ -5,6 +5,7 @@ import functools
 import hashlib
 import mimetypes
 import os
+import re
 import subprocess
 import tempfile
 import time
@@ -312,3 +313,15 @@ def generate_dilated_pdiff_image(diff_path):
         diff_dilate_path
     ])
     return diff_dilate_path
+
+
+@memoize
+def get_pdiff_bbox(diff_path):
+    '''Returns {top,left,width,height} for the content of a pdiff.'''
+    out = subprocess.check_output(['identify', '-format', '%@', diff_path])
+    # This looks like "26x94+0+830"
+    m = re.match(r'^(\d+)x(\d+)\+(\d+)\+(\d+)', out)
+    if not m:
+        raise ImageMagickError('Unexpected identify output: %s' % out)
+    width, height, left, top = [int(x) for x in m.groups()]
+    return {'width': width, 'height': height, 'left': left, 'top': top}
