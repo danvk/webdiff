@@ -38,14 +38,18 @@ def test_pairing_with_move():
     testdir = 'testdata/renamedfile'
     diff = util.find_diff('%s/left/dir' % testdir, '%s/right/dir' % testdir)
     eq_([{'a': 'file.json',
+          'a_path': 'testdata/renamedfile/left/dir/file.json',
           'path': 'file.json',
           'b': 'renamed.json',
+          'b_path': 'testdata/renamedfile/right/dir/renamed.json',
           'type': 'move',
           'no_changes': True,
           'idx': 0},
          {'a': 'file.json',
+          'a_path': 'testdata/renamedfile/left/dir/file.json',
           'path': 'file.json',
           'b': None,
+          'b_path': None,
           'type': 'delete',
           'no_changes': False,
           'idx': 1}], diff)
