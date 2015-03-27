@@ -115,7 +115,7 @@ def get_image(side, path):
         return response
 
     mime_type, enc = mimetypes.guess_type(path)
-    if not mime_type.startswith('image/') or enc is not None:
+    if not mime_type or not mime_type.startswith('image/') or enc is not None:
         e = {"code": "wrongtype",
              "message": "Requested file of type (%s, %s) as image" % (
                  mime_type, enc)}
