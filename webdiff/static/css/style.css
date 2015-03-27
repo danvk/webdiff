@@ -154,3 +154,9 @@ table .side-a, table .side-b {
 .diff-box-disabled {
   color: gray;
 }
+.pdiff-options {
+  margin-left: 10px;
+}
+.magick {
+  font-style: italic;
+}

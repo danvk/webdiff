@@ -89,6 +89,12 @@ var ImageDiff = React.createClass({
     });
     var diffBoxEnabled = isSameSizeImagePair(pair);
     var boxClasses = diffBoxEnabled ? '' : 'diff-box-disabled';
+    var boxStyles = { display: HAS_IMAGE_MAGICK ? '' : 'none' };
+    var imageMagickCallout = !HAS_IMAGE_MAGICK ? (
+        <span className="magick">Install{' '}
+        <a href="http://www.imagemagick.org/script/binary-releases.php">ImageMagick</a>{' '}
+        to see perceptual diffs</span>
+    ) : null;
 
     return <div>
       <div className="image-diff-controls">
@@ -96,26 +102,31 @@ var ImageDiff = React.createClass({
         <input type="checkbox" id="shrink-to-fit" checked={this.state.shrinkToFit} onChange={this.toggleShrinkToFit} />
         <label htmlFor="shrink-to-fit"> Shrink to fit</label>
         &nbsp;
-        <span className={boxClasses}>
-          Perceptual Diff:
-          <input type="radio" name="pdiff-mode"
-                 id="pdiff-off"
-                 checked={this.props.pdiffMode == PDIFF_MODE.OFF}
-                 disabled={!diffBoxEnabled}
-                 onChange={() => this.setPdiffMode(PDIFF_MODE.OFF)} />
-          <label htmlFor="pdiff-off"> None</label>
-          <input type="radio" name="pdiff-mode"
-                 id="pdiff-bbox"
-                 checked={this.props.pdiffMode == PDIFF_MODE.BBOX}
-                 disabled={!diffBoxEnabled}
-                 onChange={() => this.setPdiffMode(PDIFF_MODE.BBOX)} />
-          <label htmlFor="pdiff-bbox"> Box</label>
-          <input type="radio" name="pdiff-mode"
-                 id="pdiff-pixels"
-                 checked={this.props.pdiffMode == PDIFF_MODE.PIXELS}
-                 disabled={!diffBoxEnabled}
-                 onChange={() => this.setPdiffMode(PDIFF_MODE.PIXELS)} />
-          <label htmlFor="pdiff-pixels"> Differing Pixels</label>
+        <span className="pdiff-options">
+          <span className={boxClasses} style={boxStyles}>
+            Perceptual Diff:&nbsp;
+            <input type="radio" name="pdiff-mode"
+                   id="pdiff-off"
+                   checked={this.props.pdiffMode == PDIFF_MODE.OFF}
+                   disabled={!diffBoxEnabled}
+                   onChange={() => this.setPdiffMode(PDIFF_MODE.OFF)} />
+            <label htmlFor="pdiff-off"> None</label>
+            &nbsp;
+            <input type="radio" name="pdiff-mode"
+                   id="pdiff-bbox"
+                   checked={this.props.pdiffMode == PDIFF_MODE.BBOX}
+                   disabled={!diffBoxEnabled}
+                   onChange={() => this.setPdiffMode(PDIFF_MODE.BBOX)} />
+            <label htmlFor="pdiff-bbox"> Box</label>
+            &nbsp;
+            <input type="radio" name="pdiff-mode"
+                   id="pdiff-pixels"
+                   checked={this.props.pdiffMode == PDIFF_MODE.PIXELS}
+                   disabled={!diffBoxEnabled}
+                   onChange={() => this.setPdiffMode(PDIFF_MODE.PIXELS)} />
+            <label htmlFor="pdiff-pixels"> Differing Pixels</label>
+          </span>
+          {imageMagickCallout}
         </span>
       </div>
       <div className={'image-diff ' + mode}>

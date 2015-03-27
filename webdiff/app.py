@@ -140,8 +140,13 @@ def get_image(side, path):
 def get_pdiff(idx):
     idx = int(idx)
     pair = DIFF[idx]
-    _, pdiff_image = util.generate_pdiff_image(pair['a_path'], pair['b_path'])
-    dilated_image = util.generate_dilated_pdiff_image(pdiff_image)
+    try:
+        _, pdiff_image = util.generate_pdiff_image(pair['a_path'], pair['b_path'])
+        dilated_image = util.generate_dilated_pdiff_image(pdiff_image)
+    except util.ImageMagickNotAvailableError:
+        return 'ImageMagick is not available', 501
+    except util.ImageMagickError as e:
+        return 'ImageMagick error %s' % e, 501
     return send_file(dilated_image)
 
 
@@ -149,8 +154,13 @@ def get_pdiff(idx):
 def get_pdiff_bbox(idx):
     idx = int(idx)
     pair = DIFF[idx]
-    _, pdiff_image = util.generate_pdiff_image(pair['a_path'], pair['b_path'])
-    bbox = util.get_pdiff_bbox(pdiff_image)
+    try:
+        _, pdiff_image = util.generate_pdiff_image(pair['a_path'], pair['b_path'])
+        bbox = util.get_pdiff_bbox(pdiff_image)
+    except util.ImageMagickNotAvailableError:
+        return 'ImageMagick is not available', 501
+    except util.ImageMagickError as e:
+        return 'ImageMagick error %s' % e, 501
     return jsonify(bbox)
 
 
@@ -165,6 +175,7 @@ def file_diff(idx):
     idx = int(idx)
     return render_template('file_diff.html',
                            idx=idx,
+                           has_magick=util.is_imagemagick_available(),
                            pairs=DIFF)
 
 

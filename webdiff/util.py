@@ -121,6 +121,8 @@ def _annotate_file_pair(d, a_dir, b_dir):
                 d['are_same_pixels'], _ = generate_pdiff_image(a_path, b_path)
             except ImageMagickError:
                 d['are_same_pixels'] = False
+            except ImageMagickNotAvailableError:
+                pass
 
     if a_path and b_path:
         d['no_changes'] = _are_files_identical(a_path, b_path)
@@ -260,6 +262,7 @@ def diff_for_args(args):
         return [a_dir, b_dir] + [find_diff(a_dir, b_dir)]
 
 
+@memoize
 def is_imagemagick_available():
     try:
         # this swallows stdout/stderr
@@ -307,6 +310,8 @@ def generate_pdiff_image(before_path, after_path):
 @memoize
 def generate_dilated_pdiff_image(diff_path):
     '''Given a pdiff image, dilate it to highlight small differences.'''
+    if not is_imagemagick_available():
+        raise ImageMagickNotAvailableError()
 
     # Dilate the diff image (to highlight small differences) and make it red.
     _, diff_dilate_path = tempfile.mkstemp(suffix='.png')
@@ -326,6 +331,9 @@ def generate_dilated_pdiff_image(diff_path):
 @memoize
 def get_pdiff_bbox(diff_path):
     '''Returns {top,left,width,height} for the content of a pdiff.'''
+    if not is_imagemagick_available():
+        raise ImageMagickNotAvailableError()
+
     out = subprocess.check_output(['identify', '-format', '%@', diff_path])
     # This looks like "26x94+0+830"
     m = re.match(r'^(\d+)x(\d+)\+(\d+)\+(\d+)', out)
