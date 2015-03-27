@@ -14,7 +14,7 @@ from threading import Timer
 import time
 import webbrowser
 
-from flask import (Flask, render_template, send_from_directory,
+from flask import (Flask, render_template, send_from_directory, send_file,
                    request, jsonify, Response)
 
 import util
@@ -134,6 +134,15 @@ def get_image(side, path):
         response = jsonify(e)
         response.status_code = 400
         return response
+
+
+@app.route("/imagediff/<int:idx>")
+def get_image_diff(idx):
+    idx = int(idx)
+    pair = DIFF[idx]
+    _, pdiff_image = util.generate_pdiff_image(pair['a_path'], pair['b_path'])
+    dilated_image = util.generate_dilated_pdiff_image(pdiff_image)
+    return send_file(dilated_image)
 
 
 # Show the first diff by default
