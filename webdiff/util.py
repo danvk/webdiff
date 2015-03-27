@@ -286,13 +286,17 @@ def generate_pdiff_image(before_path, after_path):
     #   0 on success & similar images
     #   1 on success & dissimilar images
     #   2 on failure
-    result = subprocess.call([
-        'compare',
-        '-metric', 'RMSE',
-        '-highlight-color', 'Red',
-        '-compose', 'Src',
-        before_path, after_path, diff_path
-    ])
+    PIPE = subprocess.PIPE
+    p = subprocess.Popen([
+            'compare',
+            '-metric', 'RMSE',
+            '-highlight-color', 'Red',
+            '-compose', 'Src',
+            before_path, after_path, diff_path
+        ], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+    output, err = p.communicate()  # `compare` is noisy; this swallows its output
+    result = p.returncode
+
     if result == 2:
         raise ImageMagickError('compare failed. Perhaps image dimensions differ.')
     if result == 0:
