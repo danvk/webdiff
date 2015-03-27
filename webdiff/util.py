@@ -19,6 +19,10 @@ class ImageMagickNotAvailableError(Exception):
     pass
 
 
+class ImageMagickError(Exception):
+    pass
+
+
 textchars = ''.join(map(chr, [7,8,9,10,12,13,27] + range(0x20, 0x100)))
 is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
 
@@ -324,4 +328,11 @@ def get_pdiff_bbox(diff_path):
     if not m:
         raise ImageMagickError('Unexpected identify output: %s' % out)
     width, height, left, top = [int(x) for x in m.groups()]
-    return {'width': width, 'height': height, 'left': left, 'top': top}
+    return {
+        'width': width,
+        'height': height,
+        'left': left,
+        'top': top,
+        'bottom': top + height,
+        'right': left + width
+    }

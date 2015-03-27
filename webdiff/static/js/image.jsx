@@ -119,7 +119,9 @@ var ImageDiff = React.createClass({
  */
 function makePerceptualBoxDiv(filePair, scaleDown) {
   var padding = 5;  // try not to obscure anything inside the box
-  if (filePair.diffData && filePair.diffData.isSameDimensions) {
+  if (filePair.diffData &&
+      filePair.diffData.isSameDimensions &&
+      filePair.diffData.diffBounds) {
     var bbox = filePair.diffData.diffBounds;
     var styles = {
       top: Math.floor(scaleDown * (bbox.top - padding)) + 'px',

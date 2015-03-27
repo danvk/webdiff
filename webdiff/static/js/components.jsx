@@ -36,20 +36,24 @@ var makeRoot = function(filePairs, initiallySelectedIndex) {
     },
     computePerceptualDiff: function() {
       var fp = this.props.filePairs[this.getIndex()];
-      computePerceptualDiff('/a/image/' + fp.a, '/b/image/' + fp.b)
-        .then((diffData) => {
-          fp.diffData = diffData;
-          this.forceUpdate();  // tell react about this change
-        })
-        .catch(function(reason) {
-          console.error(reason);
-        });
+      if (!fp.is_image_diff) return;
+      fp.diffData = {
+        isSameDimensions: isSameSizeImagePair(fp)
+      };
+      $.getJSON(`/pdiffbbox/${this.getIndex()}`)
+          .done(bbox => {
+            fp.diffData.diffBounds = bbox;
+            this.forceUpdate();  // tell react about this change
+          }).fail(error => {
+            console.error(error);
+          });
     },
     render: function() {
       var idx = this.getIndex(),
           filePair = this.props.filePairs[idx];
 
       if (this.state.showPerceptualDiffBox && !filePair.diffData) {
+        // XXX this might shoot off unnecessary XHRs--use a Promise!
         this.computePerceptualDiff();
       }
 
