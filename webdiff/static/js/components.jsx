@@ -258,8 +258,11 @@ var NoChanges = React.createClass({
     filePair: React.PropTypes.object.isRequired
   },
   render: function() {
-    if (this.props.filePair.no_changes) {
-      return <div className="no-changes">(No Changes)</div>;
+    var fp = this.props.filePair;
+    if (fp.no_changes) {
+      return <div className="no-changes">(File content is identical)</div>;
+    } else if (fp.is_image_diff && fp.are_same_pixels) {
+      return <div className="no-changes">Pixels are the same, though file content differs (perhaps the headers are different?)</div>;
     } else {
       return null;
     }

@@ -140,6 +140,7 @@ function makePerceptualBoxDiv(pdiffMode, filePair, scaleDown) {
     if (filePair.diffData &&
         filePair.diffData.diffBounds) {
       var bbox = filePair.diffData.diffBounds;
+      if (bbox.width == 0 || bbox.height == 0) return null;
       var styles = {
         top: Math.floor(scaleDown * (bbox.top - padding)) + 'px',
         left: Math.floor(scaleDown * (bbox.left - padding)) + 'px',
@@ -432,5 +433,19 @@ var ImageSwipe = React.createClass({
         </div>
       </div>
     );
+  }
+});
+
+
+var NoPixelsChanged = React.createClass({
+  propTypes: {
+    filePair: React.PropTypes.object.isRequired
+  },
+  render: function() {
+    if (this.props.filePair.are_same_pixels) {
+      return <div className="no-changes">(Pixels are identical)</div>;
+    } else {
+      return null;
+    }
   }
 });
