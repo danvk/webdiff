@@ -23,6 +23,10 @@ Then run via one of these:
 See https://github.com/danvk/webdiff/ for more information.
 
 Release Notes
+- 0.10
+  * Added perceptual diffs via ImageMagick
+  * Add a favicon
+
 - 0.9
   * Long lines now wrap instead of scrolling horizontally.
   * Only 10+ common lines will be elided (no more "Show 2 more lines").
