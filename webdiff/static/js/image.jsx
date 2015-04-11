@@ -49,9 +49,9 @@ var ImageDiff = React.createClass({
   propTypes: {
     filePair: React.PropTypes.object.isRequired,
     imageDiffMode: React.PropTypes.oneOf(IMAGE_DIFF_MODES).isRequired,
-    showPerceptualDiffBox: React.PropTypes.bool,
+    pdiffMode: React.PropTypes.number,
     changeImageDiffModeHandler: React.PropTypes.func.isRequired,
-    changeShowPerceptualDiffBox: React.PropTypes.func.isRequired
+    changePdiffMode: React.PropTypes.func.isRequired
   },
   getInitialState: function() {
     return {shrinkToFit: true};
@@ -59,8 +59,8 @@ var ImageDiff = React.createClass({
   toggleShrinkToFit: function(e) {
     this.setState({shrinkToFit: e.target.checked});
   },
-  toggleDiffBox: function(e) {
-    this.props.changeShowPerceptualDiffBox(e.target.checked);
+  setPdiffMode: function(mode) {
+    this.props.changePdiffMode(mode);
   },
   componentDidMount: function() {
     $(window).on('resize.shrink-to-fit', () => {
@@ -85,10 +85,16 @@ var ImageDiff = React.createClass({
     var image = React.createElement(component, {
       filePair: pair,
       shrinkToFit: this.state.shrinkToFit,
-      showPerceptualDiffBox: this.props.showPerceptualDiffBox
+      pdiffMode: this.props.pdiffMode
     });
     var diffBoxEnabled = isSameSizeImagePair(pair);
     var boxClasses = diffBoxEnabled ? '' : 'diff-box-disabled';
+    var boxStyles = { display: HAS_IMAGE_MAGICK ? '' : 'none' };
+    var imageMagickCallout = !HAS_IMAGE_MAGICK ? (
+        <span className="magick">Install{' '}
+        <a href="http://www.imagemagick.org/script/binary-releases.php">ImageMagick</a>{' '}
+        to see perceptual diffs</span>
+    ) : null;
 
     return <div>
       <div className="image-diff-controls">
@@ -96,12 +102,31 @@ var ImageDiff = React.createClass({
         <input type="checkbox" id="shrink-to-fit" checked={this.state.shrinkToFit} onChange={this.toggleShrinkToFit} />
         <label htmlFor="shrink-to-fit"> Shrink to fit</label>
         &nbsp;
-        <span className={boxClasses}>
-          <input type="checkbox" id="show-diff-box"
-                 checked={this.props.showPerceptualDiffBox}
-                 disabled={!diffBoxEnabled}
-                 onChange={this.toggleDiffBox} />
-          <label htmlFor="show-diff-box"> Show diff box (p)</label>
+        <span className="pdiff-options">
+          <span className={boxClasses} style={boxStyles}>
+            Perceptual Diff:&nbsp;
+            <input type="radio" name="pdiff-mode"
+                   id="pdiff-off"
+                   checked={this.props.pdiffMode == PDIFF_MODE.OFF}
+                   disabled={!diffBoxEnabled}
+                   onChange={() => this.setPdiffMode(PDIFF_MODE.OFF)} />
+            <label htmlFor="pdiff-off"> None</label>
+            &nbsp;
+            <input type="radio" name="pdiff-mode"
+                   id="pdiff-bbox"
+                   checked={this.props.pdiffMode == PDIFF_MODE.BBOX}
+                   disabled={!diffBoxEnabled}
+                   onChange={() => this.setPdiffMode(PDIFF_MODE.BBOX)} />
+            <label htmlFor="pdiff-bbox"> Box</label>
+            &nbsp;
+            <input type="radio" name="pdiff-mode"
+                   id="pdiff-pixels"
+                   checked={this.props.pdiffMode == PDIFF_MODE.PIXELS}
+                   disabled={!diffBoxEnabled}
+                   onChange={() => this.setPdiffMode(PDIFF_MODE.PIXELS)} />
+            <label htmlFor="pdiff-pixels"> Differing Pixels</label>
+          </span>
+          {imageMagickCallout}
         </span>
       </div>
       <div className={'image-diff ' + mode}>
@@ -117,19 +142,38 @@ var ImageDiff = React.createClass({
  * Returns a React.DIV which boxes the changed parts of the image pair.
  * scaleDown is in [0, 1], with 1 being full-size
  */
-function makePerceptualBoxDiv(filePair, scaleDown) {
-  var padding = 5;  // try not to obscure anything inside the box
-  if (filePair.diffData && filePair.diffData.isSameDimensions) {
-    var bbox = filePair.diffData.diffBounds;
-    var styles = {
-      top: Math.floor(scaleDown * (bbox.top - padding)) + 'px',
-      left: Math.floor(scaleDown * (bbox.left - padding)) + 'px',
-      width: Math.ceil(scaleDown * (bbox.right - bbox.left + 2 * padding)) + 'px',
-      height: Math.ceil(scaleDown * (bbox.bottom - bbox.top + 2 * padding)) + 'px'
-    };
-    return <div className='perceptual-diff' style={styles} />;
-  } else {
+function makePerceptualBoxDiv(pdiffMode, filePair, scaleDown) {
+  if (pdiffMode == PDIFF_MODE.OFF ||
+      !isSameSizeImagePair(filePair)) {
     return null;
+  } else if (pdiffMode == PDIFF_MODE.BBOX) {
+    var padding = 5;  // try not to obscure anything inside the box
+    if (filePair.diffData &&
+        filePair.diffData.diffBounds) {
+      var bbox = filePair.diffData.diffBounds;
+      if (bbox.width == 0 || bbox.height == 0) return null;
+      var styles = {
+        top: Math.floor(scaleDown * (bbox.top - padding)) + 'px',
+        left: Math.floor(scaleDown * (bbox.left - padding)) + 'px',
+        width: Math.ceil(scaleDown * (bbox.right - bbox.left + 2 * padding)) + 'px',
+        height: Math.ceil(scaleDown * (bbox.bottom - bbox.top + 2 * padding)) + 'px'
+      };
+      return <div className='perceptual-diff bbox' style={styles} />;
+    } else {
+      return null;
+    }
+  } else if (pdiffMode == PDIFF_MODE.PIXELS) {
+    var styles = {top: 0, left: 0},
+        width = filePair.image_a.width * scaleDown,
+        height = filePair.image_a.height * scaleDown,
+        src = `/pdiff/${filePair.idx}`;
+    return (
+        <img className='perceptual-diff pixels'
+             style={styles}
+             width={width}
+             height={height}
+             src={src} />
+    );
   }
 }
 
@@ -139,7 +183,7 @@ var AnnotatedImage = React.createClass({
     filePair: React.PropTypes.object.isRequired,
     side: React.PropTypes.oneOf(['a', 'b']).isRequired,
     maxWidth: React.PropTypes.number,
-    showPerceptualDiffBox: React.PropTypes.bool
+    pdiffMode: React.PropTypes.number
   },
   render: function() {
     var side = this.props.side;
@@ -163,7 +207,7 @@ var SingleImage = React.createClass({
     filePair: React.PropTypes.object.isRequired,
     side: React.PropTypes.oneOf(['a', 'b']).isRequired,
     maxWidth: React.PropTypes.number,
-    showPerceptualDiffBox: React.PropTypes.bool
+    pdiffMode: React.PropTypes.number
   },
   render: function() {
     var filePair = this.props.filePair;
@@ -181,8 +225,7 @@ var SingleImage = React.createClass({
       im.width *= scaleDown;
       im.height *= scaleDown;
     }
-    var diffBoxDiv = this.props.showPerceptualDiffBox ?
-        makePerceptualBoxDiv(filePair, scaleDown) : null;
+    var diffBoxDiv = makePerceptualBoxDiv(this.props.pdiffMode, filePair, scaleDown);
 
     return (
       <div className='image-holder'>
@@ -216,9 +259,7 @@ var ImageSideBySide = React.createClass({
   propTypes: {
     filePair: React.PropTypes.object.isRequired,
     shrinkToFit: React.PropTypes.bool,
-    showPerceptualDiffBox: React.PropTypes.bool
-  },
-  renderDiff: function() {
+    pdiffMode: React.PropTypes.number
   },
   render: function() {
     var maxWidth = this.props.shrinkToFit ? (window.innerWidth - 30) / 2 : null;
@@ -343,8 +384,7 @@ var ImageSwipe = React.createClass({
       imB.height *= scaleDown;
       containerWidth = Math.max(imA.width, imB.width);
     }
-    var diffBoxDiv = this.props.showPerceptualDiffBox ?
-        makePerceptualBoxDiv(pair, scaleDown) : null;
+    var diffBoxDiv = makePerceptualBoxDiv(this.props.pdiffMode, pair, scaleDown);
     var styleA = {}, styleB = {}, styleContainer = {
       width: containerWidth + 'px',
       height: Math.max(imA.height, imB.height) + 'px'
@@ -404,5 +444,19 @@ var ImageSwipe = React.createClass({
         </div>
       </div>
     );
+  }
+});
+
+
+var NoPixelsChanged = React.createClass({
+  propTypes: {
+    filePair: React.PropTypes.object.isRequired
+  },
+  render: function() {
+    if (this.props.filePair.are_same_pixels) {
+      return <div className="no-changes">(Pixels are identical)</div>;
+    } else {
+      return null;
+    }
   }
 });

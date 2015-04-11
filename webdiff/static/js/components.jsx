@@ -4,6 +4,13 @@
  */
 'use strict';
 
+// Perceptual diffing mode
+var PDIFF_MODE = {
+  OFF: 0,
+  BBOX: 1,
+  PIXELS: 2
+};
+
 // Webdiff application root.
 var makeRoot = function(filePairs, initiallySelectedIndex) {
   return React.createClass({
@@ -15,7 +22,7 @@ var makeRoot = function(filePairs, initiallySelectedIndex) {
     mixins: [ReactRouter.Navigation, ReactRouter.State],
     getInitialState: () => ({
       imageDiffMode: 'side-by-side',
-      showPerceptualDiffBox: false
+      pdiffMode: PDIFF_MODE.OFF
     }),
     getDefaultProps: function() {
       return {filePairs, initiallySelectedIndex};
@@ -31,26 +38,28 @@ var makeRoot = function(filePairs, initiallySelectedIndex) {
     changeImageDiffModeHandler: function(mode) {
       this.setState({imageDiffMode: mode});
     },
-    changeShowPerceptualDiffBox: function(shouldShow) {
-      this.setState({showPerceptualDiffBox: shouldShow});
+    changePdiffMode: function(pdiffMode) {
+      this.setState({pdiffMode});
     },
-    computePerceptualDiff: function() {
+    computePerceptualDiffBox: function() {
       var fp = this.props.filePairs[this.getIndex()];
-      computePerceptualDiff('/a/image/' + fp.a, '/b/image/' + fp.b)
-        .then((diffData) => {
-          fp.diffData = diffData;
-          this.forceUpdate();  // tell react about this change
-        })
-        .catch(function(reason) {
-          console.error(reason);
-        });
+      if (!fp.is_image_diff || !isSameSizeImagePair(fp)) return;
+      $.getJSON(`/pdiffbbox/${this.getIndex()}`)
+          .done(bbox => {
+            if (!fp.diffData) fp.diffData = {};
+            fp.diffData.diffBounds = bbox;
+            this.forceUpdate();  // tell react about this change
+          }).fail(error => {
+            console.error(error);
+          });
     },
     render: function() {
       var idx = this.getIndex(),
           filePair = this.props.filePairs[idx];
 
-      if (this.state.showPerceptualDiffBox && !filePair.diffData) {
-        this.computePerceptualDiff();
+      if (this.state.pdiffMode == PDIFF_MODE.BBOX && !filePair.diffData) {
+        // XXX this might shoot off unnecessary XHRs--use a Promise!
+        this.computePerceptualDiffBox();
       }
 
       return (
@@ -60,9 +69,9 @@ var makeRoot = function(filePairs, initiallySelectedIndex) {
                         fileChangeHandler={this.selectIndex} />
           <DiffView filePair={filePair}
                     imageDiffMode={this.state.imageDiffMode}
-                    showPerceptualDiffBox={this.state.showPerceptualDiffBox}
+                    pdiffMode={this.state.pdiffMode}
                     changeImageDiffModeHandler={this.changeImageDiffModeHandler}
-                    changeShowPerceptualDiffBox={this.changeShowPerceptualDiffBox} />
+                    changePdiffMode={this.changePdiffMode} />
         </div>
       );
     },
@@ -84,7 +93,7 @@ var makeRoot = function(filePairs, initiallySelectedIndex) {
           this.setState({imageDiffMode: 'blink'});
         } else if (e.keyCode == 80) {  // p
           this.setState({
-            showPerceptualDiffBox: !this.state.showPerceptualDiffBox
+            pdiffMode: (this.state.pdiffMode + 1) % 3
           });
         }
       });
@@ -230,9 +239,9 @@ var DiffView = React.createClass({
   propTypes: {
     filePair: React.PropTypes.object.isRequired,
     imageDiffMode: React.PropTypes.oneOf(IMAGE_DIFF_MODES).isRequired,
-    showPerceptualDiffBox: React.PropTypes.bool,
+    pdiffMode: React.PropTypes.number,
     changeImageDiffModeHandler: React.PropTypes.func.isRequired,
-    changeShowPerceptualDiffBox: React.PropTypes.func.isRequired
+    changePdiffMode: React.PropTypes.func.isRequired
   },
   render: function() {
     if (this.props.filePair.is_image_diff) {
@@ -249,8 +258,11 @@ var NoChanges = React.createClass({
     filePair: React.PropTypes.object.isRequired
   },
   render: function() {
-    if (this.props.filePair.no_changes) {
-      return <div className="no-changes">(No Changes)</div>;
+    var fp = this.props.filePair;
+    if (fp.no_changes) {
+      return <div className="no-changes">(File content is identical)</div>;
+    } else if (fp.is_image_diff && fp.are_same_pixels) {
+      return <div className="no-changes">Pixels are the same, though file content differs (perhaps the headers are different?)</div>;
     } else {
       return null;
     }

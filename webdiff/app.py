@@ -14,7 +14,7 @@ from threading import Timer
 import time
 import webbrowser
 
-from flask import (Flask, render_template, send_from_directory,
+from flask import (Flask, render_template, send_from_directory, send_file,
                    request, jsonify, Response)
 
 import util
@@ -136,6 +136,34 @@ def get_image(side, path):
         return response
 
 
+@app.route("/pdiff/<int:idx>")
+def get_pdiff(idx):
+    idx = int(idx)
+    pair = DIFF[idx]
+    try:
+        _, pdiff_image = util.generate_pdiff_image(pair['a_path'], pair['b_path'])
+        dilated_image = util.generate_dilated_pdiff_image(pdiff_image)
+    except util.ImageMagickNotAvailableError:
+        return 'ImageMagick is not available', 501
+    except util.ImageMagickError as e:
+        return 'ImageMagick error %s' % e, 501
+    return send_file(dilated_image)
+
+
+@app.route("/pdiffbbox/<int:idx>")
+def get_pdiff_bbox(idx):
+    idx = int(idx)
+    pair = DIFF[idx]
+    try:
+        _, pdiff_image = util.generate_pdiff_image(pair['a_path'], pair['b_path'])
+        bbox = util.get_pdiff_bbox(pdiff_image)
+    except util.ImageMagickNotAvailableError:
+        return 'ImageMagick is not available', 501
+    except util.ImageMagickError as e:
+        return 'ImageMagick error %s' % e, 501
+    return jsonify(bbox)
+
+
 # Show the first diff by default
 @app.route("/")
 def index():
@@ -147,6 +175,7 @@ def file_diff(idx):
     idx = int(idx)
     return render_template('file_diff.html',
                            idx=idx,
+                           has_magick=util.is_imagemagick_available(),
                            pairs=DIFF)
 
 

@@ -142,10 +142,21 @@ table .side-a, table .side-b {
 }
 .perceptual-diff {
   position: absolute;
+}
+.perceptual-diff.bbox {
   border: 2px solid hotpink;
   box-shadow: 0 0 5px 0 rgba(50, 50, 50, 0.75);
+}
+.perceptual-diff.pixels {
+  opacity: 0.5;
 }
 
 .diff-box-disabled {
   color: gray;
+}
+.pdiff-options {
+  margin-left: 10px;
+}
+.magick {
+  font-style: italic;
 }
