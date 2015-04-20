@@ -21,7 +21,7 @@ def get_thin_dict(diff):
 
 def get_thick_dict(diff):
     '''Similar to thin_dict, but includes potentially expensive fields.'''
-    d = get_thick_dict(diff)
+    d = get_thin_dict(diff)
     d.update({
         'is_image_diff': is_image_diff(diff),
         'no_changes': diff.no_changes()
@@ -33,11 +33,21 @@ def get_thick_dict(diff):
             try:
                 d['are_same_pixels'], _ = util.generate_pdiff_image(
                         diff.a_path, diff.b_path)
-            except ImageMagickError:
+            except util.ImageMagickError:
                 d['are_same_pixels'] = False
-            except ImageMagickNotAvailableError:
+            except util.ImageMagickNotAvailableError:
                 pass
     return d
+
+
+def get_thin_list(diffs, thick_idx=None):
+    '''Convert a list of diffs to dicts. This adds an 'idx' field.'''
+    ds = [get_thin_dict(d) for d in diffs]
+    if thick_idx is not None:
+        ds[thick_idx] = get_thick_dict(ds[idx])
+    for i, d in enumerate(ds):
+        d['idx'] = i
+    return ds
 
 
 def is_image_diff(diff):

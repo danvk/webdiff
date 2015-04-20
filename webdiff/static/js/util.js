@@ -9,7 +9,7 @@
  */
 function filePairDisplayName(filePair) {
   if (filePair.type != 'move') {
-    return filePair.path;
+    return filePair.a || filePair.b;
   }
 
   // Factor out shared components (folder names, basename, extension) in the

@@ -175,11 +175,17 @@ def index():
 @app.route("/<int:idx>")
 def file_diff(idx):
     idx = int(idx)
-    pairs = [diff.get_thin_dict(d) for d in DIFF]
+    pairs = diff.get_thin_list(DIFF)
     return render_template('file_diff.html',
                            idx=idx,
                            has_magick=util.is_imagemagick_available(),
                            pairs=pairs)
+
+
+@app.route('/thick/<int:idx>')
+def thick_diff(idx):
+    idx = int(idx)
+    return jsonify(diff.get_thick_dict(DIFF[idx]))
 
 
 @app.route('/favicon.ico')

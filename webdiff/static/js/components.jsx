@@ -67,7 +67,8 @@ var makeRoot = function(filePairs, initiallySelectedIndex) {
           <FileSelector selectedFileIndex={idx}
                         filePairs={this.props.filePairs}
                         fileChangeHandler={this.selectIndex} />
-          <DiffView filePair={filePair}
+          <DiffView key={'diff-' + idx}
+                    thinFilePair={filePair}
                     imageDiffMode={this.state.imageDiffMode}
                     pdiffMode={this.state.pdiffMode}
                     changeImageDiffModeHandler={this.changeImageDiffModeHandler}
@@ -237,17 +238,32 @@ var FileDropdown = React.createClass({
 // A diff for a single pair of files (left/right).
 var DiffView = React.createClass({
   propTypes: {
-    filePair: React.PropTypes.object.isRequired,
+    thinFilePair: React.PropTypes.object.isRequired,
     imageDiffMode: React.PropTypes.oneOf(IMAGE_DIFF_MODES).isRequired,
     pdiffMode: React.PropTypes.number,
     changeImageDiffModeHandler: React.PropTypes.func.isRequired,
     changePdiffMode: React.PropTypes.func.isRequired
   },
+  getInitialState: function() {
+    // Only the "thin" file pair is available on page load.
+    // To get the "thick" file pair, we need to issue an XHR
+    return {filePair: null};
+  },
+  componentDidMount: function() {
+    getThickDiff(this.props.thinFilePair.idx).done(filePair => {
+      this.setState({filePair});
+    });
+  },
   render: function() {
-    if (this.props.filePair.is_image_diff) {
-      return <ImageDiff {...this.props} />;
+    var filePair = this.state.filePair;
+    if (!filePair) {
+      return <div>Loading…</div>;
+    }
+
+    if (filePair.is_image_diff) {
+      return <ImageDiff filePair={filePair} {...this.props} />;
     } else {
-      return <CodeDiff filePair={this.props.filePair} />;
+      return <CodeDiff filePair={filePair} />;
     }
   }
 });
