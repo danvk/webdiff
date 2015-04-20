@@ -17,6 +17,7 @@ import webbrowser
 from flask import (Flask, render_template, send_from_directory, send_file,
                    request, jsonify, Response)
 
+import diff
 import util
 import argparser
 
@@ -46,8 +47,6 @@ app = Flask(__name__)
 app.config.from_object(Config)
 app.config.from_envvar('WEBDIFF_CONFIG', silent=True)
 
-A_DIR = None
-B_DIR = None
 DIFF = None
 PORT = None
 
@@ -75,20 +74,31 @@ def update_last_request_ms():
     LAST_REQUEST_MS = time.time() * 1000
 
 
+def error(code, message):
+    e = {"code": code, "message": message}
+    response = jsonify(e)
+    response.status_code = 400
+    return response
+
+
 @app.route("/<side>/get_contents", methods=['POST'])
 def get_contents(side):
-    assert side in ('a', 'b')
+    if side not in ('a', 'b'):
+        return error('invalid side', 'Side must be "a" or "b", got %s' % side)
+
+    # TODO: switch to index? might be simpler
     path = request.form.get('path', '')
     if not path:
-        e = {"code": "incomplete",
-             "message": "Incomplete request (need path)"}
-        response = jsonify(e)
-        response.status_code = 400
-        return response
+        return error('incomplete', 'Incomplete request (need path)')
+
+    idx = diff.find_diff_index(DIFF, side, path)
+    if idx is None:
+        return error('not found', 'Invalid path on side %s: %s' % (side, path))
+
+    d = DIFF[idx]
+    abs_path = d.a_path if side == 'a' else d.b_path
 
     try:
-        abs_path = os.path.join(A_DIR if side == 'a' else B_DIR,
-                                os.path.normpath(path))  # / --> \ on windows
         is_binary = util.is_binary_file(abs_path)
         if is_binary:
             size = os.path.getsize(abs_path)
@@ -97,51 +107,43 @@ def get_contents(side):
             contents = open(abs_path).read()
         return Response(contents, mimetype='text/plain')
     except Exception:
-        e = {"code": "read-error",
-             "message": "Unable to read %s" % abs_path}
-        response = jsonify(e)
-        response.status_code = 400
-        return response
+        return error('read-error', 'Unable to read %s' % abs_path)
 
 
 @app.route("/<side>/image/<path:path>")
 def get_image(side, path):
-    assert side in ('a', 'b')
+    if side not in ('a', 'b'):
+        return error('invalid side', 'Side must be "a" or "b", got %s' % side)
+
+    # TODO: switch to index? might be simpler
     if not path:
-        e = {"code": "incomplete",
-             "message": "Incomplete request (need path)"}
-        response = jsonify(e)
-        response.status_code = 400
-        return response
+        return error('incomplete', 'Incomplete request (need path)')
 
     mime_type, enc = mimetypes.guess_type(path)
     if not mime_type or not mime_type.startswith('image/') or enc is not None:
-        e = {"code": "wrongtype",
-             "message": "Requested file of type (%s, %s) as image" % (
-                 mime_type, enc)}
-        response = jsonify(e)
-        response.status_code = 400
-        return response
+        return error('wrongtype', 'Requested file of type (%s, %s) as image' % (
+                 mime_type, enc))
+
+    idx = diff.find_diff_index(DIFF, side, path)
+    if idx is None:
+        return error('not found', 'Invalid path on side %s: %s' % (side, path))
+
+    d = DIFF[idx]
+    abs_path = d.a_path if side == 'a' else d.b_path
 
     try:
-        abs_path = os.path.join(A_DIR if side == 'a' else B_DIR,
-                                os.path.normpath(path))  # / --> \ on windows
         contents = open(abs_path).read()
         return Response(contents, mimetype=mime_type)
     except Exception:
-        e = {"code": "read-error",
-             "message": "Unable to read %s" % abs_path}
-        response = jsonify(e)
-        response.status_code = 400
-        return response
+        return error('read-error', 'Unable to read %s' % abs_path)
 
 
 @app.route("/pdiff/<int:idx>")
 def get_pdiff(idx):
     idx = int(idx)
-    pair = DIFF[idx]
+    d = DIFF[idx]
     try:
-        _, pdiff_image = util.generate_pdiff_image(pair['a_path'], pair['b_path'])
+        _, pdiff_image = util.generate_pdiff_image(d.a_path, d.b_path)
         dilated_image = util.generate_dilated_pdiff_image(pdiff_image)
     except util.ImageMagickNotAvailableError:
         return 'ImageMagick is not available', 501
@@ -153,9 +155,9 @@ def get_pdiff(idx):
 @app.route("/pdiffbbox/<int:idx>")
 def get_pdiff_bbox(idx):
     idx = int(idx)
-    pair = DIFF[idx]
+    d = DIFF[idx]
     try:
-        _, pdiff_image = util.generate_pdiff_image(pair['a_path'], pair['b_path'])
+        _, pdiff_image = util.generate_pdiff_image(d.a_path, d.b_path)
         bbox = util.get_pdiff_bbox(pdiff_image)
     except util.ImageMagickNotAvailableError:
         return 'ImageMagick is not available', 501
@@ -173,10 +175,11 @@ def index():
 @app.route("/<int:idx>")
 def file_diff(idx):
     idx = int(idx)
+    pairs = [diff.get_thin_dict(d) for d in DIFF]
     return render_template('file_diff.html',
                            idx=idx,
                            has_magick=util.is_imagemagick_available(),
-                           pairs=DIFF)
+                           pairs=pairs)
 
 
 @app.route('/favicon.ico')
@@ -254,24 +257,23 @@ def is_webdiff_from_head():
 
 
 def run():
-    global A_DIR, B_DIR, DIFF, PORT
+    global DIFF, PORT
     try:
         parsed_args = argparser.parse(sys.argv[1:])
     except argparser.UsageError as e:
         sys.stderr.write('Error: %s\n\n' % e.message)
         usage_and_die()
 
-    A_DIR, B_DIR, DIFF = util.diff_for_args(parsed_args)
+    DIFF = argparser.diff_for_args(parsed_args)
 
     if app.config['TESTING'] or app.config['DEBUG']:
-        sys.stderr.write('Diffing:\nA: %s\nB: %s\n\n' % (A_DIR, B_DIR))
+        sys.stderr.write('Diff:\n%s' % DIFF)
 
     PORT = pick_a_port(parsed_args)
 
     sys.stderr.write('''Serving diffs on http://localhost:%s
 Close the browser tab or hit Ctrl-C when you're done.
 ''' % PORT)
-    logging.info('Diff: %r', DIFF)
     Timer(0.1, open_browser).start()
     app.run(host='0.0.0.0', port=PORT)
 
