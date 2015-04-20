@@ -1,4 +1,14 @@
-'''Utility code for working with Diff objects.'''
+'''Utility code for working with Diff objects.
+
+Diff objects must have these properties:
+    - a      Name of the file on the left side of a diff      
+    - a_path Path to a copy of the left side file on local disk.
+    - b      (like a)
+    - b_path (like a_path)
+    - type   One of {'change', 'move', 'add', 'delete'}
+
+For concrete implementations, see githubdiff and localfilediff.
+'''
 
 import mimetypes
 
@@ -84,10 +94,11 @@ def find_diff_index(diffs, side, path):
     Returns None if there's no diff for the (side, path) pair.
     '''
     assert side in ('a', 'b')
-    # TODO: os.path.normpath
+    norm = os.path.normpath
+    path = norm(path)
     for idx, diff in enumerate(diffs):
-        if side == 'a' and diff.a == path:
+        if side == 'a' and norm(diff.a) == path:
             return idx
-        if side == 'b' and diff.b == path:
+        if side == 'b' and norm(diff.b) == path:
             return idx
     return None
