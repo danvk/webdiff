@@ -1,5 +1,9 @@
 QUnit.test('util.filePairDisplayName', function(assert) {
-  assert.deepEqual(filePairDisplayName({type: 'delete', path: 'dir/file.json'}),
+  assert.deepEqual(filePairDisplayName({
+                      type: 'delete',
+                      a: 'dir/file.json',
+                      b: null
+                   }),
                    'dir/file.json');
 
   var rename = function(a, b) {
