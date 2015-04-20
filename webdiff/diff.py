@@ -11,6 +11,7 @@ For concrete implementations, see githubdiff and localfilediff.
 '''
 
 import mimetypes
+import os
 
 import util
 
@@ -94,7 +95,10 @@ def find_diff_index(diffs, side, path):
     Returns None if there's no diff for the (side, path) pair.
     '''
     assert side in ('a', 'b')
-    norm = os.path.normpath
+    def norm(p):
+        if p is None: return None
+        return os.path.normpath(p)
+
     path = norm(path)
     for idx, diff in enumerate(diffs):
         if side == 'a' and norm(diff.a) == path:

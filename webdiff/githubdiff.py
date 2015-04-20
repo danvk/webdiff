@@ -20,6 +20,7 @@ class GitHubDiff(object):
         self._file = github_file
         self.type = {
                 'modified': 'change',
+                'changed': 'change',  # How does this differ from 'modified'?
                 'renamed': 'move',
                 'added': 'add',
                 'removed': 'delete'
