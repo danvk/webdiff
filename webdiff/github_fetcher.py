@@ -3,6 +3,9 @@
 This will create symlinks or clone git repos as needed.
 """
 
+# Use this PR for testing to see all four types of change at once:
+# https://github.com/danvk/test-repo/pull/2/
+
 import atexit
 from collections import OrderedDict
 import errno
@@ -14,19 +17,68 @@ import tempfile
 
 from github import Github, UnknownObjectException
 
+from util import memoize
 
-temp_dirs = []
 
-_github_memo = None
+class GitHubDiff(object):
+    def __init__(self, pr, github_file):
+        self._pr = pr
+        self._file = github_file
+        self.type = {
+                'modified': 'change',
+                'renamed': 'move',
+                'added': 'add',
+                'removed': 'delete'
+                }[github_file.status]
+        self._a_path = None
+        self._b_path = None
+
+    @property
+    def a(self):
+        if self.type == 'move':
+            return self._file.raw_data['previous_filename']
+        elif self.type == 'add':
+            return None
+        else:
+            return self._file.filename
+
+    @property
+    def b(self):
+        if self.type == 'delete':
+            return None
+        else:
+            return self._file.filename
+
+    # NB: these are @memoize'd via fetch()
+    @property
+    def a_path(self):
+        return fetch(self._pr.base.repo, self.a, self._pr.base.sha)
+
+    @property
+    def b_path(self):
+        return fetch(self._pr.head.repo, self.b, self._pr.head.sha)
+
+    def __repr__(self):
+        return '%s (%s)' % (self.a or self.b, self.type)
+
+    # TOOD: diffstats are accessible via file.{changes,additions,deletions}
+
+
+@memoize
+def fetch(repo, filename, sha):
+    if filename is None: return None
+    data = repo.get_file_contents(filename, sha).decoded_content
+    _, ext = os.path.splitext(filename)
+    fd, path = tempfile.mkstemp(suffix=ext)
+    open(path, 'wb').write(data)
+    return path
+
+
+@memoize
 def _github():
-    global _github_memo
-    if _github_memo: return _github_memo
-
     def simple_fallback(message=None):
-        global _github_memo
         if message: sys.stderr.write(message + '\n')
-        _github_memo = Github()
-        return _github_memo
+        return Github()
 
     github_rc = os.path.join(os.path.expanduser('~'), '.githubrc')
     if os.path.exists(github_rc):
@@ -45,53 +97,20 @@ def _github():
                 return simple_fallback('.githubrc missing user.login. Using anonymous API access.')
             if not kvs.get('user.password'):
                 return simple_fallback('.githubrc missing user.password. Using anonymous API access.')
-            _github_memo = Github(kvs['user.login'], kvs['user.password'])
+            return Github(kvs['user.login'], kvs['user.password'])
     else:
-        _github_memo = Github()
-    return _github_memo
-
-
-def put_in_dir(dirname, filename, contents):
-    """Puts contents into filename in dirname.
-    
-    This creates intermediate directories as needed, e.g. if filename is a/b/c.
-    """
-    d = os.path.join(dirname, os.path.dirname(filename))
-    try:
-        os.makedirs(d)
-    except OSError, e:
-        # be happy if someone already created the path
-        if e.errno != errno.EEXIST:
-            raise
-    open(os.path.join(dirname, filename), 'w').write(contents)
+        return Github()
 
 
 def fetch_pull_request(owner, repo, num):
-    """Pull down the pull request into two local directories.
-
-    Returns before_dir, after_dir.
-    """
-    sys.stderr.write('Loading pull request %s/%s#%s from github...\n' % (owner, repo, num))
+    '''Return a list of Diff objects for a pull request.'''
+    sys.stderr.write('Loading pull request %s/%s#%s from github...\n' % (
+            owner, repo, num))
     g = _github()
     pr = g.get_user(owner).get_repo(repo).get_pull(num)
-    base_repo = pr.base.repo
-    head_repo = pr.head.repo
-    files = list(pr.get_files())
+    files = pr.get_files()
 
-    a_dir, b_dir = tempfile.mkdtemp(), tempfile.mkdtemp()
-    temp_dirs.extend([a_dir, b_dir])
-
-    for f in files:
-        sys.stderr.write('  %s...\n' % f.filename)
-        if f.status == 'modified' or f.status == 'deleted':
-            contents = base_repo.get_file_contents(f.filename, pr.base.sha).decoded_content
-            put_in_dir(a_dir, f.filename, contents)
-        if f.status == 'modified' or f.status == 'added':
-            contents = head_repo.get_file_contents(f.filename, pr.head.sha).decoded_content
-            put_in_dir(b_dir, f.filename, contents)
-        # f.status == 'moved'?
-
-    return a_dir, b_dir
+    return [GitHubDiff(pr, f) for f in files]
 
 
 class NoRemoteError(Exception):

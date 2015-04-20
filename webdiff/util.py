@@ -10,8 +10,6 @@ import time
 
 from PIL import Image
 
-import github_fetcher
-
 
 class ImageMagickNotAvailableError(Exception):
     pass

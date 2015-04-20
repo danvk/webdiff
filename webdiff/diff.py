@@ -24,7 +24,7 @@ def get_thick_dict(diff):
     d = get_thin_dict(diff)
     d.update({
         'is_image_diff': is_image_diff(diff),
-        'no_changes': diff.no_changes()
+        'no_changes': no_changes(diff)
     })
     if d['is_image_diff']:
         if d['a']: d['image_a'] = util.image_metadata(diff.a_path)
@@ -48,6 +48,12 @@ def get_thin_list(diffs, thick_idx=None):
     for i, d in enumerate(ds):
         d['idx'] = i
     return ds
+
+
+def no_changes(diff):
+    if diff.a_path and diff.b_path:
+        return util.are_files_identical(diff.a_path, diff.b_path)
+    return False
 
 
 def is_image_diff(diff):

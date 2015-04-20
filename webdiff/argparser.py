@@ -96,5 +96,4 @@ def diff_for_args(args):
 
     if 'github' in args:
         gh = args['github']
-        a_dir, b_dir = github_fetcher.fetch_pull_request(gh['owner'], gh['repo'], gh['num'])
-        return dirdiff.diff(a_dir, b_dir)
+        return github_fetcher.fetch_pull_request(gh['owner'], gh['repo'], gh['num'])

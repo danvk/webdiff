@@ -41,10 +41,5 @@ class LocalFileDiff(object):
             return 'move'
         return 'change'
 
-    def no_changes(self):
-        if self.a_path and self.b_path:
-            return util.are_files_identical(self.a_path, self.b_path)
-        return False
-
     def __repr__(self):
         return '%s/%s (%s)' % (self.a, self.b, self.type)
