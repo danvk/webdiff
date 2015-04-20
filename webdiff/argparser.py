@@ -4,6 +4,7 @@ import os
 import re
 
 import dirdiff
+import githubdiff
 import github_fetcher
 from localfilediff import LocalFileDiff
 
@@ -96,4 +97,4 @@ def diff_for_args(args):
 
     if 'github' in args:
         gh = args['github']
-        return github_fetcher.fetch_pull_request(gh['owner'], gh['repo'], gh['num'])
+        return githubdiff.fetch_pull_request(gh['owner'], gh['repo'], gh['num'])

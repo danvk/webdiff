@@ -6,76 +6,19 @@ This will create symlinks or clone git repos as needed.
 # Use this PR for testing to see all four types of change at once:
 # https://github.com/danvk/test-repo/pull/2/
 
-import atexit
 from collections import OrderedDict
-import errno
 import os
 import re
 import subprocess
-import sys
-import tempfile
 
 from github import Github, UnknownObjectException
 
 from util import memoize
 
 
-class GitHubDiff(object):
-    def __init__(self, pr, github_file):
-        self._pr = pr
-        self._file = github_file
-        self.type = {
-                'modified': 'change',
-                'renamed': 'move',
-                'added': 'add',
-                'removed': 'delete'
-                }[github_file.status]
-        self._a_path = None
-        self._b_path = None
-
-    @property
-    def a(self):
-        if self.type == 'move':
-            return self._file.raw_data['previous_filename']
-        elif self.type == 'add':
-            return None
-        else:
-            return self._file.filename
-
-    @property
-    def b(self):
-        if self.type == 'delete':
-            return None
-        else:
-            return self._file.filename
-
-    # NB: these are @memoize'd via fetch()
-    @property
-    def a_path(self):
-        return fetch(self._pr.base.repo, self.a, self._pr.base.sha)
-
-    @property
-    def b_path(self):
-        return fetch(self._pr.head.repo, self.b, self._pr.head.sha)
-
-    def __repr__(self):
-        return '%s (%s)' % (self.a or self.b, self.type)
-
-    # TOOD: diffstats are accessible via file.{changes,additions,deletions}
-
-
 @memoize
-def fetch(repo, filename, sha):
-    if filename is None: return None
-    data = repo.get_file_contents(filename, sha).decoded_content
-    _, ext = os.path.splitext(filename)
-    fd, path = tempfile.mkstemp(suffix=ext)
-    open(path, 'wb').write(data)
-    return path
-
-
-@memoize
-def _github():
+def github():
+    '''Returns a GitHub API object with auth, if it's available.'''
     def simple_fallback(message=None):
         if message: sys.stderr.write(message + '\n')
         return Github()
@@ -102,17 +45,6 @@ def _github():
         return Github()
 
 
-def fetch_pull_request(owner, repo, num):
-    '''Return a list of Diff objects for a pull request.'''
-    sys.stderr.write('Loading pull request %s/%s#%s from github...\n' % (
-            owner, repo, num))
-    g = _github()
-    pr = g.get_user(owner).get_repo(repo).get_pull(num)
-    files = pr.get_files()
-
-    return [GitHubDiff(pr, f) for f in files]
-
-
 class NoRemoteError(Exception):
     pass
 
@@ -132,7 +64,7 @@ def get_pr_repo(num):
                             'directory. Are you in a git repo? Try running '
                             '`git remote -v` to debug.')
 
-    g = _github()
+    g = github()
     for remote in remotes:
         owner = remote['owner']
         repo = remote['repo']
@@ -189,10 +121,3 @@ def _get_remotes():
         ['git', 'remote', '-v'], stdout=subprocess.PIPE).communicate()[0].split('\n')
     return _parse_remotes(remote_lines)
 
-
-
-@atexit.register
-def _cleanup():
-    """Delete any temporary directories which were created by two_folders()."""
-    #for d in temp_dirs:
-    #    os.removedirs(d)
