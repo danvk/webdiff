@@ -40,6 +40,25 @@ function renderDiff(pathBefore, pathAfter, contentsBefore, contentsAfter) {
   return diffDiv;
 }
 
+/**
+ * Get thick file diff information from the server.
+ * @param {number} index Index of this diff in the diff list
+ * @return {jQuery.Deferred} Deferred object for the thick diff.
+ */
+function getThickDiff(index) {
+  var cache = getThickDiff.cache;
+  if (cache[index]) {
+    return $.when(cache[index]);
+  }
+
+  var deferred = $.getJSON('/thick/' + index);
+  deferred.done(function(data) {
+    cache[index] = data;
+  });
+  return deferred;
+}
+getThickDiff.cache = [];
+
 
 function extractFilename(path) {
   var parts = path.split('/');

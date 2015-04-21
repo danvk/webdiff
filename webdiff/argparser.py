@@ -3,7 +3,10 @@ import argparse
 import os
 import re
 
+import dirdiff
+import githubdiff
 import github_fetcher
+from localfilediff import LocalFileDiff
 
 class UsageError(Exception):
     pass
@@ -72,3 +75,26 @@ def parse(args):
             out['files'] = (a, b)
 
     return out
+
+
+# TODO: move into dirdiff?
+def _shim_for_file_diff(a_file, b_file):
+    '''Sets A_DIR, B_DIR and DIFF to do a one-file diff.'''
+    dirname = os.path.dirname
+    basename = os.path.basename
+    return LocalFileDiff(dirname(a_file), basename(a_file),
+                         dirname(b_file), basename(b_file),
+                         False)  # probably not a move
+
+
+def diff_for_args(args):
+    '''Returns a list of Diff objects for parsed command line args.'''
+    if 'dirs' in args:
+        return dirdiff.diff(*args['dirs'])
+
+    if 'files' in args:
+        return [_shim_for_file_diff(*args['files'])]
+
+    if 'github' in args:
+        gh = args['github']
+        return githubdiff.fetch_pull_request(gh['owner'], gh['repo'], gh['num'])
