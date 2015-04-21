@@ -57,11 +57,6 @@ var makeRoot = function(filePairs, initiallySelectedIndex) {
       var idx = this.getIndex(),
           filePair = this.props.filePairs[idx];
 
-      if (this.state.pdiffMode == PDIFF_MODE.BBOX && !filePair.diffData) {
-        // XXX this might shoot off unnecessary XHRs--use a Promise!
-        this.computePerceptualDiffBox();
-      }
-
       return (
         <div>
           <FileSelector selectedFileIndex={idx}
@@ -251,6 +246,7 @@ var DiffView = React.createClass({
   },
   componentDidMount: function() {
     getThickDiff(this.props.thinFilePair.idx).done(filePair => {
+      filePair.idx = this.props.thinFilePair.idx;
       this.setState({filePair});
     });
   },
