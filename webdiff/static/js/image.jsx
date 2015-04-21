@@ -70,12 +70,29 @@ var ImageDiff = React.createClass({
   componentWillUnmount: function() {
     $(window).off('resize.shrink-to-fit');
   },
+  computePerceptualDiffBox: function(fp) {
+    if (!isSameSizeImagePair(fp)) return;
+    $.getJSON(`/pdiffbbox/${fp.idx}`)
+        .done(bbox => {
+          if (!fp.diffData) fp.diffData = {};
+          fp.diffData.diffBounds = bbox;
+          this.forceUpdate();  // tell react about this change
+        }).fail(error => {
+          console.error(error);
+        });
+  },
   render: function() {
     var mode = this.props.imageDiffMode;
     var pair = this.props.filePair;
     if (isOneSided(pair)) {
       mode = 'side-by-side';  // Only one that makes sense for one-sided diffs.
     }
+
+    if (this.props.pdiffMode == PDIFF_MODE.BBOX && !pair.diffData) {
+      // XXX this might shoot off unnecessary XHRs--use a Promise!
+      this.computePerceptualDiffBox(pair);
+    }
+
     var component = {
       'side-by-side': ImageSideBySide,
       'blink': ImageBlinker,
