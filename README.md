@@ -42,6 +42,16 @@ You can also use `webdiff` to view GitHub pull requests:
 
 This will download the files relevant to the Pull Request and run `webdiff`.
 
+If you run into GitHub API quota limits, you can set your credentials in a `.githubrc` file:
+
+```
+user.login: yourusername
+user.password: yourpassword
+```
+
+Make sure you chmod this file to only be readable by yourself. In the future
+we'll support [Oauth][].
+
 Preview
 ----------
 
@@ -90,3 +100,5 @@ To iterate on the PyPI package, run:
     deactivate
     cd /tmp/webdiff-test
     pip install webdiff-X.Y.Z.tar.gz
+
+[oauth]: https://github.com/danvk/webdiff/issues/103
