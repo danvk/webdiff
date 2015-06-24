@@ -1,0 +1,34 @@
+- 0.11
+  * Files are fetched from GitHub lazily to allowing diffs of large PRs.
+
+- 0.10
+  * Added perceptual diffs via ImageMagick
+  * Add a favicon
+
+- 0.9
+  * Long lines now wrap instead of scrolling horizontally.
+  * Only 10+ common lines will be elided (no more "Show 2 more lines").
+  * Show bounding boxes for the changed region in image diffs.
+
+- 0.8
+  * New image diff modes: onion skin, swipe
+  * Shrink to fit for image diffs
+  * More aggressive syntax highlighting (makes a guess based on file contents)
+  * Refresh no longer kills the webdiff server (useful if file changes on disk)
+  * Renames/moves are displayed more compactly (ala GitHub)
+
+- 0.7
+  * Support for file vs. file diffs (i.e. webdiff as a replacement for diff)
+  * List of files instead of dropdown for small diffs
+  * Display resolution and file size for images
+  * Conversion to ReactJS
+
+- 0.6
+  * Support for image diffs
+  * Basic move/rename detection
+  * Bug fixes
+
+- 0.5
+  * Switched from jsdifflib to codediff.js, which provides syntax highlighting.
+  * Make better use of narrow browser windows
+  * Detect (and suppress) binary diffs
