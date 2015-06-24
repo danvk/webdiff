@@ -11,6 +11,9 @@ Features include:
 * Step back and forth through multiple files in a single diff
 * Rich support for image diffs
 
+<!-- This is `git webdiff 05157bba^..05157bba`, in this repo -->
+![Screenshot of webdiff in action](http://www.danvk.org/webdiff.png)
+
 Installation
 ------------
 
@@ -52,16 +55,6 @@ user.password: yourpassword
 Make sure you chmod this file to only be readable by yourself. In the future
 we'll support [Oauth][].
 
-Preview
-----------
-
-![Screenshot of webdiff in action](http://www.danvk.org/webdiff.png)
-
-This shows a JavaScript file being diffed. A few things to note:
-* Line deletions and per-character modifications.
-* Long stretches of common lines are elided, but can be shown if desired.
-* Syntax highlighting (via highlight.js)
-* Keyboard shortcuts (j/k) for stepping through files in the diff.
 
 Development
 -----------
