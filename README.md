@@ -14,6 +14,8 @@ Features include:
 <!-- This is `git webdiff 05157bba^..05157bba`, in this repo -->
 ![Screenshot of webdiff in action](http://www.danvk.org/webdiff.png)
 
+![Screenshot of image diffs](http://www.danvk.org/webdiff-images.png)
+
 Installation
 ------------
 
