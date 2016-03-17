@@ -36,11 +36,23 @@ def github():
                 k, v = line.split(': ', 1)
                 kvs[k] = v
 
-            if not kvs.get('user.login'):
+            login = kvs.get('user.login')
+            if not login:
                 return simple_fallback('.githubrc missing user.login. Using anonymous API access.')
-            if not kvs.get('user.password'):
-                return simple_fallback('.githubrc missing user.password. Using anonymous API access.')
-            return Github(kvs['user.login'], kvs['user.password'])
+
+            password = kvs.get('user.password')
+            token = kvs.get('user.token')
+
+            if password and token:
+                raise OnlyPasswordOrToken('Only specify user.token or user.password '
+                                          'in your .githubrc file (got both)')
+
+            auth = token or password
+
+            if not auth:
+                return simple_fallback('.githubrc has neither user.password nor user.token.'
+                                       'Using anonymous API access.')
+            return Github(login, auth)
     else:
         return Github()
 
@@ -49,6 +61,9 @@ class NoRemoteError(Exception):
     pass
 
 class UnknownPullRequestError(Exception):
+    pass
+
+class OnlyPasswordOrToken(Exception):
     pass
 
 

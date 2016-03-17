@@ -47,15 +47,17 @@ You can also use `webdiff` to view GitHub pull requests:
 
 This will download the files relevant to the Pull Request and run `webdiff`.
 
-If you run into GitHub API quota limits, you can set your credentials in a `.githubrc` file:
+If you run into GitHub API quota limits or you'd like to use webdiff with
+private repos, you can set your credentials in a `.githubrc` file:
 
 ```
 user.login: yourusername
-user.password: yourpassword
+user.token: your-personal-access-tokens
 ```
 
-Make sure you chmod this file to only be readable by yourself. In the future
-we'll support [Oauth][].
+Make sure you chmod this file to only be readable by yourself. You can generate
+a personal access token for webdiff via github.com → profile → Settings →
+Personal access tokens. Make sure to grant all the "repo" privileges.
 
 
 Development
