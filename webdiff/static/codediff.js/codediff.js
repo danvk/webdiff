@@ -626,6 +626,7 @@ differ.guessLanguageUsingFileName = function(name) {
       if (ext == 'py') return 'python';
       if (ext == 'sh') return 'bash';
       if (ext == 'md') return 'markdown';
+      if (ext == 'js') return 'javascript';
       return m[1].toLowerCase();
     };
 
