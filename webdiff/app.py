@@ -21,6 +21,8 @@ import diff
 import util
 import argparser
 
+VERSION = '0.12.1'
+
 
 def determine_path():
     """Borrowed from wxglade.py"""
@@ -265,7 +267,7 @@ def is_webdiff_from_head():
 def run():
     global DIFF, PORT
     try:
-        parsed_args = argparser.parse(sys.argv[1:])
+        parsed_args = argparser.parse(sys.argv[1:], VERSION)
     except argparser.UsageError as e:
         sys.stderr.write('Error: %s\n\n' % e.message)
         usage_and_die()

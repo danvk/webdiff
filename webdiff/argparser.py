@@ -23,9 +23,10 @@ Or run "git webdiff" from a git repository.
 PULL_REQUEST_RE = re.compile(r'http[s]://(?:www.)?github.com\/([^/]+)/([^/]+)/pull/([0-9]+)(?:/.*)?')
 PULL_REQUEST_NUM_RE = re.compile(r'^#([0-9]+)$')
 
-def parse(args):
+def parse(args, version=None):
     """Returns {port, dirs: [], files: [], pr: {owner, repo, number}}."""
     parser = argparse.ArgumentParser(description='Run webdiff.', usage=USAGE)
+    parser.add_argument('--version', action='version', version='webdiff %s' % version)
     parser.add_argument('--port', '-p', type=int, help="Port to run webdiff on.", default=-1)
     parser.add_argument('dirs', type=str, nargs='+',
                         help="Directories to diff, or a github pull request URL.")
