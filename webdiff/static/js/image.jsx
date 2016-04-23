@@ -428,7 +428,7 @@ var ImageSwipe = React.createClass({
         left: Math.floor(frac * imB.width) + 'px',
         width: null,
         right: containerWidth - imB.width + 'px',
-        'backgroundPositionX': -Math.floor(frac * imB.width) + 'px'
+        'backgroundPosition': -Math.floor(frac * imB.width) + 'px top'
       });
     } else {
       _.extend(styleB, {opacity: frac});
@@ -439,9 +439,6 @@ var ImageSwipe = React.createClass({
       o['backgroundImage'] += ', url(/static/img/trans_bg.gif)';
       if (_.has(o, 'backgroundSize')) {
         o['backgroundSize'] += ', auto auto';
-      }
-      if (_.has(o, 'backgroundPositionX')) {
-        o['backgroundPositionX'] += ', ' + o['backgroundPositionX'];
       }
     });
 
