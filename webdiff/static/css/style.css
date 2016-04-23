@@ -117,7 +117,7 @@ ul.file-list {
 }
 .swipe input,
 .onion-skin input {
-  background-color: transparent;
+  background-color: transparent; /* So it displays in Firefox */
   margin: 0;
 }
 .shrink-to-fit {
