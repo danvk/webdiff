@@ -115,6 +115,11 @@ ul.file-list {
 .onion-skin input {
   width: 200px;
 }
+.swipe input,
+.onion-skin input {
+  background-color: transparent;
+  margin: 0;
+}
 .shrink-to-fit {
   max-width: 100%;
 }
