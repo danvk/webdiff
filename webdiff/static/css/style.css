@@ -120,6 +120,10 @@ ul.file-list {
   background-color: transparent; /* So it displays in Firefox */
   margin: 0;
 }
+/* Remove dotted outline in Firefox*/
+input::-moz-focus-outer{
+  border: 0;
+}
 .shrink-to-fit {
   max-width: 100%;
 }
