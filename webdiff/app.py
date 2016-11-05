@@ -7,6 +7,7 @@ For usage, see README.md.
 import logging
 import mimetypes
 import os
+import platform
 import requests
 import socket
 import sys
@@ -51,6 +52,7 @@ app.config.from_envvar('WEBDIFF_CONFIG', silent=True)
 
 DIFF = None
 PORT = None
+HOSTNAME = "localhost"
 
 if app.config['TESTING'] or app.config['DEBUG']:
     handler = logging.StreamHandler()
@@ -214,7 +216,7 @@ def kill():
     last_ms = LAST_REQUEST_MS
     def shutdown():
         if LAST_REQUEST_MS <= last_ms:  # subsequent requests abort shutdown
-            requests.post('http://localhost:%d/seriouslykill' % PORT)
+            requests.post('http://%s:%d/seriouslykill' % (HOSTNAME, PORT))
         else:
             pass
 
@@ -225,11 +227,12 @@ def kill():
 
 def open_browser():
     global PORT
+    global HOSTNAME
     if not 'NO_OPEN_BROWSER' in app.config:
         if is_hot_reload():
             log.debug('Skipping browser open on reload')
         else:
-            webbrowser.open_new_tab('http://localhost:%s' % PORT)
+            webbrowser.open_new_tab('http://%s:%s' % (HOSTNAME, PORT))
 
 
 def usage_and_die():
@@ -265,7 +268,7 @@ def is_webdiff_from_head():
 
 
 def run():
-    global DIFF, PORT
+    global DIFF, PORT, HOSTNAME
     try:
         parsed_args = argparser.parse(sys.argv[1:], VERSION)
     except argparser.UsageError as e:
@@ -279,11 +282,19 @@ def run():
 
     PORT = pick_a_port(parsed_args)
 
-    sys.stderr.write('''Serving diffs on http://localhost:%s
+    if app.config.get('USE_HOSTNAME'):
+        _hostname = platform.node()
+        # platform.node will return empty string if it can't find the hostname
+        if not _hostname:
+            sys.stderr.write('Warning: hostname could not be determined')
+        else:
+            HOSTNAME = _hostname
+
+    sys.stderr.write('''Serving diffs on http://%s:%s
 Close the browser tab or hit Ctrl-C when you're done.
-''' % PORT)
+''' % (HOSTNAME, PORT))
     Timer(0.1, open_browser).start()
-    app.run(host='0.0.0.0', port=PORT)
+    app.run(host=HOSTNAME, port=PORT)
 
 
 if __name__ == '__main__':
