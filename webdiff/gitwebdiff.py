@@ -17,9 +17,12 @@ def run():
         # "git webdiff <sha>". This allows special treatment (e.g. for
         # staging diffhunks).
         os.environ['WEBDIFF_FROM_HEAD'] = 'yes'
-    
-    sys.exit(subprocess.call(
-        'git difftool -d -x webdiff'.split(' ') + sys.argv[1:]))
+
+    try:
+        subprocess.call('git difftool -d -x webdiff'.split(' ') + sys.argv[1:])
+    except KeyboardInterrupt:
+        # Don't raise an exception to the user when sigint is received
+        pass
 
 
 if __name__ == '__main__':
