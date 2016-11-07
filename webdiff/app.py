@@ -52,7 +52,7 @@ app.config.from_envvar('WEBDIFF_CONFIG', silent=True)
 
 DIFF = None
 PORT = None
-HOSTNAME = "localhost"
+HOSTNAME = 'localhost'
 
 if app.config['TESTING'] or app.config['DEBUG']:
     handler = logging.StreamHandler()
