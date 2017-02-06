@@ -27,7 +27,7 @@ def test_pairing():
     pairs.sort()
 
     eq_(
-        [(None, 'testing.cfg'),
+        [('', 'testing.cfg'),
          ('TODO', 'TODO'),
          ('app.py', 'app.py'),
          ('static/js/file_diff.js', 'static/js/file_diff.js'),
@@ -47,7 +47,7 @@ def test_pairing_with_move():
          },
          {
           'a': 'file.json',
-          'b': None,
+          'b': '',
           'type': 'delete',
          }], [diff.get_thin_dict(d) for d in diffs])
 
@@ -62,7 +62,7 @@ def test_is_image_diff():
     assert     diff.is_image_diff(TinyDiff('foo.png', 'bar.png'))
     assert not diff.is_image_diff(TinyDiff('foo.png.gz', 'bar.png.gz'))
     assert not diff.is_image_diff(TinyDiff('foo.txt', 'bar.txt'))
-    assert     diff.is_image_diff(TinyDiff('foo.png', None))
-    assert not diff.is_image_diff(TinyDiff('foo.txt', None))
-    assert     diff.is_image_diff(TinyDiff(None, 'foo.png'))
-    assert not diff.is_image_diff(TinyDiff(None, 'foo.txt'))
+    assert     diff.is_image_diff(TinyDiff('foo.png', ''))
+    assert not diff.is_image_diff(TinyDiff('foo.txt', ''))
+    assert     diff.is_image_diff(TinyDiff('', 'foo.png'))
+    assert not diff.is_image_diff(TinyDiff('', 'foo.txt'))

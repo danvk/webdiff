@@ -45,7 +45,8 @@ def find_diff(a, b):
     pairs = pair_files(a_files, b_files)
 
     def safejoin(d, p):
-        if p is None: return None
+        if p == '':
+            return ''
         return os.path.join(d, p)
 
     return [(safejoin(a, arel),
@@ -63,16 +64,16 @@ def pair_files(a_files, b_files):
             del a_files[i]
             del b_files[j]
         else:
-            pairs.append((f, None))  # delete
+            pairs.append((f, ''))  # delete
 
     for f in b_files:
-        pairs.append((None, f))  # add
+        pairs.append(('', f))  # add
 
     return pairs
 
 
 def find_moves(pairs):
-    add_delete_pairs = defaultdict(lambda: [None,None])
+    add_delete_pairs = defaultdict(lambda: ['', ''])
     for idx, (a, b) in enumerate(pairs):
         if b and not a:  # add
             add_delete_pairs[util.contentHash(b)][1] = idx
@@ -82,7 +83,7 @@ def find_moves(pairs):
     indices_to_delete = []
     moves = []
     for _, (aIdx, bIdx) in add_delete_pairs.items():
-        if aIdx == None or bIdx == None:
+        if aIdx == '' or bIdx == '':
             continue
 
         # replace the "add" with a "change"

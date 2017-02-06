@@ -73,7 +73,8 @@ def is_image_diff(diff):
     This uses the a_path and b_path properties of the diff object.
     '''
     def is_image(path):
-        if path is None: return False
+        if path == '':
+            return False
         mime_type, enc = mimetypes.guess_type(path)
         return (mime_type and mime_type.startswith('image/') and enc is None)
 
@@ -82,9 +83,9 @@ def is_image_diff(diff):
 
     if left_img and right_img:
         return True
-    elif left_img and diff.b_path is None:
+    elif left_img and diff.b_path == '':
         return True
-    elif right_img and diff.a_path is None:
+    elif right_img and diff.a_path == '':
         return True
     return False
 
@@ -96,7 +97,8 @@ def find_diff_index(diffs, side, path):
     '''
     assert side in ('a', 'b')
     def norm(p):
-        if p is None: return None
+        if p == '':
+            return ''
         return os.path.normpath(p)
 
     path = norm(path)
