@@ -9,8 +9,8 @@ import os
 import tempfile
 import sys
 
-from util import memoize
-from github_fetcher import github
+from webdiff.util import memoize
+from webdiff.github_fetcher import github
 
 
 class GitHubDiff(object):

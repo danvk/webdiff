@@ -4,6 +4,7 @@
 For usage, see README.md.
 '''
 
+from __future__ import print_function
 import logging
 import mimetypes
 import os
@@ -17,9 +18,9 @@ import webbrowser
 from flask import (Flask, render_template, send_from_directory, send_file,
                    request, jsonify, Response)
 
-import diff
-import util
-import argparser
+from webdiff import diff
+from webdiff import util
+from webdiff import argparser
 
 VERSION = '0.12.1'
 
@@ -32,8 +33,8 @@ def determine_path():
             root = os.path.realpath (root)
         return os.path.dirname (os.path.abspath (root))
     except:
-        print "I'm sorry, but something is wrong."
-        print "There is no __file__ variable. Please contact the author."
+        print("I'm sorry, but something is wrong.")
+        print("There is no __file__ variable. Please contact the author.")
         sys.exit()
 
 def is_hot_reload():

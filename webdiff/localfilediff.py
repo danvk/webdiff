@@ -1,8 +1,7 @@
 '''This class represents the diff between two files on local disk.'''
 
 import os
-import mimetypes
-import util
+
 
 class LocalFileDiff(object):
     def __init__(self, a_root, a_path, b_root, b_path, is_move):

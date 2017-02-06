@@ -13,7 +13,7 @@ For concrete implementations, see githubdiff and localfilediff.
 import mimetypes
 import os
 
-import util
+from webdiff import util
 
 def get_thin_dict(diff):
     '''Returns a dict containing minimal data on the diff.

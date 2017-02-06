@@ -1,12 +1,10 @@
 '''Utility code for webdiff'''
-import copy
 import functools
 import hashlib
 import os
 import re
 import subprocess
 import tempfile
-import time
 
 from PIL import Image
 
@@ -19,7 +17,7 @@ class ImageMagickError(Exception):
     pass
 
 
-textchars = ''.join(map(chr, [7,8,9,10,12,13,27] + range(0x20, 0x100)))
+textchars = ''.join(map(chr, [7,8,9,10,12,13,27] + list(range(0x20, 0x100))))
 is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
 
 
@@ -43,7 +41,7 @@ def is_binary_file(filename):
 
 @memoize
 def contentHash(path):
-    return hashlib.sha512(open(path).read()).digest()
+    return hashlib.sha512(open(path).read().encode()).digest()
 
 
 def are_files_identical(path1, path2):
