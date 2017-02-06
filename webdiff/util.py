@@ -1,12 +1,10 @@
 '''Utility code for webdiff'''
-import copy
 import functools
 import hashlib
 import os
 import re
 import subprocess
 import tempfile
-import time
 
 from PIL import Image
 
@@ -17,10 +15,6 @@ class ImageMagickNotAvailableError(Exception):
 
 class ImageMagickError(Exception):
     pass
-
-
-textchars = ''.join(map(chr, [7,8,9,10,12,13,27] + range(0x20, 0x100)))
-is_binary_string = lambda bytes: bool(bytes.translate(None, textchars))
 
 
 # via https://wiki.python.org/moin/PythonDecoratorLibrary#Memoize
@@ -37,13 +31,9 @@ def memoize(obj):
     return memoizer
 
 
-def is_binary_file(filename):
-  return is_binary_string(open(filename, 'rb').read(1024))
-
-
 @memoize
 def contentHash(path):
-    return hashlib.sha512(open(path).read()).digest()
+    return hashlib.sha512(open(path, mode='rb').read()).digest()
 
 
 def are_files_identical(path1, path2):
