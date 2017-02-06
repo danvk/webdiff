@@ -9,8 +9,8 @@ import os
 import tempfile
 import sys
 
-from util import memoize
-from github_fetcher import github
+from webdiff.util import memoize
+from webdiff.github_fetcher import github
 
 
 class GitHubDiff(object):
@@ -25,22 +25,22 @@ class GitHubDiff(object):
                 'added': 'add',
                 'removed': 'delete'
                 }[github_file.status]
-        self._a_path = None
-        self._b_path = None
+        self._a_path = ''
+        self._b_path = ''
 
     @property
     def a(self):
         if self.type == 'move':
             return self._file.raw_data['previous_filename']
         elif self.type == 'add':
-            return None
+            return ''
         else:
             return self._file.filename
 
     @property
     def b(self):
         if self.type == 'delete':
-            return None
+            return ''
         else:
             return self._file.filename
 
@@ -72,7 +72,8 @@ def fetch_pull_request(owner, repo, num):
 
 @memoize
 def fetch(repo, filename, sha):
-    if filename is None: return None
+    if filename == '':
+        return ''
     data = repo.get_file_contents(filename, sha).decoded_content
     _, ext = os.path.splitext(filename)
     fd, path = tempfile.mkstemp(suffix=ext)

@@ -3,10 +3,10 @@ import argparse
 import os
 import re
 
-import dirdiff
-import githubdiff
-import github_fetcher
-from localfilediff import LocalFileDiff
+from webdiff import dirdiff
+from webdiff import githubdiff
+from webdiff import github_fetcher
+from webdiff.localfilediff import LocalFileDiff
 
 class UsageError(Exception):
     pass
@@ -20,7 +20,7 @@ Or run "git webdiff" from a git repository.
 ''')
 
 # e.g. https://github.com/danvk/dygraphs/pull/292
-PULL_REQUEST_RE = re.compile(r'http[s]://(?:www.)?github.com\/([^/]+)/([^/]+)/pull/([0-9]+)(?:/.*)?')
+PULL_REQUEST_RE = re.compile(r'http[s]://(?:www.)?github.com/([^/]+)/([^/]+)/pull/([0-9]+)(?:/.*)?')
 PULL_REQUEST_NUM_RE = re.compile(r'^#([0-9]+)$')
 
 def parse(args, version=None):

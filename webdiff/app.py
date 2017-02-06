@@ -4,6 +4,8 @@
 For usage, see README.md.
 '''
 
+from __future__ import print_function
+from binaryornot.check import is_binary
 import logging
 import mimetypes
 import os
@@ -17,9 +19,9 @@ import webbrowser
 from flask import (Flask, render_template, send_from_directory, send_file,
                    request, jsonify, Response)
 
-import diff
-import util
-import argparser
+from webdiff import diff
+from webdiff import util
+from webdiff import argparser
 
 VERSION = '0.12.1'
 
@@ -32,8 +34,8 @@ def determine_path():
             root = os.path.realpath (root)
         return os.path.dirname (os.path.abspath (root))
     except:
-        print "I'm sorry, but something is wrong."
-        print "There is no __file__ variable. Please contact the author."
+        print("I'm sorry, but something is wrong.")
+        print("There is no __file__ variable. Please contact the author.")
         sys.exit()
 
 def is_hot_reload():
@@ -101,8 +103,7 @@ def get_contents(side):
     abs_path = d.a_path if side == 'a' else d.b_path
 
     try:
-        is_binary = util.is_binary_file(abs_path)
-        if is_binary:
+        if is_binary(abs_path):
             size = os.path.getsize(abs_path)
             contents = "Binary file (%d bytes)" % size
         else:
@@ -134,7 +135,7 @@ def get_image(side, path):
     abs_path = d.a_path if side == 'a' else d.b_path
 
     try:
-        contents = open(abs_path).read()
+        contents = open(abs_path, mode='rb').read()
         return Response(contents, mimetype=mime_type)
     except Exception:
         return error('read-error', 'Unable to read %s' % abs_path)
@@ -208,6 +209,7 @@ def seriouslykill():
 
 @app.route('/kill', methods=['POST'])
 def kill():
+    global PORT
     if 'STAY_RUNNING' in app.config:
         return 'Will stay running.'
 
@@ -251,7 +253,7 @@ def pick_a_port(args):
     return port
 
 
-def abs_path(path):
+def abs_path_from_rel(path):
     '''Changes relative paths to be abs w/r/t/ the original cwd.'''
     if os.path.isabs(path):
         return path
@@ -261,7 +263,7 @@ def abs_path(path):
 
 def is_webdiff_from_head():
     '''Was webdiff invoked as `git webdiff` with no other non-flag args?'''
-    return os.environ.get('WEBDIFF_FROM_HEAD') != None
+    return os.environ.get('WEBDIFF_FROM_HEAD') is not None
 
 
 def run():

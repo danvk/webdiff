@@ -3,3 +3,4 @@ nose
 PyGithub==1.25.2
 pillow
 requests
+binaryornot

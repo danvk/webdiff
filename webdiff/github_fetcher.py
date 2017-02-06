@@ -10,10 +10,11 @@ from collections import OrderedDict
 import os
 import re
 import subprocess
+import sys
 
 from github import Github, UnknownObjectException
 
-from util import memoize
+from webdiff.util import memoize
 
 
 @memoize
@@ -84,7 +85,7 @@ def get_pr_repo(num):
         owner = remote['owner']
         repo = remote['repo']
         try:
-            pr = g.get_user(owner).get_repo(repo).get_pull(num)
+            g.get_user(owner).get_repo(repo).get_pull(num)
             return (owner, repo, num)
         except UnknownObjectException:
             pass
@@ -133,6 +134,6 @@ def _parse_remotes(remote_lines):
 
 def _get_remotes():
     remote_lines = subprocess.Popen(
-        ['git', 'remote', '-v'], stdout=subprocess.PIPE).communicate()[0].split('\n')
+        ['git', 'remote', '-v'], stdout=subprocess.PIPE).communicate()[0].split(b'\n')
     return _parse_remotes(remote_lines)
 
