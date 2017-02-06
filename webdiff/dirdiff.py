@@ -4,8 +4,8 @@ from collections import defaultdict
 import copy
 import os
 
-from localfilediff import LocalFileDiff
-import util
+from webdiff.localfilediff import LocalFileDiff
+from webdiff import util
 
 
 def diff(a_dir, b_dir):
@@ -27,27 +27,26 @@ def find_diff(a, b):
     
     Returns a list of pairs of full paths to matched a/b files.
     '''
-    a_files = []
-    b_files = []
-    def accum(arg, dirname, fnames):
-        for fname in fnames:
-            path = os.path.join(dirname, fname)
-            if not os.path.isdir(path):
-                arg.append(path)
+
+    def list_files(top_dir):
+        file_list = []
+        for root, _, files in os.walk(top_dir):
+            root = os.path.relpath(root, start=top_dir)
+            for name in files:
+                file_list.append(os.path.join(root, name))
+        return file_list
 
     assert os.path.isdir(a)
     assert os.path.isdir(b)
 
-    os.path.walk(a, accum, a_files)
-    os.path.walk(b, accum, b_files)
-
-    a_files = [os.path.relpath(x, start=a) for x in a_files]
-    b_files = [os.path.relpath(x, start=b) for x in b_files]
+    a_files = list_files(a)
+    b_files = list_files(b)
 
     pairs = pair_files(a_files, b_files)
 
     def safejoin(d, p):
-        if p is None: return None
+        if p == '':
+            return ''
         return os.path.join(d, p)
 
     return [(safejoin(a, arel),
@@ -65,16 +64,16 @@ def pair_files(a_files, b_files):
             del a_files[i]
             del b_files[j]
         else:
-            pairs.append((f, None))  # delete
+            pairs.append((f, ''))  # delete
 
     for f in b_files:
-        pairs.append((None, f))  # add
+        pairs.append(('', f))  # add
 
     return pairs
 
 
 def find_moves(pairs):
-    add_delete_pairs = defaultdict(lambda: [None,None])
+    add_delete_pairs = defaultdict(lambda: ['', ''])
     for idx, (a, b) in enumerate(pairs):
         if b and not a:  # add
             add_delete_pairs[util.contentHash(b)][1] = idx
@@ -83,8 +82,8 @@ def find_moves(pairs):
 
     indices_to_delete = []
     moves = []
-    for _, (aIdx, bIdx) in add_delete_pairs.iteritems():
-        if aIdx == None or bIdx == None:
+    for _, (aIdx, bIdx) in add_delete_pairs.items():
+        if aIdx == '' or bIdx == '':
             continue
 
         # replace the "add" with a "change"

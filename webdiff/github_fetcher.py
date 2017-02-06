@@ -10,10 +10,11 @@ from collections import OrderedDict
 import os
 import re
 import subprocess
+import sys
 
 from github import Github, UnknownObjectException
 
-from util import memoize
+from webdiff.util import memoize
 
 
 @memoize
@@ -133,6 +134,6 @@ def _parse_remotes(remote_lines):
 
 def _get_remotes():
     remote_lines = subprocess.Popen(
-        ['git', 'remote', '-v'], stdout=subprocess.PIPE).communicate()[0].split('\n')
+        ['git', 'remote', '-v'], stdout=subprocess.PIPE).communicate()[0].split(b'\n')
     return _parse_remotes(remote_lines)
 

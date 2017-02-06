@@ -3,10 +3,10 @@ import argparse
 import os
 import re
 
-import dirdiff
-import githubdiff
-import github_fetcher
-from localfilediff import LocalFileDiff
+from webdiff import dirdiff
+from webdiff import githubdiff
+from webdiff import github_fetcher
+from webdiff.localfilediff import LocalFileDiff
 
 class UsageError(Exception):
     pass
