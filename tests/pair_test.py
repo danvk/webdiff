@@ -44,11 +44,6 @@ def test_pairing_with_move():
           'a': 'file.json',
           'b': 'renamed.json',
           'type': 'move',
-         },
-         {
-          'a': 'file.json',
-          'b': '',
-          'type': 'delete',
          }], [diff.get_thin_dict(d) for d in diffs])
 
 

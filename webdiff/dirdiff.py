@@ -73,25 +73,24 @@ def pair_files(a_files, b_files):
 
 
 def find_moves(pairs):
-    add_delete_pairs = defaultdict(lambda: [None,None])
+    """Separate the file move pairs from other file pairs"""
+    # If a file is just moved, then the added file and the deleted file
+    # will both put their idx into the same key of the dictionary
+    add_delete_pairs = defaultdict(lambda: [None, None])
     for idx, (a, b) in enumerate(pairs):
         if b and not a:  # add
             add_delete_pairs[util.contentHash(b)][1] = idx
         elif a and not b:  # delete
             add_delete_pairs[util.contentHash(a)][0] = idx
 
-    indices_to_delete = []
+    indices_to_omit = []
     moves = []
-    for _, (aIdx, bIdx) in add_delete_pairs.iteritems():
-        if aIdx == None or bIdx == None:
-            continue
+    for _, (aIdx, bIdx) in add_delete_pairs.items():
+        if (aIdx is not None) and (bIdx is not None):
+            # replace the "add" and "delete" with a "change"
+            indices_to_omit.extend([aIdx, bIdx])
+            moves.append((pairs[aIdx][0], pairs[bIdx][1]))
 
-        # replace the "add" with a "change"
-        indices_to_delete.append(bIdx)
-        moves.append((pairs[aIdx][0], pairs[bIdx][1]))
-
-    remaining_pairs = copy.deepcopy(pairs)
-    for idx in reversed(sorted(indices_to_delete)):
-        del remaining_pairs[idx]
+    remaining_pairs = [pair for i, pair in enumerate(pairs) if i not in indices_to_omit]
 
     return moves, remaining_pairs
