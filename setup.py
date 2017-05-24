@@ -13,7 +13,13 @@ setup(name='webdiff',
           ],
       },
       packages=find_packages(exclude=['tests*']),
-      install_requires=['flask', 'pillow', 'requests', 'PyGithub==1.25.2'],
+      install_requires=[
+          'binaryornot',
+          'flask',
+          'pillow',
+          'requests',
+          'PyGithub==1.25.2'
+      ],
       include_package_data=True,
       package_data = {
           'static': 'webdiff/static/*',
