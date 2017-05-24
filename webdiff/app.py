@@ -23,7 +23,7 @@ from webdiff import diff
 from webdiff import util
 from webdiff import argparser
 
-VERSION = '0.12.1'
+VERSION = '0.13.0'
 
 
 def determine_path():
@@ -221,7 +221,7 @@ def kill():
             pass
 
     Timer(0.5, shutdown).start()
-    
+
     return 'Shutting down...'
 
 
