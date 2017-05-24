@@ -1,3 +1,8 @@
+- 0.13
+  * Python 3 support. (Thanks @daytonb!)
+  * Renames are shown as moves only, not move + delete.
+  * Exit cleanly with Ctrl-C (Thanks @NikolasOliveira!)
+
 - 0.12
   * Support for `user.token` in `.githubrc` file.
   * Update highlight.js from 0.8.0 → 0.9.2. Notably this improves ES6 support.
