@@ -1,3 +1,6 @@
+- 0.14
+  * Allow the use of hostnames (config option USE_HOSTNAME=True/False)
+
 - 0.13
   * Python 3 support. (Thanks @daytonb!)
   * Renames are shown as moves only, not move + delete.
