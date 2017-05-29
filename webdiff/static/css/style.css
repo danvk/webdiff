@@ -115,6 +115,15 @@ ul.file-list {
 .onion-skin input {
   width: 200px;
 }
+.swipe input,
+.onion-skin input {
+  background-color: transparent; /* So it displays in Firefox */
+  margin: 0;
+}
+/* Remove dotted outline in Firefox*/
+input::-moz-focus-outer{
+  border: 0;
+}
 .shrink-to-fit {
   max-width: 100%;
 }
