@@ -274,7 +274,7 @@ def run():
     try:
         parsed_args = argparser.parse(sys.argv[1:], VERSION)
     except argparser.UsageError as e:
-        sys.stderr.write('Error: %s\n\n' % e.message)
+        sys.stderr.write('Error: %s\n\n' % e)
         usage_and_die()
 
     DIFF = argparser.diff_for_args(parsed_args)
