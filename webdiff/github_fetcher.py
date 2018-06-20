@@ -134,6 +134,6 @@ def _parse_remotes(remote_lines):
 
 def _get_remotes():
     remote_lines = subprocess.Popen(
-        ['git', 'remote', '-v'], stdout=subprocess.PIPE).communicate()[0].split(b'\n')
+        ['git', 'remote', '-v'], stdout=subprocess.PIPE).communicate()[0].decode().split('\n')
     return _parse_remotes(remote_lines)
 
