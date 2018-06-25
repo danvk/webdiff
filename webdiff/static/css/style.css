@@ -3,6 +3,12 @@ div#thediff {
     max-width: 100%;
 }
 
+.diff-header {
+    top: 0px;
+    position: sticky;
+    background: white;
+}
+
 .diff .line-no, .diff .code {
     font-family: Inconsolata, Consolas, "Liberation Mono", Menlo, Courier, monospace;
     font-size: 13px;
