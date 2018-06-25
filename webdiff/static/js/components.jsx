@@ -56,6 +56,7 @@ var makeRoot = function(filePairs, initiallySelectedIndex) {
     render: function() {
       var idx = this.getIndex(),
           filePair = this.props.filePairs[idx];
+      document.title = "Diff: " + filePairDisplayName(filePair) + " ("+ filePair.type + ")";
 
       return (
         <div>
