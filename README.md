@@ -1,6 +1,5 @@
 [![Build Status](https://travis-ci.org/danvk/webdiff.svg?branch=master)](https://travis-ci.org/danvk/webdiff)
-git webdiff
-===========
+# git webdiff
 
 Two-column web-based git difftool.
 
@@ -16,13 +15,11 @@ Features include:
 
 ![Screenshot of image diffs](http://www.danvk.org/webdiff-images.png)
 
-Installation
-------------
+## Installation
 
     pip install webdiff
 
-Usage
------
+## Usage
 
 Instead of running "git diff", run:
 
@@ -60,8 +57,7 @@ a personal access token for webdiff via github.com → profile → Settings →
 Personal access tokens. Make sure to grant all the "repo" privileges.
 
 
-Development
------------
+## Development
 
 (from an activated virtualenv)
 
