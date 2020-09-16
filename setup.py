@@ -1,8 +1,15 @@
 from setuptools import setup, find_packages
 
+
+with open('README.md', 'r') as fh:
+    long_description = fh.read()
+
+
 setup(name='webdiff',
       version='0.14.0',
       description='Two-column web-based git difftool',
+      long_description=long_description,
+      long_description_content_type='text/markdown',
       author='Dan Vanderkam',
       author_email='danvdk@gmail.com',
       url='https://github.com/danvk/webdiff/',
@@ -22,8 +29,8 @@ setup(name='webdiff',
       ],
       include_package_data=True,
       package_data = {
-          'static': 'webdiff/static/*',
-          'templates': 'webdiff/templates/*'
+          'static': ['webdiff/static/*'],
+          'templates': ['webdiff/templates/*']
       },
       classifiers=[
           'Environment :: Console',
