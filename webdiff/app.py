@@ -24,7 +24,7 @@ from webdiff import diff
 from webdiff import util
 from webdiff import argparser
 
-VERSION = '0.14.0'
+VERSION = '0.14.1'
 
 
 def determine_path():
@@ -45,8 +45,7 @@ def is_hot_reload():
 
 
 class Config:
-    pass
-    #TESTING=True  # not exactly sure what this does...
+    TESTING=True  # not exactly sure what this does...
 
 app = Flask(__name__)
 app.config.from_object(Config)
