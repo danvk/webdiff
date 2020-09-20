@@ -1,3 +1,5 @@
+import * as difflib from 'difflib';
+
 import { FilePair } from "./CodeDiff";
 
 /**
@@ -13,11 +15,11 @@ export function filePairDisplayName(filePair: FilePair) {
   // old and new names. This might be overkill, but we have a differ, so why
   // not?
   var split_re = /([.\/])/; // split to folders and extension
-  var split = (path) => path.split(split_re).filter((x) => x);
+  var split = (path: string) => path.split(split_re).filter((x) => x);
   var partsA = split(filePair.a);
   var partsB = split(filePair.b);
 
-  var opcodes = new difflib.SequenceMatcher(partsA, partsB).get_opcodes();
+  var opcodes = new difflib.SequenceMatcher(null, partsA, partsB).getOpcodes();
   var out = "";
 
   opcodes.forEach((opcode) => {

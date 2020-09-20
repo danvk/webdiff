@@ -4,6 +4,7 @@ import { FilePair } from "./CodeDiff";
 import { DiffView, ImageDiffMode, PerceptualDiffMode } from "./DiffView";
 import { FileSelector } from "./FileSelector";
 import { isLegitKeypress } from "./file_diff";
+import { filePairDisplayName } from "./utils";
 
 declare const pairs: FilePair[];
 declare const initialIdx: number;
@@ -14,7 +15,7 @@ const PDIFF_MODES: PerceptualDiffMode[] = ['off', 'bbox', 'pixels'];
 
 // Webdiff application root.
 export function Root(props: Props) {
-  const [diffMode, setDiffMode] = React.useState<ImageDiffMode>("side-by-side");
+  // const [diffMode, setDiffMode] = React.useState<ImageDiffMode>("side-by-side");
   const [pdiffMode, setPDiffMode] = React.useState<PerceptualDiffMode>("off");
   const [imageDiffMode, setImageDiffMode] = React.useState<ImageDiffMode>('blink');
 
@@ -40,7 +41,7 @@ export function Root(props: Props) {
         }
       } else if (e.keyCode == 74) {
         // k
-        if (idx < this.props.filePairs.length - 1) {
+        if (idx < pairs.length - 1) {
           selectIndex(idx + 1);
         }
       } else if (e.keyCode == 83) {
@@ -64,15 +65,15 @@ export function Root(props: Props) {
     <div>
       <FileSelector
         selectedFileIndex={idx}
-        filePairs={this.props.filePairs}
-        fileChangeHandler={this.selectIndex}
+        filePairs={pairs}
+        fileChangeHandler={selectIndex}
       />
       <DiffView
         key={"diff-" + idx}
         thinFilePair={filePair}
         imageDiffMode={imageDiffMode}
         pdiffMode={pdiffMode}
-        changeImageDiffModeHandler={this.changeImageDiffModeHandler}
+        changeImageDiffModeHandler={setImageDiffMode}
         changePDiffMode={setPDiffMode}
       />
     </div>

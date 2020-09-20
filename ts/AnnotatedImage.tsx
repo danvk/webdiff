@@ -1,5 +1,7 @@
 import React from 'react';
 import { ImageDiffProps } from './ImageDiff';
+import { ImageMetadata } from './ImageMetadata';
+import { SingleImage } from './SingleImage';
 
 export function AnnotatedImage(props: ImageDiffProps) {
   const {side} = props;
@@ -7,10 +9,10 @@ export function AnnotatedImage(props: ImageDiffProps) {
     return <span>None</span>;
   }
 
-  var im = props.filePair['image_' + side];
+  var im = props.filePair[side === 'a' ? 'image_a' : 'image_b'];
   return (
     <div className={'image-' + side}>
-      <SingleImage side={side} {...props} />
+      <SingleImage {...props} />
       <ImageMetadata image={im} />
     </div>
   );
