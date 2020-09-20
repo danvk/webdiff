@@ -1,4 +1,4 @@
-declare module 'codediff.js' {
+declare module codediff {
   export interface Options {
     /**
      * Language to use for syntax highlighting.
@@ -9,10 +9,10 @@ declare module 'codediff.js' {
      * Example values include "python" or "javascript". (default: null)
      */
     language?: string;
-    /** Text to place above the left side of the diff. */
-    beforeName: string;
-    /** Text to place above the right side of the diff. */
-    afterName: string;
+    /** Text to place above the left side of the diff. (Default: "Before") */
+    beforeName?: string;
+    /** Text to place above the right side of the diff. (Default: "After") */
+    afterName?: string;
     /** Minimum number of lines of context to show around each diff hunk. (default: 3). */
     contextSize?: number;
     /** Minimum number of equal lines to collapse into a "Show N more lines" link. (default: 10) */

@@ -1,4 +1,3 @@
-import * as codediff from 'codediff.js';
 import { FilePair } from "./CodeDiff";
 
 /** Display the diff for a single file. */

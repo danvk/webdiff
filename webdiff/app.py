@@ -46,6 +46,7 @@ def is_hot_reload():
 
 class Config:
     TESTING=True  # not exactly sure what this does...
+    JSONIFY_PRETTYPRINT_REGULAR=False
 
 app = Flask(__name__)
 app.config.from_object(Config)
