@@ -4,7 +4,7 @@
 'use strict';
 
 var IMAGE_DIFF_MODES = ['side-by-side', 'blink', 'onion-skin', 'swipe'];
-
+/*
 // A widget to toggle between image diff modes (blink or side-by-side).
 var ImageDiffModeSelector = React.createClass({
   propTypes: {
@@ -43,7 +43,9 @@ var ImageDiffModeSelector = React.createClass({
     this.props.changeImageDiffModeHandler($(e.currentTarget).attr('value'));
   }
 });
+*/
 
+/*
 // A diff between two images.
 var ImageDiff = React.createClass({
   propTypes: {
@@ -153,7 +155,7 @@ var ImageDiff = React.createClass({
     </div>;
   }
 });
-
+*/
 
 /**
  * Returns a React.DIV which boxes the changed parts of the image pair.

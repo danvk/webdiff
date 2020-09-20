@@ -98,6 +98,7 @@ var makeRoot = function(filePairs, initiallySelectedIndex) {
   });
 };
 
+/*
 // Shows a list of files in one of two possible modes (list or dropdown).
 var FileSelector = React.createClass({
   propTypes: {
@@ -138,7 +139,9 @@ var FileSelector = React.createClass({
     this.setState({mode: mode});
   }
 });
+*/
 
+/*
 // A widget for toggling between file selection modes.
 var FileModeSelector = React.createClass({
   propTypes: {
@@ -157,6 +160,7 @@ var FileModeSelector = React.createClass({
     this.props.changeHandler(newMode);
   }
 });
+*/
 
 // A list of all the files. Clicking a non-selected file selects it.
 // This view is simpler and generally preferable for short lists of files.
@@ -189,6 +193,7 @@ var FileList = React.createClass({
   }
 });
 
+/*
 // A list of files in a dropdown menu. This is more compact with many files.
 var FileDropdown = React.createClass({
   propTypes: {
@@ -229,8 +234,9 @@ var FileDropdown = React.createClass({
     this.props.fileChangeHandler(Number($(e.target).attr('data-idx')));
   }
 });
+*/
 
-
+/*
 // A diff for a single pair of files (left/right).
 var DiffView = React.createClass({
   propTypes: {
@@ -264,7 +270,9 @@ var DiffView = React.createClass({
     }
   }
 });
+*/
 
+/*
 // A "no changes" sign which only appears when applicable.
 var NoChanges = React.createClass({
   propTypes: {
@@ -321,3 +329,4 @@ var CodeDiff = React.createClass({
     this.componentDidMount();  // Called on updates.
   }
 });
+*/

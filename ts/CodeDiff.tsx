@@ -13,10 +13,25 @@ export interface FilePair {
   type: 'add' | 'delete' | 'move' | 'change';  // XXX check "change"
   image_a: ImageFile;
   image_b: ImageFile;
+  idx: number;
+  diffData?: ImageDiffData;
+}
+
+export interface DiffBox {
+  width: number;
+  height: number;
+  left: number;
+  top: number;
+  bottom: number;
+  right: number;
+}
+
+export interface ImageDiffData {
+  diffBounds: DiffBox;
 }
 
 // A "no changes" sign which only appears when applicable.
-function NoChanges(props: {filePair: any}) {
+export function NoChanges(props: {filePair: any}) {
   const {filePair} = props;
   if (filePair.no_changes) {
     return <div className="no-changes">(File content is identical)</div>;
