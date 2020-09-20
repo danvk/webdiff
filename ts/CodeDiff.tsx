@@ -57,15 +57,14 @@ export function CodeDiff(props: {filePair: FilePair}) {
     // Either side can be empty (i.e. an add or a delete), in which case
     // getOrNull resolves to null
     var getOrNull = async (side: string, path: string) => {
-      if (!path) return null;
+      if (!path) return [null];
+      const data = new URLSearchParams();
+      data.set('path', path);
       const response = await fetch(`/${side}/get_contents`, {
-        method: 'POST',
-        headers: {
-         'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({path}),
+        method: 'post',
+        body: data,
      });
-     return response.json();
+     return response.text();
     }
 
     const {a, b} = filePair;
