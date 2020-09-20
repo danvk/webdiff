@@ -57,7 +57,7 @@ export function CodeDiff(props: {filePair: FilePair}) {
     // Either side can be empty (i.e. an add or a delete), in which case
     // getOrNull resolves to null
     var getOrNull = async (side: string, path: string) => {
-      if (!path) return [null];
+      if (!path) return null;
       const data = new URLSearchParams();
       data.set('path', path);
       const response = await fetch(`/${side}/get_contents`, {
@@ -75,7 +75,7 @@ export function CodeDiff(props: {filePair: FilePair}) {
       const codediffEl = codediffRef.current;
       if (codediffEl) {
         codediffEl.innerHTML = '';
-        codediffEl.appendChild(renderDiff(a, b, before[0], after[0]));
+        codediffEl.appendChild(renderDiff(a, b, before, after));
       }
     })().catch(e => {
       alert("Unable to get diff!")
