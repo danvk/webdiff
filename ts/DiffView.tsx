@@ -1,14 +1,15 @@
 import React from 'react';
-import { FilePair } from './CodeDiff';
+import { CodeDiff, FilePair } from './CodeDiff';
 import { getThickDiff } from './file_diff';
+import { ImageDiff } from './ImageDiff';
 
 export type ImageDiffMode = 'side-by-side' | 'blink';
 export type PerceptualDiffMode = 'off' | 'bbox' | 'pixels';
 
 export interface Props {
-  thinFilePair: any;
+  thinFilePair: FilePair;
   imageDiffMode: ImageDiffMode;
-  pdiffMode: number;
+  pdiffMode: PerceptualDiffMode;
   changeImageDiffModeHandler: (mode: ImageDiffMode) => void;
   changePDiffMode: (pdiffMode: PerceptualDiffMode) => void;
 }

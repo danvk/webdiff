@@ -60,3 +60,4 @@ export function makeImage(dataURI: string) {
   img.src = dataURI;
   return img;
 }
+
