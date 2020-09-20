@@ -15,6 +15,13 @@ export interface Props {
   changePdiffMode: (pdiffMode: PerceptualDiffMode) => void;
 }
 
+export interface ImageDiffProps {
+  filePair: FilePair;
+  side: 'a' | 'b';
+  maxWidth: number;
+  pdiffMode: PerceptualDiffMode;
+}
+
 /** A diff between two images. */
 export function ImageDiff(props: Props) {
   const [shrinkToFit, setShrinkToFit] = React.useState(true);

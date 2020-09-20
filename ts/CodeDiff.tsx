@@ -1,8 +1,10 @@
 import React from 'react';
+import { renderDiff } from './file_diff';
 
 export interface ImageFile {
   width: number;
   height: number;
+  num_bytes: number;
 }
 
 export interface FilePair {

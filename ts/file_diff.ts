@@ -19,7 +19,7 @@ export function renderDiff(pathBefore: string, pathAfter: string, contentsBefore
     return data ? data.length : 0;
   };
 
-  if (!language && !_.contains(HIGHLIGHT_BLACKLIST, extractFilename(path))) {
+  if (!language && !HIGHLIGHT_BLACKLIST.includes(extractFilename(path))) {
     var byLength = [contentsBefore, contentsAfter];
     if (contentsAfter && lengthOrZero(contentsAfter) > lengthOrZero(contentsBefore)) {
       byLength = [byLength[1], byLength[0]];

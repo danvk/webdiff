@@ -1,0 +1,65 @@
+import React from 'react';
+import { AnnotatedImage } from './AnnotatedImage';
+import { FilePair } from './CodeDiff';
+import { isLegitKeypress } from './file_diff';
+import { ImageDiffProps } from './ImageDiff';
+
+export interface Props extends ImageDiffProps {
+  shrinkToFit: boolean;
+}
+
+/**
+ * Two images on top of one another (i.e. "blinked").
+ * This component handles toggling between the two images itself.
+ */
+export function ImageBlinker(props: Props) {
+  const [idx, setIdx] = React.useState(0);
+  const [autoBlink, setAutoBlink] = React.useState(true);
+
+  const autoblinkRef = React.createRef<HTMLInputElement>();
+
+  const toggleAutoBlink = () => {
+    setAutoBlink(autoblinkRef.current.checked);
+  };
+
+  const blink = React.useCallback((e: KeyboardEvent) => {
+    if (!isLegitKeypress(e)) {
+      return;
+    }
+    if (e.key === 'b') {
+      setAutoBlink(false);
+      setIdx(idx => 1 - idx);
+    }
+  }, [setIdx, setAutoBlink]);
+
+  // XXX old version also sets this on a[value="blink"]
+  React.useEffect(() => {
+    document.addEventListener('keydown', blink);
+    return () => {
+      document.removeEventListener('keydown', blink);
+    }
+  }, [blink]);
+
+  React.useEffect(() => {
+    const interval = setInterval(() => setIdx(idx => 1 - idx), 500 /* ms */);
+    return () => clearInterval(interval);
+  }, [autoBlink, setIdx]);
+
+  const pair = props.filePair;
+  const side = idx === 0 ? 'a' : 'b';
+  const path = [pair.a, pair.b][idx];
+  const maxWidth = props.shrinkToFit ? window.innerWidth - 30 : null;
+  return (
+    <div>
+      <input ref="autoblink" type="checkbox" id="autoblink" checked={autoBlink} onChange={toggleAutoBlink} />
+      <label htmlFor="autoblink"> Auto-blink (hit ‘b’ to blink manually)</label>
+      <table id="imagediff">
+        <tr className="image-diff-content">
+          <td>
+            <AnnotatedImage side={side} maxWidth={maxWidth} {...props} />
+          </td>
+        </tr>
+      </table>
+    </div>
+  );
+}
