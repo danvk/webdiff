@@ -1,5 +1,8 @@
 import React from "react";
 import { FilePair } from "./CodeDiff";
+import { FileDropdown } from "./FileDropdown";
+import { FileList } from './FileList';
+import { FileModeSelector } from "./FileModeSelector";
 
 export interface Props {
   filePairs: FilePair[];
@@ -24,7 +27,7 @@ export function FileSelector(props: Props) {
   }
 
   let selector;
-  if (this.state.mode === "list") {
+  if (mode === "list") {
     selector = (
       <FileList
         filePairs={filePairs}

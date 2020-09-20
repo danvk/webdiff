@@ -2,8 +2,8 @@ import React from 'react';
 import { CodeDiff, FilePair } from './CodeDiff';
 import { getThickDiff } from './file_diff';
 import { ImageDiff } from './ImageDiff';
+import { ImageDiffMode } from './ImageDiffModeSelector';
 
-export type ImageDiffMode = 'side-by-side' | 'blink';
 export type PerceptualDiffMode = 'off' | 'bbox' | 'pixels';
 
 export interface Props {
@@ -21,8 +21,10 @@ export function DiffView(props: Props) {
   React.useEffect(() => {
     (async () => {
       const newFilePair = await getThickDiff(thinFilePair.idx);
-      newFilePair.idx = thinFilePair.idx;
-      setFilePair(newFilePair);
+      setFilePair({
+        ...newFilePair,
+        idx: thinFilePair.idx,
+      });
     })();
   }, [thinFilePair, setFilePair]);
 
@@ -31,7 +33,7 @@ export function DiffView(props: Props) {
   }
 
   if (filePair.is_image_diff) {
-    return <ImageDiff filePair={filePair} {...this.props} />;
+    return <ImageDiff filePair={filePair} {...props} />;
   } else {
     return <CodeDiff filePair={filePair} />;
   }

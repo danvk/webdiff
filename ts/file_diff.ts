@@ -1,9 +1,13 @@
+import * as codediff from 'codediff.js';
+import { FilePair } from "./CodeDiff";
+
 /** Display the diff for a single file. */
 export function renderDiff(pathBefore: string, pathAfter: string, contentsBefore: string, contentsAfter: string): HTMLElement {
-  var diffDiv = $('<div class="diff"></div>').get(0);
+  const diffDiv = document.createElement('div');
+  diffDiv.className = 'diff';
 
   // build the diff view and add it to the current DOM
-  var opts = {
+  const opts: codediff.Options = {
     // set the display titles for each resource
     beforeName: pathBefore || '(none)',
     afterName: pathAfter || '(none)',
@@ -15,11 +19,11 @@ export function renderDiff(pathBefore: string, pathAfter: string, contentsBefore
   var path = pathBefore || pathAfter;
   var language = codediff.guessLanguageUsingFileName(path);
 
-  var lengthOrZero = function (data) {
+  var lengthOrZero = function (data: any[] | string | null | undefined) {
     return data ? data.length : 0;
   };
 
-  if (!language && !HIGHLIGHT_BLACKLIST.includes(extractFilename(path))) {
+  if (!language && HIGHLIGHT_BLACKLIST.indexOf(extractFilename(path)) === -1) {
     var byLength = [contentsBefore, contentsAfter];
     if (contentsAfter && lengthOrZero(contentsAfter) > lengthOrZero(contentsBefore)) {
       byLength = [byLength[1], byLength[0]];
@@ -35,22 +39,22 @@ export function renderDiff(pathBefore: string, pathAfter: string, contentsBefore
   return diffDiv;
 }
 
-type ThickDiff = unknown;
+// XXX figure out what the difference between these is
+type ThickDiff = FilePair;
 
 /** Get thick file diff information from the server. */
 export async function getThickDiff(index: number): Promise<ThickDiff> {
-  var cache = getThickDiff.cache;
+  const {cache} = getThickDiff;
   if (cache[index]) {
-    return $.when(cache[index]);
+    return cache[index];
   }
 
-  var deferred = $.getJSON(`/thick/${index}`);
-  deferred.done(function(data) {
-    cache[index] = data;
-  });
-  return deferred;
+  const response = await fetch(`/thick/${index}`);
+  const data = await response.json();
+  cache[index] = data;
+  return data;
 }
-getThickDiff.cache = [];
+getThickDiff.cache = [] as ThickDiff[];
 
 
 function extractFilename(path: string) {

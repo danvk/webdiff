@@ -1,3 +1,5 @@
+import React from 'react';
+
 export interface Props {
   mode: 'list' | 'dropdown';
   changeHandler: (mode: 'list' | 'dropdown') => void;
@@ -12,7 +14,7 @@ export function FileModeSelector(props: Props) {
 
   return <div className="file-mode-toggle" onClick={handleChange}>
     <div className="arrow-holder">
-      {this.props.mode == 'dropdown' ? '»' : '«'}
+      {props.mode == 'dropdown' ? '»' : '«'}
     </div>
   </div>;
 }

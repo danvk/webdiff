@@ -1,6 +1,8 @@
+import React from "react";
 /** React components related to image diffs. */
 
 import { FilePair } from "./CodeDiff";
+import { isOneSided } from "./utils";
 
 export const IMAGE_DIFF_MODES = [
   "side-by-side",
@@ -23,7 +25,7 @@ export function ImageDiffModeSelector(props: Props) {
   }
 
   // Returns the text, optionally wrapped in a link and/or <b> tag.
-  var linkOrB = (isLink: boolean, isB: boolean, val: string, text: string) => {
+  var linkOrB = (isLink: boolean, isB: boolean, val: ImageDiffMode, text: string) => {
     var inner = isB ? <b>{text}</b> : text;
     if (isLink) {
       return (

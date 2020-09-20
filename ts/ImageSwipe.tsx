@@ -1,21 +1,16 @@
 import _ from "lodash";
 import React from "react";
 import { FilePair } from "./CodeDiff";
+import { ImageDiffProps } from "./ImageDiff";
 import { ImageMetadata } from "./ImageMetadata";
 import { makePerceptualBoxDiv } from "./image_utils";
 
-export interface ImageOnionSkinProps {
-  filePair: FilePair;
-  shrinkToFit: boolean;
-  showPerceptualDiffBox: boolean;
-}
-
-export interface ImageSwipeProps extends ImageOnionSkinProps {
+export interface ImageSwipeProps extends ImageDiffProps {
   mode?: "swipe" | "onion-skin";
 }
 
 // Two images on top of one another with a cross-fader
-export function ImageOnionSkin(props: ImageOnionSkinProps) {
+export function ImageOnionSkin(props: ImageDiffProps) {
   return <ImageSwipe {...props} mode="onion-skin" />;
 }
 
@@ -23,10 +18,10 @@ export function ImageOnionSkin(props: ImageOnionSkinProps) {
 // to right.
 export function ImageSwipe(props: ImageSwipeProps) {
   const mode = props.mode || "swipe";
-  const [rangePosition, setRangePosition] = React.useState(null);
+  const [rangePosition, setRangePosition] = React.useState<number|null>(null);
   const sliderRef = React.createRef<HTMLInputElement>();
   const onSlide = () => {
-    setRangePosition(Number(sliderRef.current.value));
+    setRangePosition(Number(sliderRef.current!.value));
   };
 
   const pair = props.filePair;
@@ -36,17 +31,18 @@ export function ImageSwipe(props: ImageSwipeProps) {
   const rangeMax = containerWidth;
   const pct = 100.0 * ((rangePosition ?? rangeMax / 2) / rangeMax);
   const frac = pct / 100.0;
-  if (this.props.shrinkToFit) {
-    var scaleDown = Math.min(1.0, (window.innerWidth - 30) / containerWidth);
+  let scaleDown = 1;
+  if (props.shrinkToFit) {
+    scaleDown = Math.min(1.0, (window.innerWidth - 30) / containerWidth);
     imA.width *= scaleDown;
     imA.height *= scaleDown;
     imB.width *= scaleDown;
     imB.height *= scaleDown;
     containerWidth = Math.max(imA.width, imB.width);
   }
-  var diffBoxDiv = makePerceptualBoxDiv(this.props.pdiffMode, pair, scaleDown);
-  const styleA = {};
-  const styleB = {};
+  var diffBoxDiv = makePerceptualBoxDiv(props.pdiffMode, pair, scaleDown);
+  const styleA: React.CSSProperties = {};
+  const styleB: React.CSSProperties = {};
   const styleContainer = {
     width: containerWidth + "px",
     height: Math.max(imA.height, imB.height) + "px",
@@ -96,7 +92,7 @@ export function ImageSwipe(props: ImageSwipeProps) {
           max={rangeMax}
           defaultValue={rangeMax / 2}
           ref="slider"
-          onChange={this.onSlide}
+          onChange={onSlide}
         />
       </div>
       <div className="overlapping-images" style={styleContainer}>

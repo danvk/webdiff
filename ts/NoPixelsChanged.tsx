@@ -1,3 +1,4 @@
+import React from "react";
 import { ImageDiffProps } from "./ImageDiff";
 
 export function NoPixelsChanged({filePair}: ImageDiffProps) {

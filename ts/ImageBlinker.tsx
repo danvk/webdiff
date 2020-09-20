@@ -1,25 +1,22 @@
 import React from 'react';
 import { AnnotatedImage } from './AnnotatedImage';
-import { FilePair } from './CodeDiff';
 import { isLegitKeypress } from './file_diff';
 import { ImageDiffProps } from './ImageDiff';
-
-export interface Props extends ImageDiffProps {
-  shrinkToFit: boolean;
-}
 
 /**
  * Two images on top of one another (i.e. "blinked").
  * This component handles toggling between the two images itself.
  */
-export function ImageBlinker(props: Props) {
+export function ImageBlinker(props: ImageDiffProps) {
   const [idx, setIdx] = React.useState(0);
   const [autoBlink, setAutoBlink] = React.useState(true);
 
   const autoblinkRef = React.createRef<HTMLInputElement>();
 
   const toggleAutoBlink = () => {
-    setAutoBlink(autoblinkRef.current.checked);
+    if (autoblinkRef.current) {
+      setAutoBlink(autoblinkRef.current.checked);
+    }
   };
 
   const blink = React.useCallback((e: KeyboardEvent) => {

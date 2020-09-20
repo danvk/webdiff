@@ -7,6 +7,7 @@ export interface ImageFile {
   num_bytes: number;
 }
 
+// XXX this type is probably imprecise. What's a "thick" vs. "thin" diff?
 export interface FilePair {
   is_image_diff: boolean;
   are_same_pixels: boolean;
@@ -50,33 +51,42 @@ export function NoChanges(props: {filePair: any}) {
 // A side-by-side diff of source code.
 export function CodeDiff(props: {filePair: FilePair}) {
   const {filePair} = props;
-  const codediffRef = React.useRef<HTMLDivElement>();
+  const codediffRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     // Either side can be empty (i.e. an add or a delete), in which case
-    // getOrNull returns an empty Deferred object.
-    var getOrNull = (side: string, path: string) =>
-        path ? $.post(`/${side}/get_contents`, {path}) : [null];
+    // getOrNull resolves to null
+    var getOrNull = async (side: string, path: string) => {
+      if (!path) return null;
+      const response = await fetch(`/${side}/get_contents`, {
+        method: 'POST',
+        headers: {
+         'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({path}),
+     });
+     return response.json();
+    }
 
     const {a, b} = filePair;
     // Do XHRs for the contents of both sides in parallel and fill in the diff.
-    var beforeDeferred = getOrNull('a', a);
-    var afterDeferred = getOrNull('b', b);
-
-    $.when(beforeDeferred, afterDeferred).done((before, after) => {
-      if (!this.isMounted()) return;
+    (async () => {
+      const [before, after] = await Promise.all([getOrNull('a', a), getOrNull('b', b)]);
       // Call out to codediff.js to construct the side-by-side diff.
-      $(codediffRef.current).empty().append(
-        renderDiff(a, b, before[0], after[0])
-      );
-    })
-    .fail((e) => alert("Unable to get diff!"));
+      const codediffEl = codediffRef.current;
+      if (codediffEl) {
+        codediffEl.innerHTML = '';
+        codediffEl.appendChild(renderDiff(a, b, before[0], after[0]));
+      }
+    })().catch(e => {
+      alert("Unable to get diff!")
+    });
   }, [filePair]);
 
   return (
     <div>
-      <NoChanges filePair={this.props.filePair} />
-      <div ref="codediff" key={this.props.filePair.idx}>Loading&hellip;</div>
+      <NoChanges filePair={filePair} />
+      <div ref={codediffRef} key={filePair.idx}>Loading&hellip;</div>
     </div>
   );
 }

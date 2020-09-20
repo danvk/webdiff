@@ -1,9 +1,13 @@
 import React from 'react';
 
 import { DiffBox, FilePair } from "./CodeDiff"
-import { ImageDiffMode, PerceptualDiffMode } from "./DiffView"
-import {ImageDiffModeSelector} from './ImageDiffModeSelector';
+import { PerceptualDiffMode } from "./DiffView"
+import {ImageDiffMode, ImageDiffModeSelector} from './ImageDiffModeSelector';
 import {NoChanges} from './CodeDiff';
+import { isOneSided, isSameSizeImagePair } from './utils';
+import { ImageSideBySide } from './ImageSideBySide';
+import { ImageBlinker } from './ImageBlinker';
+import { ImageOnionSkin, ImageSwipe } from './ImageSwipe';
 
 declare const HAS_IMAGE_MAGICK: boolean;
 
@@ -12,14 +16,13 @@ export interface Props {
   imageDiffMode: ImageDiffMode;
   pdiffMode: PerceptualDiffMode;
   changeImageDiffModeHandler: (mode: ImageDiffMode) => void;
-  changePdiffMode: (pdiffMode: PerceptualDiffMode) => void;
+  changePDiffMode: (pdiffMode: PerceptualDiffMode) => void;
 }
 
 export interface ImageDiffProps {
   filePair: FilePair;
-  side: 'a' | 'b';
-  maxWidth: number;
   pdiffMode: PerceptualDiffMode;
+  shrinkToFit: boolean;
 }
 
 /** A diff between two images. */
@@ -27,7 +30,7 @@ export function ImageDiff(props: Props) {
   const [shrinkToFit, setShrinkToFit] = React.useState(true);
 
   const toggleShrinkToFit: React.ChangeEventHandler<HTMLInputElement> = e => {
-    this.setState({shrinkToFit: e.target.checked});
+    setShrinkToFit(e.target.checked);
   };
 
   let mode = props.imageDiffMode;
@@ -39,18 +42,19 @@ export function ImageDiff(props: Props) {
   const computePerceptualDiffBox = (fp: FilePair) => {
     if (!isSameSizeImagePair(fp)) return;
     // TODO(danvk): restructure this, it's a mess
-    $.getJSON(`/pdiffbbox/${fp.idx}`)
-        .done((bbox: DiffBox) => {
-          const {diffData} = fp;
-          // XXX are there other fields?
-          fp.diffData = {
-            ...(diffData || {}),
-            diffBounds: bbox,
-          };
-          forceUpdate(0);  // tell react about this change
-        }).fail(error => {
-          console.error(error);
-        });
+    (async () => {
+      const response = await fetch(`/pdiffbbox/${fp.idx}`);
+      const bbox = await response.json() as DiffBox;
+      const {diffData} = fp;
+      // XXX are there other fields?
+      fp.diffData = {
+        ...(diffData || {}),
+        diffBounds: bbox,
+      };
+      forceUpdate(0);  // tell react about this change
+    })().catch(error => {
+      console.error(error);
+    })
   };
 
   if (props.pdiffMode === 'bbox' && !pair.diffData) {
@@ -103,21 +107,21 @@ export function ImageDiff(props: Props) {
                  id="pdiff-off"
                  checked={props.pdiffMode === 'off'}
                  disabled={!diffBoxEnabled}
-                 onChange={() => props.changePdiffMode('off')} />
+                 onChange={() => props.changePDiffMode('off')} />
           <label htmlFor="pdiff-off"> None</label>
           &nbsp;
           <input type="radio" name="pdiff-mode"
                  id="pdiff-bbox"
                  checked={props.pdiffMode === 'bbox'}
                  disabled={!diffBoxEnabled}
-                 onChange={() => props.changePdiffMode('bbox')} />
+                 onChange={() => props.changePDiffMode('bbox')} />
           <label htmlFor="pdiff-bbox"> Box</label>
           &nbsp;
           <input type="radio" name="pdiff-mode"
                  id="pdiff-pixels"
                  checked={props.pdiffMode === 'pixels'}
                  disabled={!diffBoxEnabled}
-                 onChange={() => props.changePdiffMode('pixels')} />
+                 onChange={() => props.changePDiffMode('pixels')} />
           <label htmlFor="pdiff-pixels"> Differing Pixels</label>
         </span>
         {imageMagickCallout}

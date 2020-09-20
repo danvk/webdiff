@@ -1,6 +1,7 @@
 import React from "react";
 import { FilePair } from "./CodeDiff";
 import { PerceptualDiffMode } from "./DiffView";
+import { isSameSizeImagePair } from "./utils";
 
 // XXX should this just be a component?
 

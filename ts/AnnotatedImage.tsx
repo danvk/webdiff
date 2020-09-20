@@ -3,7 +3,12 @@ import { ImageDiffProps } from './ImageDiff';
 import { ImageMetadata } from './ImageMetadata';
 import { SingleImage } from './SingleImage';
 
-export function AnnotatedImage(props: ImageDiffProps) {
+export interface Props extends ImageDiffProps {
+  maxWidth: number | null;
+  side: 'a' | 'b';
+}
+
+export function AnnotatedImage(props: Props) {
   const {side} = props;
   if (!props.filePair[side]) {
     return <span>None</span>;

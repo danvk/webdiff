@@ -1,9 +1,10 @@
 import React from "react";
 import {RouteComponentProps, useHistory} from 'react-router';
 import { FilePair } from "./CodeDiff";
-import { DiffView, ImageDiffMode, PerceptualDiffMode } from "./DiffView";
+import { DiffView, PerceptualDiffMode } from "./DiffView";
 import { FileSelector } from "./FileSelector";
 import { isLegitKeypress } from "./file_diff";
+import { ImageDiffMode } from "./ImageDiffModeSelector";
 import { filePairDisplayName } from "./utils";
 
 declare const pairs: FilePair[];

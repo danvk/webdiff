@@ -1,5 +1,6 @@
 import React from "react";
 import { FilePair } from "./CodeDiff";
+import { filePairDisplayName } from "./utils";
 
 export interface Props {
   filePairs: FilePair[];
