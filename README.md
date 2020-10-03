@@ -62,7 +62,12 @@ Personal access tokens. Make sure to grant all the "repo" privileges.
 (from an activated virtualenv)
 
     pip install -r requirements.txt
-    bower install
+    cd ts
+    yarn
+    webpack
+
+Then from the root directory:
+
     ./webdiff/app.py testdata/dygraphsjs/{left,right}
 
 or to launch in debug mode:
