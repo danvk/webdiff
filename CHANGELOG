@@ -1,3 +1,11 @@
+- 0.15
+  * Fix `setup.py` configuration error that prevented install on macOS Catalina (#131)
+  * JavaScript modernization:
+    * Drop bower in favor of yarn
+    * Use webpack for bundling
+    * Convert to TypeScript
+    * Update to a recent version of React
+
 - 0.14
   * Allow the use of hostnames (config option USE_HOSTNAME=True/False)
 
