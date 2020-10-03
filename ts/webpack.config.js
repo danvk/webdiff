@@ -1,9 +1,10 @@
 const path = require('path');
 
 module.exports = {
-  mode: 'development',
-  devtool: '#cheap-module-eval-source-map',
-  watch: true,
+  mode: 'production',
+  // mode: 'development',
+  // devtool: '#cheap-module-eval-source-map',
+  // watch: true,
   entry: './index.tsx',
   module: {
     rules: [
