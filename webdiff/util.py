@@ -41,7 +41,7 @@ def are_files_identical(path1, path2):
     # Compare lengths & then checksums.
     if os.path.getsize(path1) != os.path.getsize(path2):
         return False
-    return contentHash(path1) == contentHash(path2) 
+    return contentHash(path1) == contentHash(path2)
 
 
 def image_metadata(path):
@@ -131,7 +131,7 @@ def get_pdiff_bbox(diff_path):
 
     out = subprocess.check_output(['identify', '-format', '%@', diff_path])
     # This looks like "26x94+0+830"
-    m = re.match(r'^(\d+)x(\d+)\+(\d+)\+(\d+)', out)
+    m = re.match(r'^(\d+)x(\d+)\+(\d+)\+(\d+)', out.decode('utf8'))
     if not m:
         raise ImageMagickError('Unexpected identify output: %s' % out)
     width, height, left, top = [int(x) for x in m.groups()]
