@@ -60,7 +60,7 @@ export function Root(props: Props) {
     return () => {
       document.removeEventListener("keydown", handleKeydown);
     };
-  }, []);
+  }, [idx, pairs, selectIndex, setImageDiffMode, setPDiffMode]);
 
   return (
     <div>

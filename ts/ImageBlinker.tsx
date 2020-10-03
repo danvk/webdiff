@@ -29,7 +29,7 @@ export function ImageBlinker(props: ImageDiffProps) {
     }
   }, [setIdx, setAutoBlink]);
 
-  // XXX old version also sets this on a[value="blink"]
+  // XXX old version also sets this on a[value="blink"], what is that?
   React.useEffect(() => {
     document.addEventListener('keydown', blink);
     return () => {
@@ -38,17 +38,17 @@ export function ImageBlinker(props: ImageDiffProps) {
   }, [blink]);
 
   React.useEffect(() => {
-    const interval = setInterval(() => setIdx(idx => 1 - idx), 500 /* ms */);
-    return () => clearInterval(interval);
+    if (autoBlink) {
+      const interval = setInterval(() => setIdx(idx => 1 - idx), 500 /* ms */);
+      return () => clearInterval(interval);
+    }
   }, [autoBlink, setIdx]);
 
-  const pair = props.filePair;
   const side = idx === 0 ? 'a' : 'b';
-  const path = [pair.a, pair.b][idx];
   const maxWidth = props.shrinkToFit ? window.innerWidth - 30 : null;
   return (
     <div>
-      <input ref="autoblink" type="checkbox" id="autoblink" checked={autoBlink} onChange={toggleAutoBlink} />
+      <input ref={autoblinkRef} type="checkbox" id="autoblink" checked={autoBlink} onChange={toggleAutoBlink} />
       <label htmlFor="autoblink"> Auto-blink (hit ‘b’ to blink manually)</label>
       <table id="imagediff">
         <tr className="image-diff-content">

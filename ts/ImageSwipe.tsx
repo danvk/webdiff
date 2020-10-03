@@ -1,6 +1,5 @@
 import _ from "lodash";
 import React from "react";
-import { FilePair } from "./CodeDiff";
 import { ImageDiffProps } from "./ImageDiff";
 import { ImageMetadata } from "./ImageMetadata";
 import { makePerceptualBoxDiv } from "./image_utils";
@@ -41,27 +40,25 @@ export function ImageSwipe(props: ImageSwipeProps) {
     containerWidth = Math.max(imA.width, imB.width);
   }
   var diffBoxDiv = makePerceptualBoxDiv(props.pdiffMode, pair, scaleDown);
-  const styleA: React.CSSProperties = {};
-  const styleB: React.CSSProperties = {};
-  const styleContainer = {
-    width: containerWidth + "px",
-    height: Math.max(imA.height, imB.height) + "px",
-  };
   const urlA = "/a/image/" + pair.a;
   const urlB = "/b/image/" + pair.b;
-  _.extend(styleA, {
+  const styleA: React.CSSProperties = {
     backgroundImage: "url(" + urlA + ")",
     backgroundSize: imA.width + "px " + imA.height + "px",
     width: imA.width + "px",
     height: imA.height + "px",
-  });
-  _.extend(styleB, {
+  };
+  const styleB: React.CSSProperties = {
     backgroundImage: "url(" + urlB + ")",
     backgroundSize: imB.width + "px " + imB.height + "px",
     width: imB.width + "px",
     height: imB.height + "px",
-  });
-  if (props.mode == "swipe") {
+  };
+  const styleContainer: React.CSSProperties = {
+    width: containerWidth + "px",
+    height: Math.max(imA.height, imB.height) + "px",
+  };
+  if (mode === "swipe") {
     _.extend(styleA, {
       width: Math.floor(frac * imA.width) + "px",
     });
@@ -91,7 +88,7 @@ export function ImageSwipe(props: ImageSwipeProps) {
           min="0"
           max={rangeMax}
           defaultValue={rangeMax / 2}
-          ref="slider"
+          ref={sliderRef}
           onChange={onSlide}
         />
       </div>
