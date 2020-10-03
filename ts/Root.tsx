@@ -16,9 +16,8 @@ const PDIFF_MODES: PerceptualDiffMode[] = ['off', 'bbox', 'pixels'];
 
 // Webdiff application root.
 export function Root(props: Props) {
-  // const [diffMode, setDiffMode] = React.useState<ImageDiffMode>("side-by-side");
   const [pdiffMode, setPDiffMode] = React.useState<PerceptualDiffMode>("off");
-  const [imageDiffMode, setImageDiffMode] = React.useState<ImageDiffMode>('blink');
+  const [imageDiffMode, setImageDiffMode] = React.useState<ImageDiffMode>('side-by-side');
 
   const history = useHistory();
   const selectIndex = (idx: number) => {

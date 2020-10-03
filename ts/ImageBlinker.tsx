@@ -51,11 +51,13 @@ export function ImageBlinker(props: ImageDiffProps) {
       <input ref={autoblinkRef} type="checkbox" id="autoblink" checked={autoBlink} onChange={toggleAutoBlink} />
       <label htmlFor="autoblink"> Auto-blink (hit ‘b’ to blink manually)</label>
       <table id="imagediff">
-        <tr className="image-diff-content">
-          <td>
-            <AnnotatedImage side={side} maxWidth={maxWidth} {...props} />
-          </td>
-        </tr>
+        <tbody>
+          <tr className="image-diff-content">
+            <td>
+              <AnnotatedImage side={side} maxWidth={maxWidth} {...props} />
+            </td>
+          </tr>
+        </tbody>
       </table>
     </div>
   );

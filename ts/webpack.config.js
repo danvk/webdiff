@@ -1,10 +1,9 @@
 const path = require('path');
 
-module.exports = {
-  mode: 'production',
-  // mode: 'development',
-  // devtool: '#cheap-module-eval-source-map',
-  // watch: true,
+const mode = process.env.NODE_ENV || 'production';
+
+const options = {
+  mode: mode,
   entry: './index.tsx',
   module: {
     rules: [
@@ -23,3 +22,11 @@ module.exports = {
     path: path.resolve(__dirname, '../webdiff/static/js'),
   },
 };
+
+if (mode === 'development') {
+  Object.assign(options, {
+    devtool: '#cheap-module-eval-source-map',
+  });
+}
+
+module.exports = options;

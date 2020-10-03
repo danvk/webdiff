@@ -39,6 +39,7 @@ export function ImageDiff(props: Props) {
     mode = 'side-by-side';  // Only one that makes sense for one-sided diffs.
   }
 
+  const [, forceUpdate] = React.useState(0);
   const computePerceptualDiffBox = (fp: FilePair) => {
     if (!isSameSizeImagePair(fp)) return;
     // TODO(danvk): restructure this, it's a mess
@@ -51,7 +52,8 @@ export function ImageDiff(props: Props) {
         ...(diffData || {}),
         diffBounds: bbox,
       };
-      forceUpdate(0);  // tell react about this change
+      console.log('forcing update');
+      forceUpdate(n => n + 1);  // tell react about this change
     })().catch(error => {
       console.error(error);
     })
@@ -62,16 +64,15 @@ export function ImageDiff(props: Props) {
     computePerceptualDiffBox(pair);
   }
 
-  const [, forceUpdate] = React.useState(0);
   React.useEffect(() => {
     const handleResize = () => {
-      if (shrinkToFit) forceUpdate(0);
+      if (shrinkToFit) forceUpdate(n => n + 1);
     };
-    const listener = window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize);
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [shrinkToFit]);
+  }, [shrinkToFit, forceUpdate]);
 
   const component = {
     'side-by-side': ImageSideBySide,
