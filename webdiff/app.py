@@ -24,7 +24,7 @@ from webdiff import diff
 from webdiff import util
 from webdiff import argparser
 
-VERSION = '0.14.1'
+VERSION = '0.15.0'
 
 
 def determine_path():
@@ -45,7 +45,7 @@ def is_hot_reload():
 
 
 class Config:
-    TESTING=True  # not exactly sure what this does...
+    TESTING=False  # not exactly sure what this does...
     JSONIFY_PRETTYPRINT_REGULAR=False
 
 app = Flask(__name__)
