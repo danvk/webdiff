@@ -1,5 +1,5 @@
 import React from 'react';
-import { renderDiff } from './file_diff';
+import {renderDiff} from './file_diff';
 
 export interface ImageFile {
   width: number;
@@ -13,7 +13,7 @@ export interface FilePair {
   are_same_pixels: boolean;
   a: string;
   b: string;
-  type: 'add' | 'delete' | 'move' | 'change';  // XXX check "change"
+  type: 'add' | 'delete' | 'move' | 'change'; // XXX check "change"
   image_a: ImageFile;
   image_b: ImageFile;
   idx: number;
@@ -63,9 +63,9 @@ export function CodeDiff(props: {filePair: FilePair}) {
       const response = await fetch(`/${side}/get_contents`, {
         method: 'post',
         body: data,
-     });
-     return response.text();
-    }
+      });
+      return response.text();
+    };
 
     const {a, b} = filePair;
     // Do XHRs for the contents of both sides in parallel and fill in the diff.
@@ -78,14 +78,16 @@ export function CodeDiff(props: {filePair: FilePair}) {
         codediffEl.appendChild(renderDiff(a, b, before, after));
       }
     })().catch(e => {
-      alert("Unable to get diff!")
+      alert('Unable to get diff!');
     });
   }, [filePair]);
 
   return (
     <div>
       <NoChanges filePair={filePair} />
-      <div ref={codediffRef} key={filePair.idx}>Loading&hellip;</div>
+      <div ref={codediffRef} key={filePair.idx}>
+        Loading&hellip;
+      </div>
     </div>
   );
 }

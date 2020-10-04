@@ -1,11 +1,7 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-} from "react-router-dom";
-import { Root } from "./Root";
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
+import {Root} from './Root';
 
 const App = () => (
   <Router>

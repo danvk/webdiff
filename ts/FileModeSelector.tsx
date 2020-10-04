@@ -12,9 +12,9 @@ export function FileModeSelector(props: Props) {
     props.changeHandler(newMode);
   };
 
-  return <div className="file-mode-toggle" onClick={handleChange}>
-    <div className="arrow-holder">
-      {props.mode == 'dropdown' ? '»' : '«'}
+  return (
+    <div className="file-mode-toggle" onClick={handleChange}>
+      <div className="arrow-holder">{props.mode == 'dropdown' ? '»' : '«'}</div>
     </div>
-  </div>;
+  );
 }

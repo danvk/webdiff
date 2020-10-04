@@ -1,7 +1,7 @@
 import React from 'react';
-import { AnnotatedImage } from './AnnotatedImage';
-import { isLegitKeypress } from './file_diff';
-import { ImageDiffProps } from './ImageDiff';
+import {AnnotatedImage} from './AnnotatedImage';
+import {isLegitKeypress} from './file_diff';
+import {ImageDiffProps} from './ImageDiff';
 
 /**
  * Two images on top of one another (i.e. "blinked").
@@ -19,22 +19,25 @@ export function ImageBlinker(props: ImageDiffProps) {
     }
   };
 
-  const blink = React.useCallback((e: KeyboardEvent) => {
-    if (!isLegitKeypress(e)) {
-      return;
-    }
-    if (e.key === 'b') {
-      setAutoBlink(false);
-      setIdx(idx => 1 - idx);
-    }
-  }, [setIdx, setAutoBlink]);
+  const blink = React.useCallback(
+    (e: KeyboardEvent) => {
+      if (!isLegitKeypress(e)) {
+        return;
+      }
+      if (e.key === 'b') {
+        setAutoBlink(false);
+        setIdx(idx => 1 - idx);
+      }
+    },
+    [setIdx, setAutoBlink],
+  );
 
   // XXX old version also sets this on a[value="blink"], what is that?
   React.useEffect(() => {
     document.addEventListener('keydown', blink);
     return () => {
       document.removeEventListener('keydown', blink);
-    }
+    };
   }, [blink]);
 
   React.useEffect(() => {
@@ -48,7 +51,13 @@ export function ImageBlinker(props: ImageDiffProps) {
   const maxWidth = props.shrinkToFit ? window.innerWidth - 30 : null;
   return (
     <div>
-      <input ref={autoblinkRef} type="checkbox" id="autoblink" checked={autoBlink} onChange={toggleAutoBlink} />
+      <input
+        ref={autoblinkRef}
+        type="checkbox"
+        id="autoblink"
+        checked={autoBlink}
+        onChange={toggleAutoBlink}
+      />
       <label htmlFor="autoblink"> Auto-blink (hit ‘b’ to blink manually)</label>
       <table id="imagediff">
         <tbody>

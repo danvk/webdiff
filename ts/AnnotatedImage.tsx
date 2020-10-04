@@ -1,7 +1,7 @@
 import React from 'react';
-import { ImageDiffProps } from './ImageDiff';
-import { ImageMetadata } from './ImageMetadata';
-import { SingleImage } from './SingleImage';
+import {ImageDiffProps} from './ImageDiff';
+import {ImageMetadata} from './ImageMetadata';
+import {SingleImage} from './SingleImage';
 
 export interface Props extends ImageDiffProps {
   maxWidth: number | null;

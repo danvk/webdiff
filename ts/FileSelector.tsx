@@ -1,8 +1,8 @@
-import React from "react";
-import { FilePair } from "./CodeDiff";
-import { FileDropdown } from "./FileDropdown";
-import { FileList } from './FileList';
-import { FileModeSelector } from "./FileModeSelector";
+import React from 'react';
+import {FilePair} from './CodeDiff';
+import {FileDropdown} from './FileDropdown';
+import {FileList} from './FileList';
+import {FileModeSelector} from './FileModeSelector';
 
 export interface Props {
   filePairs: FilePair[];
@@ -10,16 +10,14 @@ export interface Props {
   fileChangeHandler: (newIndex: number) => void;
 }
 
-type Mode = "list" | "dropdown";
+type Mode = 'list' | 'dropdown';
 
 /** Shows a list of files in one of two possible modes (list or dropdown). */
 export function FileSelector(props: Props) {
-  const { filePairs, selectedFileIndex, fileChangeHandler } = props;
+  const {filePairs, selectedFileIndex, fileChangeHandler} = props;
 
   // An explicit list is better, unless there are a ton of files.
-  const [mode, setMode] = React.useState<Mode>(
-    filePairs.length <= 6 ? "list" : "dropdown"
-  );
+  const [mode, setMode] = React.useState<Mode>(filePairs.length <= 6 ? 'list' : 'dropdown');
 
   // For single file diffs, a file selector is a waste of space.
   if (filePairs.length === 1) {
@@ -27,7 +25,7 @@ export function FileSelector(props: Props) {
   }
 
   let selector;
-  if (mode === "list") {
+  if (mode === 'list') {
     selector = (
       <FileList
         filePairs={filePairs}
@@ -48,9 +46,7 @@ export function FileSelector(props: Props) {
   return (
     <div className="file-selector">
       {selector}
-      {filePairs.length > 3 ? (
-        <FileModeSelector mode={mode} changeHandler={setMode} />
-      ) : null}
+      {filePairs.length > 3 ? <FileModeSelector mode={mode} changeHandler={setMode} /> : null}
     </div>
   );
 }

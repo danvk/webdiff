@@ -1,13 +1,13 @@
 import * as difflib from 'difflib';
 
-import { FilePair } from "./CodeDiff";
+import {FilePair} from './CodeDiff';
 
 /**
  * Returns either "foo.txt" or "{foo -> bar}.txt"
  * filePair is like {type, path, a, b}
  */
 export function filePairDisplayName(filePair: FilePair) {
-  if (filePair.type !== "move") {
+  if (filePair.type !== 'move') {
     return filePair.a || filePair.b;
   }
 
@@ -15,27 +15,27 @@ export function filePairDisplayName(filePair: FilePair) {
   // old and new names. This might be overkill, but we have a differ, so why
   // not?
   var split_re = /([.\/])/; // split to folders and extension
-  var split = (path: string) => path.split(split_re).filter((x) => x);
+  var split = (path: string) => path.split(split_re).filter(x => x);
   var partsA = split(filePair.a);
   var partsB = split(filePair.b);
 
   var opcodes = new difflib.SequenceMatcher(null, partsA, partsB).getOpcodes();
-  var out = "";
+  var out = '';
 
-  opcodes.forEach((opcode) => {
+  opcodes.forEach(opcode => {
     var [type, aIndex, aLimit, bIndex, bLimit] = opcode;
-    var a = partsA.slice(aIndex, aLimit).join("");
-    var b = partsB.slice(bIndex, bLimit).join("");
-    if (type == "equal") {
+    var a = partsA.slice(aIndex, aLimit).join('');
+    var b = partsB.slice(bIndex, bLimit).join('');
+    if (type == 'equal') {
       out += a;
-    } else if (type == "insert") {
-      out += "{ → " + b + "}";
-    } else if (type == "delete") {
-      out += "{" + a + " → }";
-    } else if (type == "replace") {
-      out += "{" + a + " → " + b + "}";
+    } else if (type == 'insert') {
+      out += '{ → ' + b + '}';
+    } else if (type == 'delete') {
+      out += '{' + a + ' → }';
+    } else if (type == 'replace') {
+      out += '{' + a + ' → ' + b + '}';
     } else {
-      throw "Unknown opcode " + type;
+      throw 'Unknown opcode ' + type;
     }
   });
 
@@ -44,7 +44,7 @@ export function filePairDisplayName(filePair: FilePair) {
 
 /** Checks whether the diff is one-sided, i.e. an add or delete. */
 export function isOneSided(filePair: FilePair) {
-  return filePair.type == "add" || filePair.type == "delete";
+  return filePair.type == 'add' || filePair.type == 'delete';
 }
 
 /** Determines whether the before & after images are the same size. */
@@ -62,4 +62,3 @@ export function makeImage(dataURI: string) {
   img.src = dataURI;
   return img;
 }
-

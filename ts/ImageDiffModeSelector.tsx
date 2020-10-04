@@ -1,15 +1,10 @@
-import React from "react";
+import React from 'react';
 /** React components related to image diffs. */
 
-import { FilePair } from "./CodeDiff";
-import { isOneSided } from "./utils";
+import {FilePair} from './CodeDiff';
+import {isOneSided} from './utils';
 
-export const IMAGE_DIFF_MODES = [
-  "side-by-side",
-  "blink",
-  "onion-skin",
-  "swipe",
-] as const;
+export const IMAGE_DIFF_MODES = ['side-by-side', 'blink', 'onion-skin', 'swipe'] as const;
 export type ImageDiffMode = typeof IMAGE_DIFF_MODES[number];
 
 export interface Props {
@@ -39,24 +34,16 @@ export function ImageDiffModeSelector(props: Props) {
   };
 
   const mode = props.imageDiffMode;
-  const isBlink = mode == "blink";
-  const isSxS = mode == "side-by-side";
-  const isOnion = mode == "onion-skin";
-  const isSwipe = mode == "swipe";
+  const isBlink = mode == 'blink';
+  const isSxS = mode == 'side-by-side';
+  const isOnion = mode == 'onion-skin';
+  const isSwipe = mode == 'swipe';
   return (
     <span>
-      <span className="mode">
-        {linkOrB(!isSxS, isSxS, "side-by-side", "Side by Side (s)")}
-      </span>
-      <span className="mode">
-        {linkOrB(true, isBlink, "blink", "Blink (b)")}
-      </span>
-      <span className="mode">
-        {linkOrB(!isOnion, isOnion, "onion-skin", "Onion Skin")}
-      </span>
-      <span className="mode">
-        {linkOrB(!isSwipe, isSwipe, "swipe", "Swipe")}
-      </span>
+      <span className="mode">{linkOrB(!isSxS, isSxS, 'side-by-side', 'Side by Side (s)')}</span>
+      <span className="mode">{linkOrB(true, isBlink, 'blink', 'Blink (b)')}</span>
+      <span className="mode">{linkOrB(!isOnion, isOnion, 'onion-skin', 'Onion Skin')}</span>
+      <span className="mode">{linkOrB(!isSwipe, isSwipe, 'swipe', 'Swipe')}</span>
     </span>
   );
 }

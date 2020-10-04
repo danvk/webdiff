@@ -1,11 +1,11 @@
-import _ from "lodash";
-import React from "react";
-import { ImageDiffProps } from "./ImageDiff";
-import { ImageMetadata } from "./ImageMetadata";
-import { makePerceptualBoxDiv } from "./image_utils";
+import _ from 'lodash';
+import React from 'react';
+import {ImageDiffProps} from './ImageDiff';
+import {ImageMetadata} from './ImageMetadata';
+import {makePerceptualBoxDiv} from './image_utils';
 
 export interface ImageSwipeProps extends ImageDiffProps {
-  mode?: "swipe" | "onion-skin";
+  mode?: 'swipe' | 'onion-skin';
 }
 
 // Two images on top of one another with a cross-fader
@@ -16,8 +16,8 @@ export function ImageOnionSkin(props: ImageDiffProps) {
 // Two images on top of one another with a slider to move the divider from left
 // to right.
 export function ImageSwipe(props: ImageSwipeProps) {
-  const mode = props.mode || "swipe";
-  const [rangePosition, setRangePosition] = React.useState<number|null>(null);
+  const mode = props.mode || 'swipe';
+  const [rangePosition, setRangePosition] = React.useState<number | null>(null);
   const sliderRef = React.createRef<HTMLInputElement>();
   const onSlide = () => {
     setRangePosition(Number(sliderRef.current!.value));
@@ -40,43 +40,43 @@ export function ImageSwipe(props: ImageSwipeProps) {
     containerWidth = Math.max(imA.width, imB.width);
   }
   var diffBoxDiv = makePerceptualBoxDiv(props.pdiffMode, pair, scaleDown);
-  const urlA = "/a/image/" + pair.a;
-  const urlB = "/b/image/" + pair.b;
+  const urlA = '/a/image/' + pair.a;
+  const urlB = '/b/image/' + pair.b;
   const styleA: React.CSSProperties = {
-    backgroundImage: "url(" + urlA + ")",
-    backgroundSize: imA.width + "px " + imA.height + "px",
-    width: imA.width + "px",
-    height: imA.height + "px",
+    backgroundImage: 'url(' + urlA + ')',
+    backgroundSize: imA.width + 'px ' + imA.height + 'px',
+    width: imA.width + 'px',
+    height: imA.height + 'px',
   };
   const styleB: React.CSSProperties = {
-    backgroundImage: "url(" + urlB + ")",
-    backgroundSize: imB.width + "px " + imB.height + "px",
-    width: imB.width + "px",
-    height: imB.height + "px",
+    backgroundImage: 'url(' + urlB + ')',
+    backgroundSize: imB.width + 'px ' + imB.height + 'px',
+    width: imB.width + 'px',
+    height: imB.height + 'px',
   };
   const styleContainer: React.CSSProperties = {
-    width: containerWidth + "px",
-    height: Math.max(imA.height, imB.height) + "px",
+    width: containerWidth + 'px',
+    height: Math.max(imA.height, imB.height) + 'px',
   };
-  if (mode === "swipe") {
+  if (mode === 'swipe') {
     _.extend(styleA, {
-      width: Math.floor(frac * imA.width) + "px",
+      width: Math.floor(frac * imA.width) + 'px',
     });
     _.extend(styleB, {
-      left: Math.floor(frac * imB.width) + "px",
+      left: Math.floor(frac * imB.width) + 'px',
       width: null,
-      right: containerWidth - imB.width + "px",
-      backgroundPosition: -Math.floor(frac * imB.width) + "px top",
+      right: containerWidth - imB.width + 'px',
+      backgroundPosition: -Math.floor(frac * imB.width) + 'px top',
     });
   } else {
-    _.extend(styleB, { opacity: frac });
+    _.extend(styleB, {opacity: frac});
   }
 
   // Add an opaque grid under each image to expose transparency.
   [styleA, styleB].forEach(function (o) {
-    (o as any)["backgroundImage"] += ", url(/static/img/trans_bg.gif)";
-    if (_.has(o, "backgroundSize")) {
-      (o as any)["backgroundSize"] += ", auto auto";
+    (o as any)['backgroundImage'] += ', url(/static/img/trans_bg.gif)';
+    if (_.has(o, 'backgroundSize')) {
+      (o as any)['backgroundSize'] += ', auto auto';
     }
   });
 
