@@ -28,6 +28,7 @@ def memoize(obj):
         if key not in cache:
             cache[key] = obj(*args, **kwargs)
         return cache[key]
+
     return memoizer
 
 
@@ -46,7 +47,7 @@ def are_files_identical(path1, path2):
 
 def image_metadata(path):
     '''Returns a dict with metadata about the image located at path.'''
-    md = { 'num_bytes': os.path.getsize(path) }
+    md = {'num_bytes': os.path.getsize(path)}
     try:
         im = Image.open(path)
         width, height = im.size
@@ -54,7 +55,6 @@ def image_metadata(path):
     except:
         pass
     return md
-
 
 
 @memoize
@@ -69,12 +69,12 @@ def is_imagemagick_available():
 
 @memoize
 def generate_pdiff_image(before_path, after_path):
-    '''Generate a perceptual diff between the before/after images.
+    """Generate a perceptual diff between the before/after images.
 
     This runs the ImageMagick compare command.
 
     Returns: (are_images_identical, path_to_pdiff_png)
-    '''
+    """
     if not is_imagemagick_available():
         raise ImageMagickNotAvailableError()
 
@@ -85,13 +85,23 @@ def generate_pdiff_image(before_path, after_path):
     #   1 on success & dissimilar images
     #   2 on failure
     PIPE = subprocess.PIPE
-    p = subprocess.Popen([
+    p = subprocess.Popen(
+        [
             'compare',
-            '-metric', 'RMSE',
-            '-highlight-color', 'Red',
-            '-compose', 'Src',
-            before_path, after_path, diff_path
-        ], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+            '-metric',
+            'RMSE',
+            '-highlight-color',
+            'Red',
+            '-compose',
+            'Src',
+            before_path,
+            after_path,
+            diff_path,
+        ],
+        stdin=PIPE,
+        stdout=PIPE,
+        stderr=PIPE,
+    )
     output, err = p.communicate()  # `compare` is noisy; this swallows its output
     result = p.returncode
 
@@ -110,16 +120,23 @@ def generate_dilated_pdiff_image(diff_path):
 
     # Dilate the diff image (to highlight small differences) and make it red.
     _, diff_dilate_path = tempfile.mkstemp(suffix='.png')
-    subprocess.check_call([
-        'convert',
-        diff_path,
-        '-monochrome',
-        '-negate',
-        '-morphology', 'Dilate', 'Disk:5.5',
-        '-negate',
-        '-fill', 'Red', '-opaque', 'Black',
-        diff_dilate_path
-    ])
+    subprocess.check_call(
+        [
+            'convert',
+            diff_path,
+            '-monochrome',
+            '-negate',
+            '-morphology',
+            'Dilate',
+            'Disk:5.5',
+            '-negate',
+            '-fill',
+            'Red',
+            '-opaque',
+            'Black',
+            diff_dilate_path,
+        ]
+    )
     return diff_dilate_path
 
 
@@ -141,5 +158,5 @@ def get_pdiff_bbox(diff_path):
         'left': left,
         'top': top,
         'bottom': top + height,
-        'right': left + width
+        'right': left + width,
     }

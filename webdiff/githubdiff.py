@@ -15,16 +15,17 @@ from webdiff.github_fetcher import github
 
 class GitHubDiff(object):
     '''pr and github_file are objects from the Python GitHub API.'''
+
     def __init__(self, pr, github_file):
         self._pr = pr
         self._file = github_file
         self.type = {
-                'modified': 'change',
-                'changed': 'change',  # How does this differ from 'modified'?
-                'renamed': 'move',
-                'added': 'add',
-                'removed': 'delete'
-                }[github_file.status]
+            'modified': 'change',
+            'changed': 'change',  # How does this differ from 'modified'?
+            'renamed': 'move',
+            'added': 'add',
+            'removed': 'delete',
+        }[github_file.status]
         self._a_path = ''
         self._b_path = ''
 
@@ -61,8 +62,7 @@ class GitHubDiff(object):
 
 def fetch_pull_request(owner, repo, num):
     '''Return a list of Diff objects for a pull request.'''
-    sys.stderr.write('Loading pull request %s/%s#%s from github...\n' % (
-            owner, repo, num))
+    sys.stderr.write('Loading pull request %s/%s#%s from github...\n' % (owner, repo, num))
     g = github()
     pr = g.get_user(owner).get_repo(repo).get_pull(num)
     files = pr.get_files()

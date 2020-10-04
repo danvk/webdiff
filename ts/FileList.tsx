@@ -1,6 +1,6 @@
-import React from "react";
-import { FilePair } from "./CodeDiff";
-import { filePairDisplayName } from "./utils";
+import React from 'react';
+import {FilePair} from './CodeDiff';
+import {filePairDisplayName} from './utils';
 
 export interface Props {
   filePairs: FilePair[];
@@ -13,7 +13,7 @@ export interface Props {
  * This view is simpler and generally preferable for short lists of files.
  */
 export function FileList(props: Props) {
-  const { filePairs, selectedIndex, fileChangeHandler } = props;
+  const {filePairs, selectedIndex, fileChangeHandler} = props;
 
   const lis = filePairs.map((filePair, idx) => {
     const displayName = filePairDisplayName(filePair);

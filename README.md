@@ -85,6 +85,12 @@ To run the JavaScript tests:
     python -m SimpleHTTPServer
     open tests/runner.html
 
+To format the code, run:
+
+    ./scripts/black.sh
+    cd ts
+    yarn prettier
+
 To iterate on the PyPI package, run:
 
     # from outside the webdiff virtualenv:

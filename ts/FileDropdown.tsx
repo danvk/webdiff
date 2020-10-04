@@ -1,6 +1,6 @@
-import React from "react";
-import { FilePair } from "./CodeDiff";
-import { filePairDisplayName } from "./utils";
+import React from 'react';
+import {FilePair} from './CodeDiff';
+import {filePairDisplayName} from './utils';
 
 export interface Props {
   filePairs: FilePair[];
@@ -10,7 +10,7 @@ export interface Props {
 
 /** A list of files in a dropdown menu. This is more compact with many files. */
 export function FileDropdown(props: Props) {
-  const { filePairs, selectedIndex, fileChangeHandler } = props;
+  const {filePairs, selectedIndex, fileChangeHandler} = props;
 
   const linkOrNone = (idx: number) => {
     if (idx < 0 || idx >= filePairs.length) {
@@ -37,10 +37,7 @@ export function FileDropdown(props: Props) {
     <div className="file-dropdown">
       Prev (k): {prevLink}
       <br />
-      <select
-        value={selectedIndex}
-        onChange={(e) => fileChangeHandler(Number(e.target.value))}
-      >
+      <select value={selectedIndex} onChange={e => fileChangeHandler(Number(e.target.value))}>
         {options}
       </select>
       <br />

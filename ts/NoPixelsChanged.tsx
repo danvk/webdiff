@@ -1,5 +1,5 @@
-import React from "react";
-import { ImageDiffProps } from "./ImageDiff";
+import React from 'react';
+import {ImageDiffProps} from './ImageDiff';
 
 export function NoPixelsChanged({filePair}: ImageDiffProps) {
   if (filePair.are_same_pixels) {

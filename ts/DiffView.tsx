@@ -1,8 +1,8 @@
 import React from 'react';
-import { CodeDiff, FilePair } from './CodeDiff';
-import { getThickDiff } from './file_diff';
-import { ImageDiff } from './ImageDiff';
-import { ImageDiffMode } from './ImageDiffModeSelector';
+import {CodeDiff, FilePair} from './CodeDiff';
+import {getThickDiff} from './file_diff';
+import {ImageDiff} from './ImageDiff';
+import {ImageDiffMode} from './ImageDiffModeSelector';
 
 export type PerceptualDiffMode = 'off' | 'bbox' | 'pixels';
 

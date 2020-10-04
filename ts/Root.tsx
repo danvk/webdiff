@@ -1,11 +1,11 @@
-import React from "react";
+import React from 'react';
 import {RouteComponentProps, useHistory} from 'react-router';
-import { FilePair } from "./CodeDiff";
-import { DiffView, PerceptualDiffMode } from "./DiffView";
-import { FileSelector } from "./FileSelector";
-import { isLegitKeypress } from "./file_diff";
-import { ImageDiffMode } from "./ImageDiffModeSelector";
-import { filePairDisplayName } from "./utils";
+import {FilePair} from './CodeDiff';
+import {DiffView, PerceptualDiffMode} from './DiffView';
+import {FileSelector} from './FileSelector';
+import {isLegitKeypress} from './file_diff';
+import {ImageDiffMode} from './ImageDiffModeSelector';
+import {filePairDisplayName} from './utils';
 
 declare const pairs: FilePair[];
 declare const initialIdx: number;
@@ -16,7 +16,7 @@ const PDIFF_MODES: PerceptualDiffMode[] = ['off', 'bbox', 'pixels'];
 
 // Webdiff application root.
 export function Root(props: Props) {
-  const [pdiffMode, setPDiffMode] = React.useState<PerceptualDiffMode>("off");
+  const [pdiffMode, setPDiffMode] = React.useState<PerceptualDiffMode>('off');
   const [imageDiffMode, setImageDiffMode] = React.useState<ImageDiffMode>('side-by-side');
 
   const history = useHistory();
@@ -27,8 +27,7 @@ export function Root(props: Props) {
   const idx = Number(props.match.params.index ?? initialIdx);
   const filePair = pairs[idx];
   React.useEffect(() => {
-    document.title =
-      "Diff: " + filePairDisplayName(filePair) + " (" + filePair.type + ")";
+    document.title = 'Diff: ' + filePairDisplayName(filePair) + ' (' + filePair.type + ')';
   }, [filePair]);
 
   React.useEffect(() => {
@@ -46,30 +45,26 @@ export function Root(props: Props) {
         }
       } else if (e.keyCode == 83) {
         // s
-        setImageDiffMode("side-by-side");
+        setImageDiffMode('side-by-side');
       } else if (e.keyCode == 66) {
         // b
-        setImageDiffMode("blink");
+        setImageDiffMode('blink');
       } else if (e.keyCode == 80) {
         // p
         setPDiffMode(PDIFF_MODES[(PDIFF_MODES.indexOf(pdiffMode) + 1) % 3]);
       }
     };
-    document.addEventListener("keydown", handleKeydown);
+    document.addEventListener('keydown', handleKeydown);
     return () => {
-      document.removeEventListener("keydown", handleKeydown);
+      document.removeEventListener('keydown', handleKeydown);
     };
   }, [idx, pairs, selectIndex, setImageDiffMode, setPDiffMode]);
 
   return (
     <div>
-      <FileSelector
-        selectedFileIndex={idx}
-        filePairs={pairs}
-        fileChangeHandler={selectIndex}
-      />
+      <FileSelector selectedFileIndex={idx} filePairs={pairs} fileChangeHandler={selectIndex} />
       <DiffView
-        key={"diff-" + idx}
+        key={'diff-' + idx}
         thinFilePair={filePair}
         imageDiffMode={imageDiffMode}
         pdiffMode={pdiffMode}

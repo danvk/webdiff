@@ -1,6 +1,6 @@
-import React from "react";
-import { AnnotatedImage } from "./AnnotatedImage";
-import { ImageDiffProps } from "./ImageDiff";
+import React from 'react';
+import {AnnotatedImage} from './AnnotatedImage';
+import {ImageDiffProps} from './ImageDiff';
 
 // Two images placed side-by-side.
 export function ImageSideBySide(props: ImageDiffProps) {

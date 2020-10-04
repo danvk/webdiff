@@ -12,9 +12,9 @@ def diff(a_dir, b_dir):
     pairs = find_diff(a_dir, b_dir)
     moves, pairs = find_moves(pairs)
 
-    diffs = (
-        [LocalFileDiff(a_dir, a, b_dir, b, False) for a, b in pairs] +
-        [LocalFileDiff(a_dir, a, b_dir, b, True) for a, b in moves])
+    diffs = [LocalFileDiff(a_dir, a, b_dir, b, False) for a, b in pairs] + [
+        LocalFileDiff(a_dir, a, b_dir, b, True) for a, b in moves
+    ]
 
     # sort "change" before "delete" in a move, which is easier to understand.
     diffs.sort(key=lambda d: (d.a_path, 0 if d.b else 1))
@@ -23,10 +23,10 @@ def diff(a_dir, b_dir):
 
 
 def find_diff(a, b):
-    '''Walk directories a and b and pair off files.
-    
+    """Walk directories a and b and pair off files.
+
     Returns a list of pairs of full paths to matched a/b files.
-    '''
+    """
 
     def list_files(top_dir):
         file_list = []
@@ -49,8 +49,7 @@ def find_diff(a, b):
             return ''
         return os.path.join(d, p)
 
-    return [(safejoin(a, arel),
-             safejoin(b, brel)) for arel, brel in pairs]
+    return [(safejoin(a, arel), safejoin(b, brel)) for arel, brel in pairs]
 
 
 def pair_files(a_files, b_files):
