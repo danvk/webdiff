@@ -5,14 +5,14 @@ import os
 
 class LocalFileDiff(object):
     def __init__(self, a_root, a_path, b_root, b_path, is_move):
-        '''A before/after file pair on local disk
-        
+        """A before/after file pair on local disk
+
         Args:
             a_path, b_path: full paths to the files on disk. Either (but not
                 both) may be empty.
             a_root, b_root: Paths to the root of diff.
             is_move: Is this a pure move between the two files?
-        '''
+        """
         assert (a_path != '') or (b_path != '')
         self.a_path = a_path
         self.b_path = b_path

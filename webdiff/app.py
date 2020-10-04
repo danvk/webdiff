@@ -17,8 +17,15 @@ from threading import Timer
 import time
 import webbrowser
 
-from flask import (Flask, render_template, send_from_directory, send_file,
-                   request, jsonify, Response)
+from flask import (
+    Flask,
+    render_template,
+    send_from_directory,
+    send_file,
+    request,
+    jsonify,
+    Response,
+)
 
 from webdiff import diff
 from webdiff import util
@@ -31,13 +38,14 @@ def determine_path():
     """Borrowed from wxglade.py"""
     try:
         root = __file__
-        if os.path.islink (root):
-            root = os.path.realpath (root)
-        return os.path.dirname (os.path.abspath (root))
+        if os.path.islink(root):
+            root = os.path.realpath(root)
+        return os.path.dirname(os.path.abspath(root))
     except:
         print("I'm sorry, but something is wrong.")
         print("There is no __file__ variable. Please contact the author.")
         sys.exit()
+
 
 def is_hot_reload():
     """In debug mode, Werkzeug reloads the app on any changes."""
@@ -45,8 +53,9 @@ def is_hot_reload():
 
 
 class Config:
-    TESTING=False  # not exactly sure what this does...
-    JSONIFY_PRETTYPRINT_REGULAR=False
+    TESTING = False  # not exactly sure what this does...
+    JSONIFY_PRETTYPRINT_REGULAR = False
+
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -74,6 +83,8 @@ else:
 
 
 LAST_REQUEST_MS = 0
+
+
 @app.before_request
 def update_last_request_ms():
     global LAST_REQUEST_MS
@@ -126,8 +137,7 @@ def get_image(side, path):
 
     mime_type, enc = mimetypes.guess_type(path)
     if not mime_type or not mime_type.startswith('image/') or enc is not None:
-        return error('wrongtype', 'Requested file of type (%s, %s) as image' % (
-                 mime_type, enc))
+        return error('wrongtype', 'Requested file of type (%s, %s) as image' % (mime_type, enc))
 
     idx = diff.find_diff_index(DIFF, side, path)
     if idx is None:
@@ -181,10 +191,9 @@ def index():
 def file_diff(idx):
     idx = int(idx)
     pairs = diff.get_thin_list(DIFF)
-    return render_template('file_diff.html',
-                           idx=idx,
-                           has_magick=util.is_imagemagick_available(),
-                           pairs=pairs)
+    return render_template(
+        'file_diff.html', idx=idx, has_magick=util.is_imagemagick_available(), pairs=pairs
+    )
 
 
 @app.route('/thick/<int:idx>')
@@ -195,9 +204,11 @@ def thick_diff(idx):
 
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static/img'),
-                               'favicon.ico',
-                               mimetype='image/vnd.microsoft.icon')
+    return send_from_directory(
+        os.path.join(app.root_path, 'static/img'),
+        'favicon.ico',
+        mimetype='image/vnd.microsoft.icon',
+    )
 
 
 @app.route('/seriouslykill', methods=['POST'])
@@ -216,6 +227,7 @@ def kill():
         return 'Will stay running.'
 
     last_ms = LAST_REQUEST_MS
+
     def shutdown():
         if LAST_REQUEST_MS <= last_ms:  # subsequent requests abort shutdown
             requests.post('http://%s:%d/seriouslykill' % (HOSTNAME, PORT))
@@ -292,9 +304,12 @@ def run():
         else:
             HOSTNAME = _hostname
 
-    sys.stderr.write('''Serving diffs on http://%s:%s
+    sys.stderr.write(
+        '''Serving diffs on http://%s:%s
 Close the browser tab or hit Ctrl-C when you're done.
-''' % (HOSTNAME, PORT))
+'''
+        % (HOSTNAME, PORT)
+    )
     Timer(0.1, open_browser).start()
     app.run(host=HOSTNAME, port=PORT)
 

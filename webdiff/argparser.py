@@ -8,28 +8,33 @@ from webdiff import githubdiff
 from webdiff import github_fetcher
 from webdiff.localfilediff import LocalFileDiff
 
+
 class UsageError(Exception):
     pass
 
-USAGE = (
-'''Usage: webdiff <left_dir> <right_dir>
+
+USAGE = '''Usage: webdiff <left_dir> <right_dir>
        webdiff <left_file> <right_file>
        webdiff https://github.com/<owner>/<repo>/pull/<num>
 
 Or run "git webdiff" from a git repository.
-''')
+'''
 
 # e.g. https://github.com/danvk/dygraphs/pull/292
-PULL_REQUEST_RE = re.compile(r'http[s]://(?:www.)?github.com/([^/]+)/([^/]+)/pull/([0-9]+)(?:/.*)?')
+PULL_REQUEST_RE = re.compile(
+    r'http[s]://(?:www.)?github.com/([^/]+)/([^/]+)/pull/([0-9]+)(?:/.*)?'
+)
 PULL_REQUEST_NUM_RE = re.compile(r'^#([0-9]+)$')
+
 
 def parse(args, version=None):
     """Returns {port, dirs: [], files: [], pr: {owner, repo, number}}."""
     parser = argparse.ArgumentParser(description='Run webdiff.', usage=USAGE)
     parser.add_argument('--version', action='version', version='webdiff %s' % version)
     parser.add_argument('--port', '-p', type=int, help="Port to run webdiff on.", default=-1)
-    parser.add_argument('dirs', type=str, nargs='+',
-                        help="Directories to diff, or a github pull request URL.")
+    parser.add_argument(
+        'dirs', type=str, nargs='+', help="Directories to diff, or a github pull request URL."
+    )
     args = parser.parse_args(args=args)
 
     out = {}
@@ -53,8 +58,10 @@ def parse(args, version=None):
             owner, repo, num = github_fetcher.get_pr_repo(num)
 
         if not owner:
-            raise UsageError('You must either specify two files, two '
-                             'directories or a github pull request URL/#number')
+            raise UsageError(
+                'You must either specify two files, two '
+                'directories or a github pull request URL/#number'
+            )
         out['github'] = {'owner': owner, 'repo': repo, 'num': int(num)}
 
     else:
@@ -81,9 +88,9 @@ def parse(args, version=None):
 # TODO: move into dirdiff?
 def _shim_for_file_diff(a_file, b_file):
     '''Sets A_DIR, B_DIR and DIFF to do a one-file diff.'''
-    return LocalFileDiff(os.path.dirname(a_file), a_file,
-                         os.path.dirname(b_file), b_file,
-                         False)  # probably not a move
+    return LocalFileDiff(
+        os.path.dirname(a_file), a_file, os.path.dirname(b_file), b_file, False
+    )  # probably not a move
 
 
 def diff_for_args(args):
