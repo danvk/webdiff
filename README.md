@@ -99,4 +99,17 @@ To iterate on the PyPI package, run:
     cd /tmp/webdiff-test
     pip install webdiff-X.Y.Z.tar.gz
 
+To publish to pypitest:
+
+    pip install --upgraede wheel setuptools twine
+    python setup.py sdist bdist_wheel
+    twine upload -r testpypi dist/*
+
+And to the real pypi:
+
+    twine upload dist/*
+
+See [pypirc][] docs for details on setting up `~/.pypirc`.
+
 [oauth]: https://github.com/danvk/webdiff/issues/103
+[pypirc]: https://packaging.python.org/specifications/pypirc/
