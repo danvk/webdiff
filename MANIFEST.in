@@ -1,2 +1,3 @@
 recursive-include webdiff/templates *
 recursive-include webdiff/static *
+include README.md

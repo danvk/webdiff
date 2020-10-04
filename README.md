@@ -1,6 +1,5 @@
 [![Build Status](https://travis-ci.org/danvk/webdiff.svg?branch=master)](https://travis-ci.org/danvk/webdiff)
-git webdiff
-===========
+# git webdiff
 
 Two-column web-based git difftool.
 
@@ -16,13 +15,11 @@ Features include:
 
 ![Screenshot of image diffs](http://www.danvk.org/webdiff-images.png)
 
-Installation
-------------
+## Installation
 
     pip install webdiff
 
-Usage
------
+## Usage
 
 Instead of running "git diff", run:
 
@@ -60,13 +57,17 @@ a personal access token for webdiff via github.com → profile → Settings →
 Personal access tokens. Make sure to grant all the "repo" privileges.
 
 
-Development
------------
+## Development
 
 (from an activated virtualenv)
 
     pip install -r requirements.txt
-    bower install
+    cd ts
+    yarn
+    webpack
+
+Then from the root directory:
+
     ./webdiff/app.py testdata/dygraphsjs/{left,right}
 
 or to launch in debug mode:
@@ -98,4 +99,17 @@ To iterate on the PyPI package, run:
     cd /tmp/webdiff-test
     pip install webdiff-X.Y.Z.tar.gz
 
+To publish to pypitest:
+
+    pip install --upgraede wheel setuptools twine
+    python setup.py sdist bdist_wheel
+    twine upload -r testpypi dist/*
+
+And to the real pypi:
+
+    twine upload dist/*
+
+See [pypirc][] docs for details on setting up `~/.pypirc`.
+
 [oauth]: https://github.com/danvk/webdiff/issues/103
+[pypirc]: https://packaging.python.org/specifications/pypirc/

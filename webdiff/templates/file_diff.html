@@ -9,39 +9,13 @@
 
 <div id="application"></div>
 
-<script src="/static/js/file_diff.js"></script>
-
 <script>
 var pairs = {{pairs|tojson}};
 var initialIdx = {{idx|tojson}};
 var HAS_IMAGE_MAGICK = {{has_magick|tojson}};
 </script>
 
-<script type="text/jsx;harmony=true" src="/static/js/util.js"></script>
-<script type="text/jsx;harmony=true" src="/static/js/image.jsx"></script>
-<script type="text/jsx;harmony=true" src="/static/js/components.jsx"></script>
-<script type="text/jsx;harmony=true">
-/** @jsx React.DOM */
-
-var Route = ReactRouter.Route;
-var Routes = ReactRouter.Routes;
-
-var App = React.createClass({
-  render: function() {
-    return <ReactRouter.RouteHandler />;
-  }
-});
-
-var routes = (
-  <Route handler={App}>
-    <Route name="pair" path="/:index?" handler={makeRoot(pairs, initialIdx)} />
-  </Route>
-);
-
-ReactRouter.run(routes, ReactRouter.HistoryLocation, function(Handler) {
-  React.render(<Handler/>, $('#application').get(0));
-});
-</script>
+<script src="/static/js/file_diff.js"></script>
 
 <script>
 window.addEventListener('beforeunload', function(e) {
