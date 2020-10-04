@@ -1,4 +1,4 @@
-flask==0.10.1
+flask==1.0
 nose
 PyGithub==1.25.2
 pillow
