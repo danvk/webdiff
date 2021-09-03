@@ -28,6 +28,7 @@ export function Root(props: Props) {
   const filePair = pairs[idx];
   React.useEffect(() => {
     document.title = 'Diff: ' + filePairDisplayName(filePair) + ' (' + filePair.type + ')';
+    window.history.pushState("", "", filePair.b);
   }, [filePair]);
 
   React.useEffect(() => {
