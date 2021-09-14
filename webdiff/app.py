@@ -13,9 +13,11 @@ import platform
 import requests
 import socket
 import sys
+import threading
 from threading import Timer
 import time
 import webbrowser
+from werkzeug.serving import make_server
 
 from flask import (
     Flask,
@@ -32,6 +34,24 @@ from webdiff import util
 from webdiff import argparser
 
 VERSION = '0.15.0'
+
+
+class ServerThread(threading.Thread):
+    global PORT, HOSTNAME
+
+    def __init__(self, app):
+        threading.Thread.__init__(self)
+        self.srv = make_server(HOSTNAME, PORT, app)
+        self.ctx = app.app_context()
+        self.ctx.push()
+
+    def run(self):
+        sys.stderr.write('Starting server on %s:%s' % (HOSTNAME, PORT))
+        self.srv.serve_forever()
+
+    def shutdown(self):
+        sys.stderr.write('ShutDown server')
+        self.srv.shutdown()
 
 
 def determine_path():
@@ -184,11 +204,13 @@ def get_pdiff_bbox(idx):
 # Show the first diff by default
 @app.route("/")
 def index():
+    sys.stderr.write('Now in /\n')
     return file_diff('0')
 
 
 @app.route("/<int:idx>")
 def file_diff(idx):
+    sys.stderr.write('Now in file_diff\n')
     idx = int(idx)
     pairs = diff.get_thin_list(DIFF)
     return render_template(
@@ -217,11 +239,15 @@ def seriouslykill():
     if func is None:
         raise RuntimeError('Not running with the Werkzeug Server')
     func()
+    sys.stderr.write('Now in seriouslykill\n')
+    # global server
+    # server.shutdown()
     return "Shutting down..."
 
 
 @app.route('/kill', methods=['POST'])
 def kill():
+    sys.stderr.write('Now in kill\n')
     global PORT
     if 'STAY_RUNNING' in app.config:
         return 'Will stay running.'
@@ -312,6 +338,9 @@ Close the browser tab or hit Ctrl-C when you're done.
     )
     Timer(0.1, open_browser).start()
     app.run(host=HOSTNAME, port=PORT)
+    # global server
+    # server = ServerThread(app)
+    # server.start()
 
 
 if __name__ == '__main__':

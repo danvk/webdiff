@@ -5,14 +5,15 @@ with open('README.md', encoding='utf8') as fh:
     long_description = fh.read()
 
 
-setup(name='webdiff',
+setup(name='webdiffForCOI',
       version='0.15.0',
       description='Two-column web-based git difftool',
       long_description=long_description,
       long_description_content_type='text/markdown',
-      author='Dan Vanderkam',
-      author_email='danvdk@gmail.com',
-      url='https://github.com/danvk/webdiff/',
+      author='Fangzhen Song',
+      author_email='songfangzhen@bytedance.com',
+      url='https://github.com/song-fangzhen/webdiff/',
+      download_url='https://github.com/song-fangzhen/webdiff/archive/refs/tags/v0.15.0.tar.gz',
       entry_points={
           'console_scripts': [
               'webdiff = webdiff.app:run',
