@@ -1,23 +1,20 @@
-[![Build Status](https://travis-ci.org/danvk/webdiff.svg?branch=master)](https://travis-ci.org/danvk/webdiff)
-# git webdiff
+# git webdiff for COI
 
-Two-column web-based git difftool.
+Two-column web-based git difftool for [Chromium Open IDE](https://microsoftedge.microsoft.com/addons/detail/chromium-open-ide/ggfoollpnfolfaejalpiihpobcpbegkl)(COI).
 
-Features include:
-* Side-by-side (two column) diff view
+**Features include:**
+* Side-by-side (two column) diff view.
 * Runs in the browser of your choice on any platform.
-* Syntax highlighting via highlight.js
-* Step back and forth through multiple files in a single diff
-* Rich support for image diffs
+* Syntax highlighting via `highlight.js`.
+* Step back and forth through multiple files in a single diff.
 
-<!-- This is `git webdiff 05157bba^..05157bba`, in this repo -->
-![Screenshot of webdiff in action](http://www.danvk.org/webdiff.png)
+<img src="images/webdiff.png" onerror="this.onerror=null; this.remove();" alt="webdiff.png" width="800"/>
 
-![Screenshot of image diffs](http://www.danvk.org/webdiff-images.png)
+*Tips: this project is forked from [danvk/webdiff](https://github.com/danvk/webdiff).*
 
 ## Installation
 
-    pip install webdiff
+    pip install webdiffForCOI
 
 ## Usage
 
@@ -56,66 +53,4 @@ Make sure you chmod this file to only be readable by yourself. You can generate
 a personal access token for webdiff via github.com → profile → Settings →
 Personal access tokens. Make sure to grant all the "repo" privileges.
 
-
-## Development
-
-(from an activated virtualenv)
-
-    pip install -r requirements.txt
-    cd ts
-    yarn
-    webpack
-
-Then from the root directory:
-
-    ./webdiff/app.py testdata/dygraphsjs/{left,right}
-
-or to launch in debug mode:
-
-    ./test.sh $(pwd)/../testdata/webdiffdiff/{left,right}
-
-(or any other directory in testdata)
-
-To run the Python tests:
-
-    nosetests
-
-To run the JavaScript tests:
-
-    python -m SimpleHTTPServer
-    open tests/runner.html
-
-To format the code, run:
-
-    ./scripts/black.sh
-    cd ts
-    yarn prettier
-
-To iterate on the PyPI package, run:
-
-    # from outside the webdiff virtualenv:
-    pip uninstall webdiff
-
-    # from inside the webdiff virtualenv, adjust for current version
-    python setup.py sdist
-    mkdir /tmp/webdiff-test
-    cp dist/webdiff-X.Y.Z.tar.gz /tmp/webdiff-test
-
-    deactivate
-    cd /tmp/webdiff-test
-    pip install webdiff-X.Y.Z.tar.gz
-
-To publish to pypitest:
-
-    pip install --upgraede wheel setuptools twine
-    python setup.py sdist bdist_wheel
-    twine upload -r testpypi dist/*
-
-And to the real pypi:
-
-    twine upload dist/*
-
-See [pypirc][] docs for details on setting up `~/.pypirc`.
-
-[oauth]: https://github.com/danvk/webdiff/issues/103
-[pypirc]: https://packaging.python.org/specifications/pypirc/
+**Enjoy!**
