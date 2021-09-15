@@ -9,7 +9,7 @@ Two-column web-based git difftool for [Chromium Open IDE](https://microsoftedge.
 * Step back and forth through multiple files in a single diff.
 
 <!-- This is `git webdiff 05157bba^..05157bba`, in this repo -->
-![Screenshot of webdiff in action](https://github.com/song-fangzhen/webdiff/blob/master/images/webdiff.png)
+<img src="https://static.wixstatic.com/media/75bd2a_c2ba89cee23d4200b1a61dcd8ba59a34~mv2.png" onerror="this.onerror=null; this.remove();" alt="Screenshot of webdiff for COI in action" width="600" onclick="window.open(this.src)"/>
 
 *Tips: this project is forked from [danvk/webdiff](https://github.com/danvk/webdiff).*
 
