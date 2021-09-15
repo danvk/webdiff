@@ -8,7 +8,8 @@ Two-column web-based git difftool for [Chromium Open IDE](https://microsoftedge.
 * Syntax highlighting via `highlight.js`.
 * Step back and forth through multiple files in a single diff.
 
-<img src="images/webdiff.png" onerror="this.onerror=null; this.remove();" alt="webdiff.png" width="800"/>
+<!-- This is `git webdiff 05157bba^..05157bba`, in this repo -->
+![Screenshot of webdiff in action](https://github.com/song-fangzhen/webdiff/blob/master/images/webdiff.png)
 
 *Tips: this project is forked from [danvk/webdiff](https://github.com/danvk/webdiff).*
 

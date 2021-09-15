@@ -6,7 +6,7 @@ with open('README.md', encoding='utf8') as fh:
 
 
 setup(name='webdiffForCOI',
-      version='0.15.3',
+      version='0.15.5',
       description='Two-column web-based git difftool',
       long_description=long_description,
       long_description_content_type='text/markdown',
