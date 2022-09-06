@@ -47,28 +47,26 @@ This will download the files relevant to the Pull Request and run `webdiff`.
 If you run into GitHub API quota limits or you'd like to use webdiff with
 private repos, you can set your credentials in a `.githubrc` file:
 
-```
-user.login: yourusername
-user.token: your-personal-access-tokens
-```
+    user.login: yourusername
+    user.token: your-personal-access-tokens
 
 Make sure you chmod this file to only be readable by yourself. You can generate
 a personal access token for webdiff via github.com → profile → Settings →
 Personal access tokens. Make sure to grant all the "repo" privileges.
 
-
 ## Development
 
-(from an activated virtualenv)
-
+    python3 -m venv venv
+    source venv/bin/activate
     pip install -r requirements.txt
     cd ts
     yarn
-    webpack
+    # see https://github.com/webpack/webpack/issues/14532
+    NODE_OPTIONS=--openssl-legacy-provider webpack
 
 Then from the root directory:
 
-    ./webdiff/app.py testdata/dygraphsjs/{left,right}
+    PYTHONPATH=. ./webdiff/app.py testdata/dygraphsjs/{left,right}
 
 or to launch in debug mode:
 
@@ -117,5 +115,4 @@ And to the real pypi:
 
 See [pypirc][] docs for details on setting up `~/.pypirc`.
 
-[oauth]: https://github.com/danvk/webdiff/issues/103
 [pypirc]: https://packaging.python.org/specifications/pypirc/
