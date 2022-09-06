@@ -2,5 +2,7 @@
 # Run both the Python & JS tests.
 set -o errexit
 
-nosetests tests
-grunt test --verbose
+pytest
+
+cd ts
+yarn webpack

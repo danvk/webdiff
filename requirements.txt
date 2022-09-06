@@ -1,6 +1,6 @@
-flask==0.10.1
-nose
-PyGithub==1.25.2
+flask==2.2.2
+pytest==7.1.3
+PyGithub==1.55
 pillow
 requests
 binaryornot

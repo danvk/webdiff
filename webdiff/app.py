@@ -31,7 +31,7 @@ from webdiff import diff
 from webdiff import util
 from webdiff import argparser
 
-VERSION = '0.15.0'
+VERSION = '0.16.0'
 
 
 def determine_path():
@@ -211,13 +211,21 @@ def favicon():
     )
 
 
+# See https://stackoverflow.com/a/69812984/388951
+exiting = False
+
+
 @app.route('/seriouslykill', methods=['POST'])
 def seriouslykill():
-    func = request.environ.get('werkzeug.server.shutdown')
-    if func is None:
-        raise RuntimeError('Not running with the Werkzeug Server')
-    func()
+    global exiting
+    exiting = True
     return "Shutting down..."
+
+
+@app.teardown_request
+def teardown(exception):
+    if exiting:
+        os._exit(0)
 
 
 @app.route('/kill', methods=['POST'])
