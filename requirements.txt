@@ -1,5 +1,5 @@
 flask==2.2.2
-nose
+pytest==7.1.3
 PyGithub==1.55
 pillow
 requests

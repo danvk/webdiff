@@ -212,7 +212,8 @@ def favicon():
 
 
 # See https://stackoverflow.com/a/69812984/388951
-exiting=False
+exiting = False
+
 
 @app.route('/seriouslykill', methods=['POST'])
 def seriouslykill():
