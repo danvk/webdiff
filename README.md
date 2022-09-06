@@ -19,6 +19,12 @@ Features include:
 
     pip install webdiff
 
+or, if you prefer [Homebrew]:
+
+    brew install danvk/webdiff/webdiff
+
+(the latter will also install [ImageMagick] as a recommended dependency.)
+
 ## Usage
 
 Instead of running "git diff", run:
@@ -116,3 +122,5 @@ And to the real pypi:
 See [pypirc][] docs for details on setting up `~/.pypirc`.
 
 [pypirc]: https://packaging.python.org/specifications/pypirc/
+[Homebrew]: https://brew.sh/
+[ImageMagick]: https://imagemagick.org/index.php
