@@ -1,0 +1,43 @@
+version: 2.1
+
+orbs:
+  python: circleci/python@1.5.0
+
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
+jobs:
+  test-python:
+    # You can specify an image from Dockerhub or use one of the convenience images from CircleCI's Developer Hub
+    # A list of available CircleCI Docker convenience images are available here: https://circleci.com/developer/images/image/cimg/python
+    docker:
+      - image: cimg/python:3.10.2
+
+    steps:
+      - checkout
+      - python/install-packages:
+          pkg-manager: pip
+      - run:
+          name: Run tests
+          command: |
+            export PYTHONPATH=.
+            pytest
+
+  test-js:
+    docker:
+      - image: cimg/node:18.8.0
+    steps:
+      - checkout
+      - run: node --version
+      - run:
+          command: |
+            cd ts
+            yarn
+      - run:
+          command: |
+            cd ts
+            NODE_OPTIONS=--openssl-legacy-provider yarn webpack
+
+workflows:
+  main:
+    jobs:
+      - test-python
+      - test-js
