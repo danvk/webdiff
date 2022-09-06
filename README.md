@@ -101,7 +101,7 @@ To iterate on the PyPI package, run:
 
     deactivate
     cd /tmp/webdiff-test
-    pip install webdiff-X.Y.Z.tar.gz
+    pip3 install webdiff-X.Y.Z.tar.gz
 
 To publish to pypitest:
 
