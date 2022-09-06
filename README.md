@@ -76,7 +76,7 @@ or to launch in debug mode:
 
 To run the Python tests:
 
-    nosetests
+    pytest
 
 To run the JavaScript tests:
 
@@ -105,7 +105,7 @@ To iterate on the PyPI package, run:
 
 To publish to pypitest:
 
-    pip install --upgraede wheel setuptools twine
+    pip install --upgrade wheel setuptools twine
     python setup.py sdist bdist_wheel
     twine upload -r testpypi dist/*
 

@@ -1,7 +1,7 @@
 '''Utility code for working with Diff objects.
 
 Diff objects must have these properties:
-    - a      Name of the file on the left side of a diff      
+    - a      Name of the file on the left side of a diff
     - a_path Path to a copy of the left side file on local disk.
     - b      (like a)
     - b_path (like a_path)
