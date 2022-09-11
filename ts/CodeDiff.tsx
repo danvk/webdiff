@@ -1,5 +1,5 @@
 import React from 'react';
-import {renderDiff} from './file_diff';
+import {renderDiffWithOps} from './file_diff';
 
 export interface ImageFile {
   width: number;
@@ -67,15 +67,20 @@ export function CodeDiff(props: {filePair: FilePair}) {
       return response.text();
     };
 
+    const getDiff = async () => {
+      const response = await fetch(`/diff/${filePair.idx}`);
+      return response.json();
+    };
+
     const {a, b} = filePair;
     // Do XHRs for the contents of both sides in parallel and fill in the diff.
     (async () => {
-      const [before, after] = await Promise.all([getOrNull('a', a), getOrNull('b', b)]);
+      const [before, after, diffOps] = await Promise.all([getOrNull('a', a), getOrNull('b', b), getDiff()]);
       // Call out to codediff.js to construct the side-by-side diff.
       const codediffEl = codediffRef.current;
       if (codediffEl) {
         codediffEl.innerHTML = '';
-        codediffEl.appendChild(renderDiff(a, b, before, after));
+        codediffEl.appendChild(renderDiffWithOps(a, b, before, after, diffOps));
       }
     })().catch(e => {
       alert('Unable to get diff!');

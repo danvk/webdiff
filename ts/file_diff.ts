@@ -1,11 +1,12 @@
 import {FilePair} from './CodeDiff';
 
 /** Display the diff for a single file. */
-export function renderDiff(
+export function renderDiffWithOps(
   pathBefore: string,
   pathAfter: string,
   contentsBefore: string | null,
   contentsAfter: string | null,
+  ops: any[],
 ): HTMLElement {
   const diffDiv = document.createElement('div');
   diffDiv.className = 'diff';
@@ -38,7 +39,9 @@ export function renderDiff(
     opts.language = language;
   }
 
-  diffDiv.appendChild(codediff.buildView(contentsBefore!, contentsAfter!, opts));
+  diffDiv.appendChild(
+    codediff.buildViewFromOps(contentsBefore!, contentsAfter!, ops, opts)
+  );
 
   return diffDiv;
 }
