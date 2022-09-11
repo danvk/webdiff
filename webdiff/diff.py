@@ -35,7 +35,7 @@ def get_diff_ops(diff: LocalFileDiff) -> List[Code]:
     if diff.a_path and diff.b_path:
         # TODO: do something more efficient (also below)
         num_lines = len(open(diff.a_path).read().split('\n'))
-        diff_output = subprocess.run('git diff --no-index'.split(' ') + [diff.a_path, diff.b_path], capture_output=True)
+        diff_output = subprocess.run('git diff --no-index -U8'.split(' ') + [diff.a_path, diff.b_path], capture_output=True)
         return diff_to_codes(diff_output.stdout.decode('utf8'), num_lines)
     elif diff.a_path:
         num_lines = len(open(diff.a_path).read().split('\n'))
