@@ -1,5 +1,6 @@
 import React from 'react';
 import {CodeDiff, FilePair, DiffOptions} from './CodeDiff';
+import { DiffOptionsControl } from './DiffOptions';
 import {getThickDiff} from './file_diff';
 import {ImageDiff} from './ImageDiff';
 import {ImageDiffMode} from './ImageDiffModeSelector';
@@ -40,14 +41,9 @@ export function DiffView(props: Props) {
     diffEl = <CodeDiff filePair={filePair} diffOptions={diffOptions} />;
   }
 
-  const toggleIgnoreAllSpace = () => {
-    setDiffOptions(oldOpts => ({...oldOpts, ignoreAllSpace: !oldOpts.ignoreAllSpace}))
-  };
-
   return (
     <>
-      <input type="checkbox" checked={!!diffOptions.ignoreAllSpace} id="ignore-all-space" onChange={toggleIgnoreAllSpace} />
-      {' '}<label htmlFor='ignore-all-space'>Ignore All Space (<code>git diff -w</code>)</label>
+      <DiffOptionsControl options={diffOptions} setOptions={setDiffOptions} />
       {diffEl}
     </>
   );
