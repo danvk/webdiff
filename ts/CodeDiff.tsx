@@ -33,6 +33,41 @@ export interface ImageDiffData {
   diffBounds: DiffBox;
 }
 
+export interface DiffOptions {
+  /** aka -w */
+  ignoreAllSpace: boolean;
+  /** The default diff algorithm is myers */
+  diffAlgorithm: 'patience' | 'minimal' | 'histogram' | 'myers';
+  /** aka -U<N>. Show this many lines of context. */
+  unified: number;
+  /** Adjust rename threshold (percent of file). Default is 50. */
+  findRenames: number;
+  /** Find copies in addition to renames. Units are percents. */
+  findCopies: number;
+}
+
+function encodeDiffOptions(opts: Partial<DiffOptions>) {
+  const flags = [];
+  if (opts.ignoreAllSpace) {
+    flags.push('-w');
+  }
+  if (opts.diffAlgorithm) {
+    flags.push(`--diff-algorithm=${opts.diffAlgorithm}`);
+  }
+  if (opts.unified) {
+    flags.push(`-U${opts.unified}`);
+  } else {
+    flags.push(`-U8`);  // TODO: other default options?
+  }
+  if (opts.findRenames) {
+    flags.push(`--find-renames=${opts.findRenames}%`);
+  }
+  if (opts.findCopies) {
+    flags.push(`--find-copies=${opts.findCopies}%`);
+  }
+  return flags;
+}
+
 // A "no changes" sign which only appears when applicable.
 export function NoChanges(props: {filePair: any}) {
   const {filePair} = props;
@@ -49,8 +84,8 @@ export function NoChanges(props: {filePair: any}) {
 }
 
 // A side-by-side diff of source code.
-export function CodeDiff(props: {filePair: FilePair}) {
-  const {filePair} = props;
+export function CodeDiff(props: {filePair: FilePair, diffOptions: Partial<DiffOptions>}) {
+  const {filePair, diffOptions} = props;
   const codediffRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -74,7 +109,7 @@ export function CodeDiff(props: {filePair: FilePair}) {
           'Accept': 'application/json',
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({options: []})
+        body: JSON.stringify({options: encodeDiffOptions(diffOptions ?? {})})
       });
       return response.json();
     };
@@ -92,7 +127,7 @@ export function CodeDiff(props: {filePair: FilePair}) {
     })().catch(e => {
       alert('Unable to get diff!');
     });
-  }, [filePair]);
+  }, [filePair, diffOptions]);
 
   return (
     <div>
