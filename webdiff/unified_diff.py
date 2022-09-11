@@ -6,16 +6,16 @@ from unidiff import PatchSet
 def read_codes(p: PatchSet) -> list:
     pf = p[0]  # PatchedFile
     out = []
-    last_source = 1
-    last_target = 1
+    last_source = 0
+    last_target = 0
 
     for hunk in pf:
-        if hunk.source_start != last_source:
+        if hunk.source_start != last_source + 1:
             out.append(
                 (
                     "skip",
-                    (last_source - 1, hunk.source_start - 1),
-                    (last_target - 1, hunk.target_start - 1),
+                    (last_source, hunk.source_start - 1),
+                    (last_target, hunk.target_start - 1),
                 )
             )
             last_source = hunk.source_start

@@ -5,7 +5,8 @@ from webdiff.unified_diff import add_replaces, diff_to_codes, read_codes
 
 def test_mixed_diff():
     diff = open("testdata/unified/dygraphs-patch.txt").read()
-    assert diff_to_codes(diff) == [
+    codes = diff_to_codes(diff)
+    assert codes == [
         ("equal", (0, 2), (0, 2)),
         ("delete", (2, 3), (2, 2)),
         ("equal", (3, 6), (2, 5)),
