@@ -68,7 +68,14 @@ export function CodeDiff(props: {filePair: FilePair}) {
     };
 
     const getDiff = async () => {
-      const response = await fetch(`/diff/${filePair.idx}`);
+      const response = await fetch(`/diff/${filePair.idx}`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({options: []})
+      });
       return response.json();
     };
 
