@@ -1,7 +1,6 @@
 '''Compute the diff between two directories on local disk.'''
 
 from collections import defaultdict
-import copy
 import os
 
 from webdiff.localfilediff import LocalFileDiff
