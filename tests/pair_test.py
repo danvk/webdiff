@@ -1,5 +1,3 @@
-import unittest
-
 from webdiff import util
 from webdiff import diff
 from webdiff import dirdiff

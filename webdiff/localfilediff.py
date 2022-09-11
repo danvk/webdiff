@@ -1,24 +1,21 @@
 '''This class represents the diff between two files on local disk.'''
 
 import os
+from dataclasses import dataclass
 
-
-class LocalFileDiff(object):
-    def __init__(self, a_root, a_path, b_root, b_path, is_move):
-        """A before/after file pair on local disk
-
-        Args:
-            a_path, b_path: full paths to the files on disk. Either (but not
-                both) may be empty.
-            a_root, b_root: Paths to the root of diff.
-            is_move: Is this a pure move between the two files?
-        """
-        assert (a_path != '') or (b_path != '')
-        self.a_path = a_path
-        self.b_path = b_path
-        self.a_root = a_root
-        self.b_root = b_root
-        self.is_move = is_move
+@dataclass
+class LocalFileDiff:
+    """A before/after file pair on local disk"""
+    a_root: str
+    """Path to the root dir of the left side of the diff"""
+    a_path: str
+    """Full path to the left file on disk (may be empty)."""
+    b_root: str
+    """Path to the root dir of the right side of the diff"""
+    b_path: str
+    """Full path to the right file on disk (may be empty if a_path != '')."""
+    is_move: str
+    """Is this a move between the two files?"""
 
     @property
     def a(self):

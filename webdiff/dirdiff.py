@@ -11,7 +11,9 @@ def diff(a_dir, b_dir):
     pairs = find_diff(a_dir, b_dir)
     moves, pairs = find_moves(pairs)
 
-    diffs = [LocalFileDiff(a_dir, a, b_dir, b, False) for a, b in pairs] + [
+    diffs = [
+        LocalFileDiff(a_dir, a, b_dir, b, False) for a, b in pairs
+    ] + [
         LocalFileDiff(a_dir, a, b_dir, b, True) for a, b in moves
     ]
 
