@@ -1,0 +1,34 @@
+diff --git a/tmp/before.js b/tmp/after.js
+index 63a4828..cea3ddd 100644
+--- a/tmp/before.js
++++ b/tmp/after.js
+@@ -1,24 +1,25 @@
+ /**
+  * Convert a JS date to a string appropriate to display on an axis that
+- * is displaying values at the stated granularity.
+  * @param {Date} date The date to format
+  * @param {number} granularity One of the Dygraph granularity constants
+  * @return {string} The formatted date
+  * @private
+  */
+ Dygraph.dateAxisFormatter = function(date, granularity) {
+   if (granularity >= Dygraph.DECADAL) {
+-    return '' + date.getFullYear();
++    return 'xx' + date.getFullYear();
+   } else if (granularity >= Dygraph.MONTHLY) {
+     return Dygraph.SHORT_MONTH_NAMES_[date.getMonth()] + ' ' + date.getFullYear();
+   } else {
+-    var frac = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds() + date.getMilliseconds();
++    var frac = date.getHours() * 3600 + date.getMinutes() * 60 +
++        date.getSeconds() + date.getMilliseconds();
+     if (frac === 0 || granularity >= Dygraph.DAILY) {
+       // e.g. '21Jan' (%d%b)
+       var nd = new Date(date.getTime() + 3600*1000);
+       return Dygraph.zeropad(nd.getDate()) + Dygraph.SHORT_MONTH_NAMES_[nd.getMonth()];
++      return "something else";
+     } else {
+       return Dygraph.hmsString_(date.getTime());
+     }
+   }
+ };
+\ No newline at end of file
