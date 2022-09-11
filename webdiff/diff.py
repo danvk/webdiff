@@ -31,17 +31,26 @@ def get_thin_dict(diff):
     return {'a': diff.a, 'b': diff.b, 'type': diff.type}
 
 
-def get_diff_ops(diff: LocalFileDiff) -> List[Code]:
+def fast_num_lines(path: str) -> int:
+    # https://stackoverflow.com/q/9629179/388951
+    return int(subprocess.check_output(['wc', '-l', path]).split()[0])
+
+
+def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
+    """Run git diff on the file pair and convert the results to a sequence of codes.
+
+    git_diff_args is passed directly to git diff. It can be something like ['-w'] or
+    ['-w', '--diff-algorithm=patience'].
+    """
     if diff.a_path and diff.b_path:
-        # TODO: do something more efficient (also below)
-        num_lines = len(open(diff.a_path).read().split('\n'))
-        diff_output = subprocess.run('git diff --no-index -U8'.split(' ') + [diff.a_path, diff.b_path], capture_output=True)
+        num_lines = fast_num_lines(diff.a_path)
+        diff_output = subprocess.run('git diff --no-index -U8'.split(' ') + (git_diff_args or []) + [diff.a_path, diff.b_path], capture_output=True)
         return diff_to_codes(diff_output.stdout.decode('utf8'), num_lines)
     elif diff.a_path:
-        num_lines = len(open(diff.a_path).read().split('\n'))
+        num_lines = fast_num_lines(diff.a_path)
         return [Code('delete', before=(0, num_lines), after=(0, 0))]
     elif diff.b_path:
-        num_lines = len(open(diff.b_path).read().split('\n'))
+        num_lines = fast_num_lines(diff.b_path)
         return [Code('insert', before=(0, 0), after=(0, num_lines))]
 
 
