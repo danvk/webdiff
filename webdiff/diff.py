@@ -12,8 +12,12 @@ For concrete implementations, see githubdiff and localfilediff.
 
 import mimetypes
 import os
+import subprocess
+from typing import List
 
 from webdiff import util
+from webdiff.localfilediff import LocalFileDiff
+from webdiff.unified_diff import Code, diff_to_codes
 
 
 def get_thin_dict(diff):
@@ -25,6 +29,20 @@ def get_thin_dict(diff):
       - diffstats
     """
     return {'a': diff.a, 'b': diff.b, 'type': diff.type}
+
+
+def get_diff_ops(diff: LocalFileDiff) -> List[Code]:
+    if diff.a_path and diff.b_path:
+        # TODO: do something more efficient (also below)
+        num_lines = len(open(diff.a_path).read().split('\n'))
+        diff_output = subprocess.run('git diff --no-index'.split(' ') + [diff.a_path, diff.b_path], capture_output=True)
+        return diff_to_codes(diff_output.stdout.decode('utf8'), num_lines)
+    elif diff.a_path:
+        num_lines = len(open(diff.a_path).read().split('\n'))
+        return [Code('delete', before=(0, num_lines), after=(0, 0))]
+    elif diff.b_path:
+        num_lines = len(open(diff.b_path).read().split('\n'))
+        return [Code('insert', before=(0, 0), after=(0, num_lines))]
 
 
 def get_thick_dict(diff):

@@ -202,6 +202,12 @@ def thick_diff(idx):
     return jsonify(diff.get_thick_dict(DIFF[idx]))
 
 
+@app.route('/diff/<int:idx>')
+def get_diff_ops(idx):
+    idx = int(idx)
+    return jsonify(diff.get_diff_ops(DIFF[idx]))
+
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(

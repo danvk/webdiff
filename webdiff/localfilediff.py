@@ -41,9 +41,6 @@ class LocalFileDiff:
             return 'move'
         return 'change'
 
-    # def __repr__(self):
-    #    return '%s/%s (%s)' % (self.a, self.b, self.type)
-
     @staticmethod
     def from_diff_raw_line(line: RawDiffLine, a_dir: str, b_dir: str):
         status = line.status

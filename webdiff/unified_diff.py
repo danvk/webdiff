@@ -17,7 +17,7 @@ class Code:
     """Line range on right side; zero-based, half-open interval."""
 
 
-def read_codes(p: PatchSet) -> list:
+def read_codes(p: PatchSet) -> List[Code]:
     pf = p[0]  # PatchedFile
     out = []
     last_source = 0
@@ -71,7 +71,7 @@ def read_codes(p: PatchSet) -> list:
     return out
 
 
-def add_replaces(codes: list) -> list:
+def add_replaces(codes: List[Code]) -> List[Code]:
     """Replace paired delete + insert codes with replace."""
     out = []
     i = 0
@@ -93,7 +93,7 @@ def add_replaces(codes: list) -> list:
     return out
 
 
-def diff_to_codes(diff: str, after_num_lines=None) -> list:
+def diff_to_codes(diff: str, after_num_lines=None) -> List[Code]:
     """Convert a unified diff to a list of codes for codediff.js.
 
     This only considers the first file in the diff.
