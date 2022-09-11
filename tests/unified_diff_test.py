@@ -22,6 +22,25 @@ def test_mixed_diff():
     ]
 
 
+def test_mixed_diff_with_num_lines():
+    diff = open("testdata/unified/dygraphs-patch.txt").read()
+    codes = diff_to_codes(diff, 26)
+    assert codes == [
+        ("equal", (0, 2), (0, 2)),
+        ("delete", (2, 3), (2, 2)),
+        ("equal", (3, 6), (2, 5)),
+        ("skip", (6, 7), (5, 6)),
+        ("equal", (7, 10), (6, 9)),
+        ("replace", (10, 11), (9, 10)),
+        ("equal", (11, 14), (10, 13)),
+        ("replace", (14, 15), (13, 15)),
+        ("equal", (15, 19), (15, 19)),
+        ("insert", (19, 19), (19, 20)),
+        ("equal", (19, 22), (20, 23)),
+        ("skip", (22, 25), (23, 26)),
+    ]
+
+
 delete_hunk = '''diff --git a/tmp/before.js b/tmp/after.js
 index 63a4828..cea3ddd 100644
 --- a/tmp/before.js

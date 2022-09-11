@@ -79,7 +79,7 @@ def add_replaces(codes: list) -> list:
     return out
 
 
-def diff_to_codes(diff: str) -> list:
+def diff_to_codes(diff: str, after_num_lines=None) -> list:
     """Convert a unified diff to a list of codes for codediff.js.
 
     This only considers the first file in the diff.
@@ -89,5 +89,15 @@ def diff_to_codes(diff: str) -> list:
 
     # Go through and combine sequential delete/insert into "replace"
     codes = add_replaces(codes)
+
+    if after_num_lines:
+        _, (_, a2), (_, b2) = codes[-1]
+        end_skip = after_num_lines - b2
+        if end_skip:
+            codes.append((
+                'skip',
+                (a2, a2 + end_skip),
+                (b2, b2 + end_skip),
+            ))
 
     return codes
