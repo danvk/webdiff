@@ -1,6 +1,19 @@
+from dataclasses import dataclass
 from itertools import groupby
+from typing import Tuple
 
 from unidiff import PatchSet
+
+
+@dataclass
+class Code:
+    """Matches DiffRange in webdiff codes.ts"""
+    type: str
+    """One of "replace" | "delete" | "insert" | "equal" | "skip"."""
+    before: Tuple[int, int]
+    """Line range on left side; zero-based, half-open interval."""
+    after: Tuple[int, int]
+    """Line range on right side; zero-based, half-open interval."""
 
 
 def read_codes(p: PatchSet) -> list:
@@ -12,7 +25,7 @@ def read_codes(p: PatchSet) -> list:
     for hunk in pf:
         if hunk.source_start != last_source + 1:
             out.append(
-                (
+                Code(
                     "skip",
                     (last_source, hunk.source_start - 1),
                     (last_target, hunk.target_start - 1),
@@ -27,7 +40,7 @@ def read_codes(p: PatchSet) -> list:
             last = lines[-1]
             if type == " ":
                 out.append(
-                    (
+                    Code(
                         "equal",
                         (first.source_line_no - 1, last.source_line_no),
                         (first.target_line_no - 1, last.target_line_no),
@@ -35,7 +48,7 @@ def read_codes(p: PatchSet) -> list:
                 )
             elif type == "-":
                 out.append(
-                    (
+                    Code(
                         "delete",
                         (first.source_line_no - 1, last.source_line_no),
                         (last_target, last_target),
@@ -43,7 +56,7 @@ def read_codes(p: PatchSet) -> list:
                 )
             elif type == "+":
                 out.append(
-                    (
+                    Code(
                         "insert",
                         (last_source, last_source),
                         (first.target_line_no - 1, last.target_line_no),
@@ -63,13 +76,13 @@ def add_replaces(codes: list) -> list:
     i = 0
     while i < len(codes):
         c = codes[i]
-        if c[0] == 'delete' and i < len(codes) - 1:
+        if c.type == 'delete' and i < len(codes) - 1:
             nc = codes[i + 1]
-            if nc[0] == 'insert':
-                out.append((
+            if nc.type == 'insert':
+                out.append(Code(
                     'replace',
-                    (c[1][0], nc[1][1]),
-                    (c[2][0], nc[2][1]),
+                    (c.before[0], nc.before[1]),
+                    (c.after[0], nc.after[1]),
                 ))
                 i += 2
                 continue
@@ -91,10 +104,11 @@ def diff_to_codes(diff: str, after_num_lines=None) -> list:
     codes = add_replaces(codes)
 
     if after_num_lines:
-        _, (_, a2), (_, b2) = codes[-1]
+        (_, a2) = codes[-1].before
+        (_, b2) = codes[-1].after
         end_skip = after_num_lines - b2
         if end_skip:
-            codes.append((
+            codes.append(Code(
                 'skip',
                 (a2, a2 + end_skip),
                 (b2, b2 + end_skip),

@@ -1,23 +1,23 @@
 from unidiff import PatchSet
 
-from webdiff.unified_diff import add_replaces, diff_to_codes, read_codes
+from webdiff.unified_diff import Code, add_replaces, diff_to_codes, read_codes
 
 
 def test_mixed_diff():
     diff = open("testdata/unified/dygraphs-patch.txt").read()
     codes = diff_to_codes(diff)
     assert codes == [
-        ("equal", (0, 2), (0, 2)),
-        ("delete", (2, 3), (2, 2)),
-        ("equal", (3, 6), (2, 5)),
-        ("skip", (6, 7), (5, 6)),
-        ("equal", (7, 10), (6, 9)),
-        ("replace", (10, 11), (9, 10)),
-        ("equal", (11, 14), (10, 13)),
-        ("replace", (14, 15), (13, 15)),
-        ("equal", (15, 19), (15, 19)),
-        ("insert", (19, 19), (19, 20)),
-        ("equal", (19, 22), (20, 23)),
+        Code(type="equal", before=(0, 2), after=(0, 2)),
+        Code(type="delete", before=(2, 3), after=(2, 2)),
+        Code(type="equal", before=(3, 6), after=(2, 5)),
+        Code(type="skip", before=(6, 7), after=(5, 6)),
+        Code(type="equal", before=(7, 10), after=(6, 9)),
+        Code(type="replace", before=(10, 11), after=(9, 10)),
+        Code(type="equal", before=(11, 14), after=(10, 13)),
+        Code(type="replace", before=(14, 15), after=(13, 15)),
+        Code(type="equal", before=(15, 19), after=(15, 19)),
+        Code(type="insert", before=(19, 19), after=(19, 20)),
+        Code(type="equal", before=(19, 22), after=(20, 23)),
         # ("skip", (22, 25), (23, 26)),
     ]
 
@@ -26,18 +26,18 @@ def test_mixed_diff_with_num_lines():
     diff = open("testdata/unified/dygraphs-patch.txt").read()
     codes = diff_to_codes(diff, 26)
     assert codes == [
-        ("equal", (0, 2), (0, 2)),
-        ("delete", (2, 3), (2, 2)),
-        ("equal", (3, 6), (2, 5)),
-        ("skip", (6, 7), (5, 6)),
-        ("equal", (7, 10), (6, 9)),
-        ("replace", (10, 11), (9, 10)),
-        ("equal", (11, 14), (10, 13)),
-        ("replace", (14, 15), (13, 15)),
-        ("equal", (15, 19), (15, 19)),
-        ("insert", (19, 19), (19, 20)),
-        ("equal", (19, 22), (20, 23)),
-        ("skip", (22, 25), (23, 26)),
+        Code(type="equal", before=(0, 2), after=(0, 2)),
+        Code(type="delete", before=(2, 3), after=(2, 2)),
+        Code(type="equal", before=(3, 6), after=(2, 5)),
+        Code(type="skip", before=(6, 7), after=(5, 6)),
+        Code(type="equal", before=(7, 10), after=(6, 9)),
+        Code(type="replace", before=(10, 11), after=(9, 10)),
+        Code(type="equal", before=(11, 14), after=(10, 13)),
+        Code(type="replace", before=(14, 15), after=(13, 15)),
+        Code(type="equal", before=(15, 19), after=(15, 19)),
+        Code(type="insert", before=(19, 19), after=(19, 20)),
+        Code(type="equal", before=(19, 22), after=(20, 23)),
+        Code(type="skip", before=(22, 25), after=(23, 26)),
     ]
 
 
@@ -45,15 +45,15 @@ def test_diff_with_more_context():
     diff = open("testdata/unified/dygraphs-patch-u5.txt").read()
     codes = diff_to_codes(diff)
     assert codes == [
-        ("equal", (0, 2), (0, 2)),
-        ("delete", (2, 3), (2, 2)),
-        ("equal", (3, 10), (2, 9)),
-        ("replace", (10, 11), (9, 10)),
-        ("equal", (11, 14), (10, 13)),
-        ("replace", (14, 15), (13, 15)),
-        ("equal", (15, 19), (15, 19)),
-        ("insert", (19, 19), (19, 20)),
-        ("equal", (19, 24), (20, 25)),
+        Code(type="equal", before=(0, 2), after=(0, 2)),
+        Code(type="delete", before=(2, 3), after=(2, 2)),
+        Code(type="equal", before=(3, 10), after=(2, 9)),
+        Code(type="replace", before=(10, 11), after=(9, 10)),
+        Code(type="equal", before=(11, 14), after=(10, 13)),
+        Code(type="replace", before=(14, 15), after=(13, 15)),
+        Code(type="equal", before=(15, 19), after=(15, 19)),
+        Code(type="insert", before=(19, 19), after=(19, 20)),
+        Code(type="equal", before=(19, 24), after=(20, 25)),
     ]
 
 
@@ -74,9 +74,9 @@ index 63a4828..cea3ddd 100644
 def test_read_codes_delete():
     codes = read_codes(PatchSet.from_string(delete_hunk))
     assert codes == [
-        ('equal', (0, 2), (0, 2)),
-        ('delete', (2, 3), (2, 2)),
-        ('equal', (3, 6), (2, 5)),
+        Code(type='equal', before=(0, 2), after=(0, 2)),
+        Code(type='delete', before=(2, 3), after=(2, 2)),
+        Code(type='equal', before=(3, 6), after=(2, 5)),
     ]
 
 
@@ -95,10 +95,10 @@ index 041d7f0..507435c 100644
 def test_read_codes_skip():
     codes = read_codes(PatchSet.from_string(skip_insert_hunk))
     assert codes == [
-        ('skip', (0, 2), (0, 2)),
-        ('equal', (2, 5), (2, 5)),
-        ('insert', (5, 5), (5, 6)),
-        ('equal', (5, 6), (6, 7)),
+        Code(type='skip', before=(0, 2), after=(0, 2)),
+        Code(type='equal', before=(2, 5), after=(2, 5)),
+        Code(type='insert', before=(5, 5), after=(5, 6)),
+        Code(type='equal', before=(5, 6), after=(6, 7)),
     ]
 
 
@@ -119,22 +119,22 @@ index 4be90b9..507435c 100644
 def test_read_codes_replace():
     codes = read_codes(PatchSet.from_string(replace_hunk))
     assert codes == [
-        ('equal', (0, 2), (0, 2)),
-        ('delete', (2, 3), (2, 2)),
-        ('insert', (3, 3), (2, 3)),
-        ('equal', (3, 6), (3, 6)),
+        Code('equal', before=(0, 2), after=(0, 2)),
+        Code('delete', before=(2, 3), after=(2, 2)),
+        Code('insert', before=(3, 3), after=(2, 3)),
+        Code('equal', before=(3, 6), after=(3, 6)),
     ]
 
 
 def test_add_replaces():
     codes = [
-        ('equal', (0, 2), (0, 2)),
-        ('delete', (2, 3), (2, 2)),
-        ('insert', (3, 3), (2, 3)),
-        ('equal', (3, 6), (3, 6)),
+        Code(type='equal', before=(0, 2), after=(0, 2)),
+        Code(type='delete', before=(2, 3), after=(2, 2)),
+        Code(type='insert', before=(3, 3), after=(2, 3)),
+        Code(type='equal', before=(3, 6), after=(3, 6)),
     ]
     assert add_replaces(codes) == [
-        ('equal', (0, 2), (0, 2)),
-        ('replace', (2, 3), (2, 3)),
-        ('equal', (3, 6), (3, 6)),
+        Code(type='equal', before=(0, 2), after=(0, 2)),
+        Code(type='replace', before=(2, 3), after=(2, 3)),
+        Code(type='equal', before=(3, 6), after=(3, 6)),
     ]
