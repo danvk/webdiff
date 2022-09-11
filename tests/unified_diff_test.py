@@ -1,6 +1,6 @@
 from unidiff import PatchSet
 
-from webdiff.unified_diff import Code, add_replaces, diff_to_codes, read_codes
+from webdiff.unified_diff import Code, RawDiffLine, add_replaces, diff_to_codes, parse_raw_diff, read_codes
 
 
 def test_mixed_diff():
@@ -137,4 +137,28 @@ def test_add_replaces():
         Code(type='equal', before=(0, 2), after=(0, 2)),
         Code(type='replace', before=(2, 3), after=(2, 3)),
         Code(type='equal', before=(3, 6), after=(3, 6)),
+    ]
+
+
+def test_parse_raw_diff_many():
+    # git diff --no-index --raw testdata/manyfiles/{left,right}
+    diff = open('testdata/unified/manyfiles.txt').read()
+    assert parse_raw_diff(diff) == [
+        RawDiffLine('100644', '100644', 'f00c965', 'f00c965', 'R', 'testdata/manyfiles/left/d.txt', score=100, dst_path='testdata/manyfiles/right/a.txt'),
+        RawDiffLine('100644', '100644', '0000000', '0000000', 'M', 'testdata/manyfiles/left/b.txt'),
+        RawDiffLine('100644', '100644', '0000000', '0000000', 'M', 'testdata/manyfiles/left/c.txt'),
+        RawDiffLine('100644', '100644', '0000000', '0000000', 'M', 'testdata/manyfiles/left/e.txt'),
+        RawDiffLine('100644', '100644', '0000000', '0000000', 'M', 'testdata/manyfiles/left/f.txt'),
+        RawDiffLine('100644', '100644', '0000000', '0000000', 'M', 'testdata/manyfiles/left/g.txt'),
+        RawDiffLine('100644', '100644', '0000000', '0000000', 'M', 'testdata/manyfiles/left/h.txt'),
+        RawDiffLine('100644', '100644', '0000000', '0000000', 'M', 'testdata/manyfiles/left/i.txt'),
+        RawDiffLine('100644', '100644', '0000000', '0000000', 'M', 'testdata/manyfiles/left/j.txt'),
+    ]
+
+
+def test_parse_raw_diff_rename():
+    # git diff --no-index --raw testdata/rename+change/{left,right}
+    diff = open('testdata/unified/rename+change.txt').read()
+    assert parse_raw_diff(diff) == [
+        RawDiffLine('100644', '100644', '4dc9e64', 'ccb4941', 'R', 'testdata/rename+change/left/huckfinn.txt', score=90, dst_path='testdata/rename+change/right/huckfinn.md'),
     ]

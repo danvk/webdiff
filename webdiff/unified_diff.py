@@ -1,6 +1,7 @@
+from ast import Str
 from dataclasses import dataclass
 from itertools import groupby
-from typing import Tuple
+from typing import List, Tuple, Union
 
 from unidiff import PatchSet
 
@@ -115,3 +116,50 @@ def diff_to_codes(diff: str, after_num_lines=None) -> list:
             ))
 
     return codes
+
+
+# See https://git-scm.com/docs/git-diff#_raw_output_format
+@dataclass
+class RawDiffLine:
+    src_mode: str
+    """e.g. 100644; 000000 for creation/unmerged"""
+    dst_mode: str
+    src_sha: str
+    """sha1 or 0 if creation/unmerged"""
+    dst_sha: str
+    status: str
+    """A, C (copy), D, M, R, T (change in type), U (unmerged), X (bug)"""
+    path: str
+    score: Union[int, None] = None
+    """Only for R or C"""
+    dst_path: Union[str, None] = None
+    """Only set when status=C or R."""
+
+
+def parse_raw_diff_line(line: str) -> RawDiffLine:
+    parts = line.split('\t')
+    meta = parts[0]
+    path = parts[1]
+    dst_path = parts[2] if len(parts) > 2 else None
+
+    m = meta[1:].split(' ')
+    src_mode, dst_mode, src_sha, dst_sha, status = m
+    score = None
+    if len(status) > 1:
+        score = int(status[1:])
+        status = status[0]
+
+    return RawDiffLine(
+        src_mode=src_mode,
+        dst_mode=dst_mode,
+        src_sha=src_sha,
+        dst_sha=dst_sha,
+        status=status,
+        path=path,
+        score=score,
+        dst_path=dst_path,
+    )
+
+
+def parse_raw_diff(diff: str) -> List[RawDiffLine]:
+    return [parse_raw_diff_line(line) for line in diff.split('\n') if line]
