@@ -2,9 +2,29 @@
 
 from collections import defaultdict
 import os
+import subprocess
 
 from webdiff.localfilediff import LocalFileDiff
 from webdiff import util
+from webdiff.unified_diff import parse_raw_diff
+
+
+def gitdiff(a_dir, b_dir):
+    diff_output = subprocess.run(
+        'git diff --raw --no-index'.split(' ') + [a_dir, b_dir],
+        capture_output=True
+    )
+    # git diff has an exit code of 1 on either a diff _or_ an error.
+    # TODO: how to distinguish these cases?
+    lines = parse_raw_diff(diff_output.stdout.decode('utf8'))
+    diffs = [LocalFileDiff.from_diff_raw_line(line, a_dir, b_dir) for line in lines]
+    for diff in diffs:
+        print(diff)
+    return diffs
+
+# LocalFileDiff(a_root='testdata/dygraphsjs/left', a_path='', b_root='testdata/dygraphsjs/right', b_path='testdata/dygraphsjs/right/auto_tests/tests/fill_step_plot.js', is_move=False)
+# LocalFileDiff(a_root='testdata/dygraphsjs/left', a_path='testdata/dygraphsjs/left/./dygraph-canvas.js', b_root='testdata/dygraphsjs/right', b_path='testdata/dygraphsjs/right/./dygraph-canvas.js', is_move=False)
+# LocalFileDiff(a_root='testdata/dygraphsjs/left', a_path='testdata/dygraphsjs/left/auto_tests/misc/local.html', b_root='testdata/dygraphsjs/right', b_path='testdata/dygraphsjs/right/auto_tests/misc/local.html', is_move=False)
 
 
 def diff(a_dir, b_dir):

@@ -100,7 +100,8 @@ def _shim_for_file_diff(a_file, b_file):
 def diff_for_args(args):
     '''Returns a list of Diff objects for parsed command line args.'''
     if 'dirs' in args:
-        return dirdiff.diff(*args['dirs'])
+        # return dirdiff.diff(*args['dirs'])
+        return dirdiff.gitdiff(*args['dirs'])
 
     if 'files' in args:
         return [_shim_for_file_diff(*args['files'])]
