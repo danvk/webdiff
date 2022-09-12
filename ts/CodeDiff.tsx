@@ -36,6 +36,8 @@ export interface ImageDiffData {
 export interface DiffOptions {
   /** aka -w */
   ignoreAllSpace: boolean;
+  /** aka -b */
+  ignoreSpaceChange: boolean;
   /** The default diff algorithm is myers */
   diffAlgorithm: 'patience' | 'minimal' | 'histogram' | 'myers';
   /** aka -U<N>. Show this many lines of context. */
@@ -50,6 +52,9 @@ function encodeDiffOptions(opts: Partial<DiffOptions>) {
   const flags = [];
   if (opts.ignoreAllSpace) {
     flags.push('-w');
+  }
+  if (opts.ignoreSpaceChange) {
+    flags.push('-b');
   }
   if (opts.diffAlgorithm) {
     flags.push(`--diff-algorithm=${opts.diffAlgorithm}`);
