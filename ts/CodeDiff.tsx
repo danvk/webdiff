@@ -33,13 +33,15 @@ export interface ImageDiffData {
   diffBounds: DiffBox;
 }
 
+export type DiffAlgorithm = 'patience' | 'minimal' | 'histogram' | 'myers';
+
 export interface DiffOptions {
   /** aka -w */
   ignoreAllSpace: boolean;
   /** aka -b */
   ignoreSpaceChange: boolean;
   /** The default diff algorithm is myers */
-  diffAlgorithm: 'patience' | 'minimal' | 'histogram' | 'myers';
+  diffAlgorithm: DiffAlgorithm;
   /** aka -U<N>. Show this many lines of context. */
   unified: number;
   /** Adjust rename threshold (percent of file). Default is 50. */
