@@ -12,6 +12,7 @@ export interface WebdiffConfig {
   port: number;
   maxDiffWidth: number;
   theme: string;
+  maxLinesForSyntax: number;
 }
 
 export interface ColorsConfig {

@@ -12,6 +12,7 @@ DEFAULTS = {
         "port": -1,  # random
         "maxDiffWidth": 100,
         "theme": "googlecode",
+        "maxLinesForSyntax": 10_000,
     },
     "colors.webdiff": {
         "insert": "#efe",
