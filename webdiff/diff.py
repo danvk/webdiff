@@ -43,7 +43,7 @@ def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
     ['-w', '--diff-algorithm=patience'].
     """
     if diff.a_path and diff.b_path:
-        num_lines = fast_num_lines(diff.a_path)
+        num_lines = fast_num_lines(diff.b_path)
         diff_output = subprocess.run('git diff --no-index'.split(' ') + (git_diff_args or []) + [diff.a_path, diff.b_path], capture_output=True)
         return diff_to_codes(diff_output.stdout.decode('utf8'), num_lines)
     elif diff.a_path:

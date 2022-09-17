@@ -224,7 +224,6 @@ def favicon():
 
 @app.route('/theme.css')
 def theme():
-    print('theme handler!')
     theme = GIT_CONFIG['webdiff']['theme']
     theme_dir = os.path.dirname(theme)
     theme_file = os.path.basename(theme)
