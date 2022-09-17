@@ -102,6 +102,10 @@ def diff_to_codes(diff: str, after_num_lines=None) -> Union[List[Code], None]:
     If it's a binary diff, returns None.
     """
     p = PatchSet.from_string(diff)
+    if len(p) == 0:
+        if after_num_lines is None:
+            return None
+        return [Code('equal', (0, after_num_lines), (0, after_num_lines))]
     codes = read_codes(p)
     if not codes:
         return None  # binary file
