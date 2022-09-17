@@ -4,7 +4,6 @@
 For usage, see README.md.
 '''
 
-from __future__ import print_function
 from binaryornot.check import is_binary
 import logging
 import mimetypes
@@ -208,6 +207,9 @@ def thick_diff(idx):
 def get_diff_ops(idx):
     idx = int(idx)
     options = request.json.get('options')
+    extra_args = GIT_CONFIG['webdiff']['extraFileDiffArgs']
+    if extra_args:
+        options += extra_args.split(' ')
     return jsonify(diff.get_diff_ops(DIFF[idx], options))
 
 
@@ -316,7 +318,7 @@ def run():
     DIFF = argparser.diff_for_args(parsed_args, WEBDIFF_CONFIG)
 
     if app.config['TESTING'] or app.config['DEBUG']:
-        sys.stderr.write('Diff:\n%s' % DIFF)
+        sys.stderr.write('Diff: %s\n' % DIFF)
 
     PORT = pick_a_port(parsed_args, WEBDIFF_CONFIG)
 
