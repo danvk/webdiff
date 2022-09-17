@@ -1,4 +1,3 @@
-from ast import Str
 from dataclasses import dataclass
 from itertools import groupby
 from typing import List, Tuple, Union
@@ -17,11 +16,14 @@ class Code:
     """Line range on right side; zero-based, half-open interval."""
 
 
-def read_codes(p: PatchSet) -> List[Code]:
+def read_codes(p: PatchSet) -> Union[List[Code], None]:
     pf = p[0]  # PatchedFile
     out = []
     last_source = 0
     last_target = 0
+
+    if pf.is_binary_file:
+        return None
 
     for hunk in pf:
         if hunk.source_start != last_source + 1:
@@ -93,13 +95,16 @@ def add_replaces(codes: List[Code]) -> List[Code]:
     return out
 
 
-def diff_to_codes(diff: str, after_num_lines=None) -> List[Code]:
+def diff_to_codes(diff: str, after_num_lines=None) -> Union[List[Code], None]:
     """Convert a unified diff to a list of codes for codediff.js.
 
     This only considers the first file in the diff.
+    If it's a binary diff, returns None.
     """
     p = PatchSet.from_string(diff)
     codes = read_codes(p)
+    if not codes:
+        return None  # binary file
 
     # Go through and combine sequential delete/insert into "replace"
     codes = add_replaces(codes)

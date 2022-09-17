@@ -162,3 +162,13 @@ def test_parse_raw_diff_rename():
     assert parse_raw_diff(diff) == [
         RawDiffLine('100644', '100644', '4dc9e64', 'ccb4941', 'R', 'testdata/rename+change/left/huckfinn.txt', score=90, dst_path='testdata/rename+change/right/huckfinn.md'),
     ]
+
+
+binary_diff = '''diff --git a/testdata/images/left/smiley.png.gz b/testdata/images/right/smiley.png.gz
+index 0bcfe40..6fbd5fd 100644
+Binary files a/testdata/images/left/smiley.png.gz and b/testdata/images/right/smiley.png.gz differ
+'''
+
+
+def test_parse_binary_diff():
+    assert read_codes(PatchSet.from_string(binary_diff)) is None

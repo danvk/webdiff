@@ -45,7 +45,11 @@ def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
     if diff.a_path and diff.b_path:
         num_lines = fast_num_lines(diff.b_path)
         diff_output = subprocess.run('git diff --no-index'.split(' ') + (git_diff_args or []) + [diff.a_path, diff.b_path], capture_output=True)
-        return diff_to_codes(diff_output.stdout.decode('utf8'), num_lines)
+        codes = diff_to_codes(diff_output.stdout.decode('utf8'), num_lines)
+        if not codes:
+            # binary diff;
+            # these are rendered as "binary file (123 bytes)" so a 1-line replace is best here
+            return [Code(type='replace', before=(0, 1), after=(0, 1))]
     elif diff.a_path:
         num_lines = fast_num_lines(diff.a_path)
         return [Code('delete', before=(0, num_lines), after=(0, 0))]
