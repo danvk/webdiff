@@ -318,23 +318,6 @@ function $b86f11f5e9077ed0$export$1f6ff06b43176f68(text) {
     if (liveSpans.length) throw "Unbalanced <span>s in " + text;
     return outLines;
 }
-function $b86f11f5e9077ed0$export$5190b33a9f8c0ba7(el) {
-    var softBreak = "​";
-    $b86f11f5e9077ed0$var$walkTheDOM(el, function(node) {
-        if (node.nodeType !== 3) return;
-        var text = node.data;
-        text = text.split("").join(softBreak);
-        node.nodeValue = text;
-    });
-}
-function $b86f11f5e9077ed0$var$walkTheDOM(node, func) {
-    func(node);
-    let n = node.firstChild;
-    while(n){
-        $b86f11f5e9077ed0$var$walkTheDOM(n, func);
-        n = n.nextSibling;
-    }
-}
 
 
 
@@ -522,7 +505,10 @@ class $a4b41c61879d57cc$export$d7ae8a2952d3eaf0 {
  */ function $a4b41c61879d57cc$var$highlightText(text, language) {
     if (text === null) return [];
     // TODO(danvk): look into suppressing highlighting if .relevance is low.
-    const html = hljs.highlight(language, text, true).value;
+    const html = hljs.highlight(text, {
+        language: language,
+        ignoreIllegals: true
+    }).value;
     // Some of the <span>s might cross lines, which won't work for our diff
     // structure. We convert them to single-line only <spans> here.
     return (0, $b86f11f5e9077ed0$export$1f6ff06b43176f68)(html);

@@ -49,7 +49,8 @@ def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
         if not codes:
             # binary diff;
             # these are rendered as "binary file (123 bytes)" so a 1-line replace is best here
-            return [Code(type='replace', before=(0, 1), after=(0, 1))]
+            codes = [Code(type='replace', before=(0, 1), after=(0, 1))]
+        return codes
     elif diff.a_path:
         num_lines = fast_num_lines(diff.a_path)
         return [Code('delete', before=(0, num_lines), after=(0, 0))]
