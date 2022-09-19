@@ -31,7 +31,7 @@ from webdiff import util
 from webdiff import argparser
 from webdiff import options
 
-VERSION = '0.16.0'
+VERSION = '1.0.0'
 
 
 def determine_path():
@@ -193,7 +193,11 @@ def file_diff(idx):
     idx = int(idx)
     pairs = diff.get_thin_list(DIFF)
     return render_template(
-        'file_diff.html', idx=idx, has_magick=util.is_imagemagick_available(), pairs=pairs, git_config=GIT_CONFIG
+        'file_diff.html',
+        idx=idx,
+        has_magick=util.is_imagemagick_available(),
+        pairs=pairs,
+        git_config=GIT_CONFIG,
     )
 
 

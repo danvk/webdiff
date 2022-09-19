@@ -98,16 +98,16 @@ To format the code, run:
 To iterate on the PyPI package, run:
 
     # from outside the webdiff virtualenv:
-    pip uninstall webdiff
+    pip3 uninstall webdiff
 
     # from inside the webdiff virtualenv, adjust for current version
     python setup.py sdist
     mkdir /tmp/webdiff-test
-    cp dist/webdiff-X.Y.Z.tar.gz /tmp/webdiff-test
+    cp dist/webdiff-?.?.?.tar.gz /tmp/webdiff-test
 
     deactivate
     cd /tmp/webdiff-test
-    pip3 install webdiff-X.Y.Z.tar.gz
+    pip3 install webdiff-?.?.?.tar.gz
 
 To publish to pypitest:
 

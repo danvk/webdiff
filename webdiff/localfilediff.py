@@ -5,9 +5,11 @@ from dataclasses import dataclass
 
 from webdiff.unified_diff import RawDiffLine
 
+
 @dataclass
 class LocalFileDiff:
     """A before/after file pair on local disk"""
+
     a_root: str
     """Path to the root dir of the left side of the diff"""
     a_path: str

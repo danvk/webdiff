@@ -8,6 +8,7 @@ from unidiff import PatchSet
 @dataclass
 class Code:
     """Matches DiffRange in webdiff codes.ts"""
+
     type: str
     """One of "replace" | "delete" | "insert" | "equal" | "skip"."""
     before: Tuple[int, int]
@@ -82,11 +83,13 @@ def add_replaces(codes: List[Code]) -> List[Code]:
         if c.type == 'delete' and i < len(codes) - 1:
             nc = codes[i + 1]
             if nc.type == 'insert':
-                out.append(Code(
-                    'replace',
-                    (c.before[0], nc.before[1]),
-                    (c.after[0], nc.after[1]),
-                ))
+                out.append(
+                    Code(
+                        'replace',
+                        (c.before[0], nc.before[1]),
+                        (c.after[0], nc.after[1]),
+                    )
+                )
                 i += 2
                 continue
         out.append(c)
@@ -118,11 +121,13 @@ def diff_to_codes(diff: str, after_num_lines=None) -> Union[List[Code], None]:
         (_, b2) = codes[-1].after
         end_skip = after_num_lines - b2
         if end_skip:
-            codes.append(Code(
-                'skip',
-                (a2, a2 + end_skip),
-                (b2, b2 + end_skip),
-            ))
+            codes.append(
+                Code(
+                    'skip',
+                    (a2, a2 + end_skip),
+                    (b2, b2 + end_skip),
+                )
+            )
 
     return codes
 
