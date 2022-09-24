@@ -95,6 +95,10 @@ To format the code, run:
     cd ts
     yarn prettier
 
+To debug `git webdiff`, run:
+
+    WEBDIFF_CONFIG=$(pwd)/testing.cfg ./webdiff/gitwebdiff.py
+
 To iterate on the PyPI package, run:
 
     # from outside the webdiff virtualenv:

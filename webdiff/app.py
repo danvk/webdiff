@@ -334,6 +334,8 @@ def run():
     DIFF = argparser.diff_for_args(parsed_args, WEBDIFF_CONFIG)
 
     if app.config['TESTING'] or app.config['DEBUG']:
+        sys.stderr.write('Invoked as: %s\n' % sys.argv)
+        sys.stderr.write('Args: %s\n' % parsed_args)
         sys.stderr.write('Diff: %s\n' % DIFF)
 
     PORT = pick_a_port(parsed_args, WEBDIFF_CONFIG)

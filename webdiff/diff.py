@@ -10,6 +10,7 @@ Diff objects must have these properties:
 For concrete implementations, see githubdiff and localfilediff.
 '''
 
+import logging
 import mimetypes
 import os
 import subprocess
@@ -44,10 +45,9 @@ def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
     """
     if diff.a_path and diff.b_path:
         num_lines = fast_num_lines(diff.b_path)
-        diff_output = subprocess.run(
-            'git diff --no-index'.split(' ') + (git_diff_args or []) + [diff.a_path, diff.b_path],
-            capture_output=True,
-        )
+        args = 'git diff --no-index'.split(' ') + (git_diff_args or []) + [diff.a_path, diff.b_path]
+        logging.debug('Running git command: %s', args)
+        diff_output = subprocess.run(args, capture_output=True)
         codes = diff_to_codes(diff_output.stdout.decode('utf8'), num_lines)
         if not codes:
             # binary diff;
