@@ -1,11 +1,15 @@
 import {FilePair} from './CodeDiff';
+import { GitConfig } from './options';
+
+declare const GIT_CONFIG: GitConfig;
 
 /** Display the diff for a single file. */
-export function renderDiff(
+export function renderDiffWithOps(
   pathBefore: string,
   pathAfter: string,
   contentsBefore: string | null,
   contentsAfter: string | null,
+  ops: any[],
 ): HTMLElement {
   const diffDiv = document.createElement('div');
   diffDiv.className = 'diff';
@@ -26,8 +30,10 @@ export function renderDiff(
   var lengthOrZero = function (data: any[] | string | null | undefined) {
     return data ? data.length : 0;
   };
+  const lastOp = ops[ops.length - 1];
+  const numLines = Math.max(lastOp.before[1], lastOp.after[1]);
 
-  if (!language && HIGHLIGHT_BLACKLIST.indexOf(extractFilename(path)) === -1) {
+  if (!language && HIGHLIGHT_BLACKLIST.indexOf(extractFilename(path)) === -1 && numLines < GIT_CONFIG.webdiff.maxLinesForSyntax) {
     var byLength = [contentsBefore, contentsAfter];
     if (contentsAfter && lengthOrZero(contentsAfter) > lengthOrZero(contentsBefore)) {
       byLength = [byLength![1], byLength![0]];
@@ -38,7 +44,9 @@ export function renderDiff(
     opts.language = language;
   }
 
-  diffDiv.appendChild(codediff.buildView(contentsBefore!, contentsAfter!, opts));
+  diffDiv.appendChild(
+    codediff.buildViewFromOps(contentsBefore!, contentsAfter!, ops, opts)
+  );
 
   return diffDiv;
 }

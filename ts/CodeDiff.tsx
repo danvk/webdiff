@@ -1,5 +1,5 @@
 import React from 'react';
-import {renderDiff} from './file_diff';
+import {renderDiffWithOps} from './file_diff';
 
 export interface ImageFile {
   width: number;
@@ -33,6 +33,48 @@ export interface ImageDiffData {
   diffBounds: DiffBox;
 }
 
+export type DiffAlgorithm = 'patience' | 'minimal' | 'histogram' | 'myers';
+
+export interface DiffOptions {
+  /** aka -w */
+  ignoreAllSpace: boolean;
+  /** aka -b */
+  ignoreSpaceChange: boolean;
+  /** The default diff algorithm is myers */
+  diffAlgorithm: DiffAlgorithm;
+  /** aka -U<N>. Show this many lines of context. */
+  unified: number;
+  /** Adjust rename threshold (percent of file). Default is 50. */
+  findRenames: number;
+  /** Find copies in addition to renames. Units are percents. */
+  findCopies: number;
+}
+
+function encodeDiffOptions(opts: Partial<DiffOptions>) {
+  const flags = [];
+  if (opts.ignoreAllSpace) {
+    flags.push('-w');
+  }
+  if (opts.ignoreSpaceChange) {
+    flags.push('-b');
+  }
+  if (opts.diffAlgorithm) {
+    flags.push(`--diff-algorithm=${opts.diffAlgorithm}`);
+  }
+  if (opts.unified) {
+    flags.push(`-U${opts.unified}`);
+  } else {
+    flags.push(`-U8`);  // TODO: other default options?
+  }
+  if (opts.findRenames) {
+    flags.push(`--find-renames=${opts.findRenames}%`);
+  }
+  if (opts.findCopies) {
+    flags.push(`--find-copies=${opts.findCopies}%`);
+  }
+  return flags;
+}
+
 // A "no changes" sign which only appears when applicable.
 export function NoChanges(props: {filePair: any}) {
   const {filePair} = props;
@@ -49,8 +91,8 @@ export function NoChanges(props: {filePair: any}) {
 }
 
 // A side-by-side diff of source code.
-export function CodeDiff(props: {filePair: FilePair}) {
-  const {filePair} = props;
+export function CodeDiff(props: {filePair: FilePair, diffOptions: Partial<DiffOptions>}) {
+  const {filePair, diffOptions} = props;
   const codediffRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -67,20 +109,32 @@ export function CodeDiff(props: {filePair: FilePair}) {
       return response.text();
     };
 
+    const getDiff = async () => {
+      const response = await fetch(`/diff/${filePair.idx}`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({options: encodeDiffOptions(diffOptions ?? {})})
+      });
+      return response.json();
+    };
+
     const {a, b} = filePair;
     // Do XHRs for the contents of both sides in parallel and fill in the diff.
     (async () => {
-      const [before, after] = await Promise.all([getOrNull('a', a), getOrNull('b', b)]);
+      const [before, after, diffOps] = await Promise.all([getOrNull('a', a), getOrNull('b', b), getDiff()]);
       // Call out to codediff.js to construct the side-by-side diff.
       const codediffEl = codediffRef.current;
       if (codediffEl) {
         codediffEl.innerHTML = '';
-        codediffEl.appendChild(renderDiff(a, b, before, after));
+        codediffEl.appendChild(renderDiffWithOps(a, b, before, after, diffOps));
       }
     })().catch(e => {
       alert('Unable to get diff!');
     });
-  }, [filePair]);
+  }, [filePair, diffOptions]);
 
   return (
     <div>

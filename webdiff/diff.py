@@ -10,10 +10,15 @@ Diff objects must have these properties:
 For concrete implementations, see githubdiff and localfilediff.
 '''
 
+import logging
 import mimetypes
 import os
+import subprocess
+from typing import List
 
 from webdiff import util
+from webdiff.localfilediff import LocalFileDiff
+from webdiff.unified_diff import Code, diff_to_codes
 
 
 def get_thin_dict(diff):
@@ -25,6 +30,38 @@ def get_thin_dict(diff):
       - diffstats
     """
     return {'a': diff.a, 'b': diff.b, 'type': diff.type}
+
+
+def fast_num_lines(path: str) -> int:
+    # https://stackoverflow.com/q/9629179/388951
+    return int(subprocess.check_output(['wc', '-l', path]).split()[0])
+
+
+def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
+    """Run git diff on the file pair and convert the results to a sequence of codes.
+
+    git_diff_args is passed directly to git diff. It can be something like ['-w'] or
+    ['-w', '--diff-algorithm=patience'].
+    """
+    if diff.a_path and diff.b_path:
+        num_lines = fast_num_lines(diff.b_path)
+        args = (
+            'git diff --no-index'.split(' ') + (git_diff_args or []) + [diff.a_path, diff.b_path]
+        )
+        logging.debug('Running git command: %s', args)
+        diff_output = subprocess.run(args, capture_output=True)
+        codes = diff_to_codes(diff_output.stdout.decode('utf8'), num_lines)
+        if not codes:
+            # binary diff;
+            # these are rendered as "binary file (123 bytes)" so a 1-line replace is best here
+            codes = [Code(type='replace', before=(0, 1), after=(0, 1))]
+        return codes
+    elif diff.a_path:
+        num_lines = fast_num_lines(diff.a_path)
+        return [Code('delete', before=(0, num_lines), after=(0, 0))]
+    elif diff.b_path:
+        num_lines = fast_num_lines(diff.b_path)
+        return [Code('insert', before=(0, 0), after=(0, num_lines))]
 
 
 def get_thick_dict(diff):

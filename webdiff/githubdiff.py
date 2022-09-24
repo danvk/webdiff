@@ -74,7 +74,7 @@ def fetch_pull_request(owner, repo, num):
 def fetch(repo, filename, sha):
     if filename == '':
         return ''
-    data = repo.get_file_contents(filename, sha).decoded_content
+    data = repo.get_contents(filename, sha).decoded_content
     _, ext = os.path.splitext(filename)
     fd, path = tempfile.mkstemp(suffix=ext)
     open(path, 'wb').write(data)

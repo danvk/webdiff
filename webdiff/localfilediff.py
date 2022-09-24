@@ -1,24 +1,25 @@
 '''This class represents the diff between two files on local disk.'''
 
 import os
+from dataclasses import dataclass
+
+from webdiff.unified_diff import RawDiffLine
 
 
-class LocalFileDiff(object):
-    def __init__(self, a_root, a_path, b_root, b_path, is_move):
-        """A before/after file pair on local disk
+@dataclass
+class LocalFileDiff:
+    """A before/after file pair on local disk"""
 
-        Args:
-            a_path, b_path: full paths to the files on disk. Either (but not
-                both) may be empty.
-            a_root, b_root: Paths to the root of diff.
-            is_move: Is this a pure move between the two files?
-        """
-        assert (a_path != '') or (b_path != '')
-        self.a_path = a_path
-        self.b_path = b_path
-        self.a_root = a_root
-        self.b_root = b_root
-        self.is_move = is_move
+    a_root: str
+    """Path to the root dir of the left side of the diff"""
+    a_path: str
+    """Full path to the left file on disk (may be empty)."""
+    b_root: str
+    """Path to the root dir of the right side of the diff"""
+    b_path: str
+    """Full path to the right file on disk (may be empty if a_path != '')."""
+    is_move: bool
+    """Is this a move between the two files?"""
 
     @property
     def a(self):
@@ -42,5 +43,15 @@ class LocalFileDiff(object):
             return 'move'
         return 'change'
 
-    def __repr__(self):
-        return '%s/%s (%s)' % (self.a, self.b, self.type)
+    @staticmethod
+    def from_diff_raw_line(line: RawDiffLine, a_dir: str, b_dir: str):
+        status = line.status
+        # A, C (copy), D, M, R, T (change in type), U (unmerged), X (bug)
+        if status == 'A':
+            return LocalFileDiff(a_dir, '', b_dir, line.path, is_move=False)
+        if status == 'D':
+            return LocalFileDiff(a_dir, line.path, b_dir, '', is_move=False)
+        if line.dst_path:
+            return LocalFileDiff(a_dir, line.path, b_dir, line.dst_path, is_move=True)
+        dst_path = os.path.join(b_dir, os.path.relpath(line.path, a_dir))
+        return LocalFileDiff(a_dir, line.path, b_dir, dst_path, is_move=False)

@@ -5,3 +5,4 @@ pillow
 requests
 binaryornot
 black
+unidiff==0.7.4
