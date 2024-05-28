@@ -4,6 +4,7 @@
 Two-column web-based git difftool.
 
 Features include:
+
 * Side-by-side (two column) diff view
 * Runs in the browser of your choice on any platform.
 * Syntax highlighting via highlight.js
@@ -76,7 +77,7 @@ Then from the root directory:
 
 or to launch in debug mode:
 
-    ./test.sh $(pwd)/../testdata/webdiffdiff/{left,right}
+    ./test.sh $(pwd)/testdata/manyfiles/{left,right}
 
 (or any other directory in testdata)
 
