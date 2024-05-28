@@ -1,0 +1,5 @@
+This is a file
+It has five lines
+but none of them
+is a
+trailing newline

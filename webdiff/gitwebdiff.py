@@ -22,10 +22,6 @@ def run():
         os.environ['WEBDIFF_FROM_HEAD'] = 'yes'
 
     try:
-        # Using symlinks (the default behavior) is desirable because it lets you edit a file and
-        # reload the diff page to see updated results. Unfortunately, `git diff --no-index` does
-        # not process symlinks so this won't work.
-        # See https://public-inbox.org/git/1489877673.24742.1.camel@kaarsemaker.net/t/
         cmd = 'webdiff' if not os.environ.get('DEBUG') else os.path.join(os.path.curdir, 'test.sh')
         subprocess.call(f'git difftool -d -x {cmd}'.split(' ') + sys.argv[1:])
     except KeyboardInterrupt:
