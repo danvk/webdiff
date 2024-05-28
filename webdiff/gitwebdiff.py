@@ -26,7 +26,8 @@ def run():
         # reload the diff page to see updated results. Unfortunately, `git diff --no-index` does
         # not process symlinks so this won't work.
         # See https://public-inbox.org/git/1489877673.24742.1.camel@kaarsemaker.net/t/
-        subprocess.call('git difftool -d -x webdiff'.split(' ') + sys.argv[1:])
+        cmd = 'webdiff' if not os.environ.get('DEBUG') else os.path.join(os.path.curdir, 'test.sh')
+        subprocess.call(f'git difftool -d -x {cmd}'.split(' ') + sys.argv[1:])
     except KeyboardInterrupt:
         # Don't raise an exception to the user when sigint is received
         pass

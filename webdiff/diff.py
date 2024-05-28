@@ -43,10 +43,12 @@ def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
     git_diff_args is passed directly to git diff. It can be something like ['-w'] or
     ['-w', '--diff-algorithm=patience'].
     """
-    if diff.a_path and diff.b_path:
-        num_lines = fast_num_lines(diff.b_path)
+    a_path = os.path.realpath(diff.a_path)
+    b_path = os.path.realpath(diff.b_path)
+    if a_path and b_path:
+        num_lines = fast_num_lines(b_path)
         args = (
-            'git diff --no-index'.split(' ') + (git_diff_args or []) + [diff.a_path, diff.b_path]
+            'git diff --no-index'.split(' ') + (git_diff_args or []) + [a_path, b_path]
         )
         logging.debug('Running git command: %s', args)
         diff_output = subprocess.run(args, capture_output=True)
@@ -56,11 +58,11 @@ def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
             # these are rendered as "binary file (123 bytes)" so a 1-line replace is best here
             codes = [Code(type='replace', before=(0, 1), after=(0, 1))]
         return codes
-    elif diff.a_path:
-        num_lines = fast_num_lines(diff.a_path)
+    elif a_path:
+        num_lines = fast_num_lines(a_path)
         return [Code('delete', before=(0, num_lines), after=(0, 0))]
-    elif diff.b_path:
-        num_lines = fast_num_lines(diff.b_path)
+    elif b_path:
+        num_lines = fast_num_lines(b_path)
         return [Code('insert', before=(0, 0), after=(0, num_lines))]
 
 

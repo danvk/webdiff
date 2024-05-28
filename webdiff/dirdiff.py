@@ -31,11 +31,13 @@ def make_resolved_dir(dir: str) -> str:
     # TODO: clean up this directory
     temp_dir = tempfile.mkdtemp(prefix='webdiff')
     for root, dirs, files in os.walk(dir):
-        for dir in dirs:
-            os.mkdir(os.path.join(temp_dir, dir))
+        for subdir in dirs:
+            os.mkdir(os.path.join(temp_dir, os.path.relpath(os.path.join(root, subdir), dir)))
         for file_name in files:
-            file_path = os.path.join(root, file_name)
-            shutil.copy(file_path, os.path.join(temp_dir, file_name), follow_symlinks=True)
+            src_file = os.path.join(root, file_name)
+            rel = os.path.relpath(src_file, dir)
+            dst_file = os.path.join(temp_dir, rel)
+            shutil.copy(src_file, dst_file, follow_symlinks=True)
     return temp_dir
 
 
@@ -44,10 +46,15 @@ def gitdiff(a_dir, b_dir, webdiff_config):
     cmd = 'git diff --raw --no-index'
     if extra_args:
         cmd += ' ' + extra_args
-    # a_dir_nosym = a_dir if not contains_symlinks(a_dir) else make_resolved_dir(a_dir)
-    # b_dir_nosym = b_dir if not contains_symlinks(b_dir) else make_resolved_dir(b_dir)
-    # args = cmd.split(' ') + [a_dir_nosym, b_dir_nosym]
-    args = cmd.split(' ') + [a_dir, b_dir]
+    a_dir_nosym = a_dir
+    if contains_symlinks(a_dir):
+        a_dir_nosym = make_resolved_dir(a_dir)
+        logging.debug('Inlined symlinks in left directory %s -> %s', a_dir, a_dir_nosym)
+    b_dir_nosym = b_dir
+    if contains_symlinks(b_dir):
+        b_dir_nosym = make_resolved_dir(b_dir)
+        logging.debug('Inlined symlinks in right directory %s -> %s', b_dir, b_dir_nosym)
+    args = cmd.split(' ') + [a_dir_nosym, b_dir_nosym]
     logging.debug('Running git command: %s', args)
     diff_output = subprocess.run(args, capture_output=True)
     # git diff has an exit code of 1 on either a diff _or_ an error.
