@@ -59,5 +59,11 @@ def gitdiff(a_dir, b_dir, webdiff_config):
     diff_output = subprocess.run(args, capture_output=True)
     # git diff has an exit code of 1 on either a diff _or_ an error.
     # TODO: how to distinguish these cases?
-    lines = parse_raw_diff(diff_output.stdout.decode('utf8'))
+    diff_stdout = diff_output.stdout.decode('utf8')
+    # "Cover our tracks" to make it look like the diff was between directories containing symlinks.
+    if a_dir != a_dir_nosym:
+        diff_stdout = diff_stdout.replace(a_dir_nosym, a_dir)
+    if b_dir != b_dir_nosym:
+        diff_stdout = diff_stdout.replace(b_dir_nosym, b_dir)
+    lines = parse_raw_diff(diff_stdout)
     return [LocalFileDiff.from_diff_raw_line(line, a_dir, b_dir) for line in lines]

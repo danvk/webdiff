@@ -27,7 +27,7 @@ def get_thin_dict(diff):
     This includes:
       - before/after file name
       - change type (add, delete, move, change)
-      - diffstats
+      - (in the future) diffstats
     """
     return {'a': diff.a, 'b': diff.b, 'type': diff.type}
 
@@ -43,6 +43,7 @@ def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
     git_diff_args is passed directly to git diff. It can be something like ['-w'] or
     ['-w', '--diff-algorithm=patience'].
     """
+    # git diff --no-index doesn't follow symlinks. So we help it a bit.
     a_path = os.path.realpath(diff.a_path)
     b_path = os.path.realpath(diff.b_path)
     if a_path and b_path:
