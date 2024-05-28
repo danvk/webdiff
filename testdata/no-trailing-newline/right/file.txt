@@ -1,5 +1,4 @@
 This is a file
 It has five lines
-but none of them
-is a
-trailing newline
+and a
+traiiiiling newline
