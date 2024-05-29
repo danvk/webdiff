@@ -1,0 +1,4 @@
+This is a new file
+with four lines,
+but not a trailing
+newline in sight

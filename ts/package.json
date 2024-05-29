@@ -5,6 +5,10 @@
   "main": "index.js",
   "author": "Dan Vanderkam (danvdk@gmail.com)",
   "license": "MIT",
+  "scripts": {
+    "build": "NODE_OPTIONS=--openssl-legacy-provider webpack",
+    "watch": "yarn run build --watch"
+  },
   "devDependencies": {
     "@types/difflib": "^0.2.0",
     "@types/lodash": "^4.14.161",
