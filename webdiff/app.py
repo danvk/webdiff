@@ -337,6 +337,7 @@ def run():
         sys.stderr.write('Invoked as: %s\n' % sys.argv)
         sys.stderr.write('Args: %s\n' % parsed_args)
         sys.stderr.write('Diff: %s\n' % DIFF)
+        sys.stderr.write('GitConfig: %s\n' % GIT_CONFIG)
 
     PORT = pick_a_port(parsed_args, WEBDIFF_CONFIG)
 
