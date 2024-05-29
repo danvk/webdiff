@@ -14,6 +14,7 @@ div#thediff {
     font-size: 13px;
 }
 
+/* This is overridden in JS based on your .gitconfig */
 td.code {
   width: 101ch;  /* per-side max line length */
 }

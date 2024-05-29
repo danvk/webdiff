@@ -4,7 +4,6 @@
 For usage, see README.md.
 '''
 
-from __future__ import print_function
 from binaryornot.check import is_binary
 import logging
 import mimetypes
@@ -30,8 +29,9 @@ from flask import (
 from webdiff import diff
 from webdiff import util
 from webdiff import argparser
+from webdiff import options
 
-VERSION = '0.16.0'
+VERSION = '1.0.0'
 
 
 def determine_path():
@@ -61,6 +61,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 app.config.from_envvar('WEBDIFF_CONFIG', silent=True)
 
+GIT_CONFIG = {}
 DIFF = None
 PORT = None
 HOSTNAME = 'localhost'
@@ -192,7 +193,11 @@ def file_diff(idx):
     idx = int(idx)
     pairs = diff.get_thin_list(DIFF)
     return render_template(
-        'file_diff.html', idx=idx, has_magick=util.is_imagemagick_available(), pairs=pairs
+        'file_diff.html',
+        idx=idx,
+        has_magick=util.is_imagemagick_available(),
+        pairs=pairs,
+        git_config=GIT_CONFIG,
     )
 
 
@@ -202,12 +207,34 @@ def thick_diff(idx):
     return jsonify(diff.get_thick_dict(DIFF[idx]))
 
 
+@app.route('/diff/<int:idx>', methods=['POST'])
+def get_diff_ops(idx):
+    idx = int(idx)
+    options = request.json.get('options')
+    extra_args = GIT_CONFIG['webdiff']['extraFileDiffArgs']
+    if extra_args:
+        options += extra_args.split(' ')
+    return jsonify(diff.get_diff_ops(DIFF[idx], options))
+
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(
         os.path.join(app.root_path, 'static/img'),
         'favicon.ico',
         mimetype='image/vnd.microsoft.icon',
+    )
+
+
+@app.route('/theme.css')
+def theme():
+    theme = GIT_CONFIG['webdiff']['theme']
+    theme_dir = os.path.dirname(theme)
+    theme_file = os.path.basename(theme)
+    return send_from_directory(
+        os.path.join(*([app.root_path, 'static/css/themes'] + ([theme_dir] if theme_dir else []))),
+        theme_file + '.css',
+        mimetype='text/css',
     )
 
 
@@ -250,7 +277,8 @@ def kill():
 def open_browser():
     global PORT
     global HOSTNAME
-    if not 'NO_OPEN_BROWSER' in app.config:
+    global GIT_CONFIG
+    if (not 'NO_OPEN_BROWSER' in app.config) and GIT_CONFIG['webdiff']['openBrowser']:
         if is_hot_reload():
             log.debug('Skipping browser open on reload')
         else:
@@ -262,12 +290,16 @@ def usage_and_die():
     sys.exit(1)
 
 
-def pick_a_port(args):
-    if 'port' in args != -1:
+def pick_a_port(args, webdiff_config):
+    if 'port' in args:
         return args['port']
 
     if os.environ.get('WEBDIFF_PORT'):
         return int(os.environ.get('WEBDIFF_PORT'))
+
+    # gitconfig
+    if webdiff_config['port'] != -1:
+        return webdiff_config['port']
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind(('localhost', 0))
@@ -290,25 +322,30 @@ def is_webdiff_from_head():
 
 
 def run():
-    global DIFF, PORT, HOSTNAME
+    global DIFF, PORT, HOSTNAME, GIT_CONFIG
     try:
         parsed_args = argparser.parse(sys.argv[1:], VERSION)
     except argparser.UsageError as e:
         sys.stderr.write('Error: %s\n\n' % e)
         usage_and_die()
 
-    DIFF = argparser.diff_for_args(parsed_args)
+    GIT_CONFIG = options.get_config()
+    WEBDIFF_CONFIG = GIT_CONFIG['webdiff']
+    DIFF = argparser.diff_for_args(parsed_args, WEBDIFF_CONFIG)
 
     if app.config['TESTING'] or app.config['DEBUG']:
-        sys.stderr.write('Diff:\n%s' % DIFF)
+        sys.stderr.write('Invoked as: %s\n' % sys.argv)
+        sys.stderr.write('Args: %s\n' % parsed_args)
+        sys.stderr.write('Diff: %s\n' % DIFF)
+        sys.stderr.write('GitConfig: %s\n' % GIT_CONFIG)
 
-    PORT = pick_a_port(parsed_args)
+    PORT = pick_a_port(parsed_args, WEBDIFF_CONFIG)
 
     if app.config.get('USE_HOSTNAME'):
         _hostname = platform.node()
         # platform.node will return empty string if it can't find the hostname
         if not _hostname:
-            sys.stderr.write('Warning: hostname could not be determined')
+            sys.stderr.write('Warning: hostname could not be determined\n')
         else:
             HOSTNAME = _hostname
 

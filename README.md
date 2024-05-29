@@ -4,6 +4,7 @@
 Two-column web-based git difftool.
 
 Features include:
+
 * Side-by-side (two column) diff view
 * Runs in the browser of your choice on any platform.
 * Syntax highlighting via highlight.js
@@ -60,6 +61,33 @@ Make sure you chmod this file to only be readable by yourself. You can generate
 a personal access token for webdiff via github.com → profile → Settings →
 Personal access tokens. Make sure to grant all the "repo" privileges.
 
+## Configuration
+
+webdiff can be configured via [`git config`][git config]. To change the syntax highlighting theme, for example:
+
+    git config webdiff.theme rainbow
+
+(You can find a list of supported themes in the [themes] directory.)
+
+As with any git configuration setting, these can be set globally or per-repo.
+
+Options are:
+
+| Setting        | Default       | Notes  |
+| -------------- | ------------- | ------ |
+| webdiff.theme  | googlecode    | Syntax highlighting theme (see [themes] directory). |
+| webdiff.port   | -1            | Port on which to serve webdiff. Default is random open port. This can be overridden with `--port`. |
+| webdiff.maxDiffWidth | 100 | Maximum length of lines in the diff display. After this width, lines will wrap. |
+| webdiff.unified | 8 | Lines of context to display by default (`git diff -U`) |
+| webdiff.extraDirDiffArgs | "" | Any extra arguments to pass to `git diff` when diffing directories. |
+| webdiff.extraFileDiffArgs | "" | Any extra arguments to pass to `git diff` when diffing files. |
+| webdiff.openBrowser | true | Whether to automatically open the browser UI when you run webdiff. |
+| webdiff.maxLinesForSyntax | 10000 | Maximum lines in file to do syntax highlighting. |
+| webdiff.colors.delete | #fee | CSS background color for delete (left) lines |
+| webdiff.colors.insert | #efe | CSS background color for insert (right) lines |
+| webdiff.colors.charDelete | #fcc | CSS background color for deleted characters in a delete (left) line |
+| webdiff.colors.charInsert | #cfc | CSS background color for inserted characters in an insert (right) line |
+
 ## Development
 
     python3 -m venv venv
@@ -76,7 +104,7 @@ Then from the root directory:
 
 or to launch in debug mode:
 
-    ./test.sh $(pwd)/../testdata/webdiffdiff/{left,right}
+    ./test.sh $(pwd)/testdata/manyfiles/{left,right}
 
 (or any other directory in testdata)
 
@@ -84,30 +112,29 @@ To run the Python tests:
 
     pytest
 
-To run the JavaScript tests:
-
-    python -m SimpleHTTPServer
-    open tests/runner.html
-
 To format the code, run:
 
     ./scripts/black.sh
     cd ts
     yarn prettier
 
+To debug `git webdiff`, run:
+
+    WEBDIFF_CONFIG=$(pwd)/testing.cfg ./webdiff/gitwebdiff.py
+
 To iterate on the PyPI package, run:
 
     # from outside the webdiff virtualenv:
-    pip uninstall webdiff
+    pip3 uninstall webdiff
 
     # from inside the webdiff virtualenv, adjust for current version
     python setup.py sdist
     mkdir /tmp/webdiff-test
-    cp dist/webdiff-X.Y.Z.tar.gz /tmp/webdiff-test
+    cp dist/webdiff-?.?.?.tar.gz /tmp/webdiff-test
 
     deactivate
     cd /tmp/webdiff-test
-    pip3 install webdiff-X.Y.Z.tar.gz
+    pip3 install webdiff-?.?.?.tar.gz
 
 To publish to pypitest:
 
@@ -121,6 +148,30 @@ And to the real pypi:
 
 See [pypirc][] docs for details on setting up `~/.pypirc`.
 
+## Implementation notes
+
+webdiff doesn't calculate any diffs itself. Instead, it relies on `git diff`. This is possible because `git diff` has a `--no-index` mode that allows it to operate outside of a git repository. Of course, this means that you need to have `git` installed to use webdiff!
+
+When you run `webdiff dir1 dir2`, webdiff runs:
+
+    git diff --raw --no-index dir1 dir2
+
+To ask `git` which files are adds, removes, renames and changes. Then, when it's serving the web UI for a particular diff, it runs:
+
+    git diff --no-index (diff args) file1 file2
+
+This produces a patch, which is what the web UI renders. (It also needs both full files for syntax highlighting.)
+
+When you run `git webdiff (args)`, it runs:
+
+    git difftool -d -x webdiff (args)
+
+This tells `git` to set up two directories and invoke `webdiff leftdir rightdir`.
+
+There's one complication involving symlinks. `git difftool -d` may fill one of the sides (typically the right) with symlinks. This is faster than copying files, but unfortunately `git diff --no-index` does not resolve these symlinks. To make this work, if a directory contains symlinks, webdiff makes a copy of it before diffing. For file diffs, it resolves the symlink before passing it to `git diff --no-index`. The upshot is that you can run `git webdiff`, edit a file, reload the browser window and see the changes.
+
 [pypirc]: https://packaging.python.org/specifications/pypirc/
 [Homebrew]: https://brew.sh/
 [ImageMagick]: https://imagemagick.org/index.php
+[git config]: https://git-scm.com/docs/git-config
+[themes]: http://example.com

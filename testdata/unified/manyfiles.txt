@@ -1,0 +1,9 @@
+:100644 100644 f00c965 f00c965 R100	testdata/manyfiles/left/d.txt	testdata/manyfiles/right/a.txt
+:100644 100644 0000000 0000000 M	testdata/manyfiles/left/b.txt
+:100644 100644 0000000 0000000 M	testdata/manyfiles/left/c.txt
+:100644 100644 0000000 0000000 M	testdata/manyfiles/left/e.txt
+:100644 100644 0000000 0000000 M	testdata/manyfiles/left/f.txt
+:100644 100644 0000000 0000000 M	testdata/manyfiles/left/g.txt
+:100644 100644 0000000 0000000 M	testdata/manyfiles/left/h.txt
+:100644 100644 0000000 0000000 M	testdata/manyfiles/left/i.txt
+:100644 100644 0000000 0000000 M	testdata/manyfiles/left/j.txt

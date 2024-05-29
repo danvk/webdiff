@@ -1,95 +1,69 @@
 '''Compute the diff between two directories on local disk.'''
 
-from collections import defaultdict
-import copy
 import os
+import logging
+import shutil
+import subprocess
+import tempfile
 
 from webdiff.localfilediff import LocalFileDiff
-from webdiff import util
+from webdiff.unified_diff import parse_raw_diff
 
 
-def diff(a_dir, b_dir):
-    pairs = find_diff(a_dir, b_dir)
-    moves, pairs = find_moves(pairs)
+def contains_symlinks(dir: str):
+    """Check whether a directory contains any symlinks.
 
-    diffs = [LocalFileDiff(a_dir, a, b_dir, b, False) for a, b in pairs] + [
-        LocalFileDiff(a_dir, a, b_dir, b, True) for a, b in moves
-    ]
-
-    # sort "change" before "delete" in a move, which is easier to understand.
-    diffs.sort(key=lambda d: (d.a_path, 0 if d.b else 1))
-
-    return diffs
-
-
-def find_diff(a, b):
-    """Walk directories a and b and pair off files.
-
-    Returns a list of pairs of full paths to matched a/b files.
+    If it does, then git diff --no-index will not handle it in the way that we'd
+    like. It will diff the target file names rather than their contents. To work
+    around this we need to follow the symlinks. Since this might be expensive,
+    we'd like to avoid that if possible.
     """
-
-    def list_files(top_dir):
-        file_list = []
-        for root, _, files in os.walk(top_dir):
-            root = os.path.relpath(root, start=top_dir)
-            for name in files:
-                file_list.append(os.path.join(root, name))
-        return file_list
-
-    assert os.path.isdir(a)
-    assert os.path.isdir(b)
-
-    a_files = list_files(a)
-    b_files = list_files(b)
-
-    pairs = pair_files(a_files, b_files)
-
-    def safejoin(d, p):
-        if p == '':
-            return ''
-        return os.path.join(d, p)
-
-    return [(safejoin(a, arel), safejoin(b, brel)) for arel, brel in pairs]
+    for root, _dirs, files in os.walk(dir):
+        # (git difftool should not produce directory symlinks)
+        for file_name in files:
+            file_path = os.path.join(root, file_name)
+            if os.path.islink(file_path):
+                return True
+    return False
 
 
-def pair_files(a_files, b_files):
-    '''Paths must be relative to the diff root for each side.'''
-    pairs = []
-    for f in a_files[:]:
-        if f in b_files:
-            i = a_files.index(f)
-            j = b_files.index(f)
-            pairs.append((f, f))
-            del a_files[i]
-            del b_files[j]
-        else:
-            pairs.append((f, ''))  # delete
-
-    for f in b_files:
-        pairs.append(('', f))  # add
-
-    return pairs
+def make_resolved_dir(dir: str) -> str:
+    # TODO: clean up this directory
+    temp_dir = tempfile.mkdtemp(prefix='webdiff')
+    for root, dirs, files in os.walk(dir):
+        for subdir in dirs:
+            os.mkdir(os.path.join(temp_dir, os.path.relpath(os.path.join(root, subdir), dir)))
+        for file_name in files:
+            src_file = os.path.join(root, file_name)
+            rel = os.path.relpath(src_file, dir)
+            dst_file = os.path.join(temp_dir, rel)
+            shutil.copy(src_file, dst_file, follow_symlinks=True)
+    return temp_dir
 
 
-def find_moves(pairs):
-    """Separate the file move pairs from other file pairs"""
-    # If a file is just moved, then the added file and the deleted file
-    # will both put their idx into the same key of the dictionary
-    add_delete_pairs = defaultdict(lambda: [None, None])
-    for idx, (a, b) in enumerate(pairs):
-        if b and not a:  # add
-            add_delete_pairs[util.contentHash(b)][1] = idx
-        elif a and not b:  # delete
-            add_delete_pairs[util.contentHash(a)][0] = idx
-
-    indices_to_omit = []
-    moves = []
-    for _, (aIdx, bIdx) in add_delete_pairs.items():
-        if (aIdx is not None) and (bIdx is not None):
-            # replace the "add" and "delete" with a "change"
-            indices_to_omit.extend([aIdx, bIdx])
-            moves.append((pairs[aIdx][0], pairs[bIdx][1]))
-
-    remaining_pairs = [pair for i, pair in enumerate(pairs) if i not in indices_to_omit]
-
-    return moves, remaining_pairs
+def gitdiff(a_dir, b_dir, webdiff_config):
+    extra_args = webdiff_config['extraDirDiffArgs']
+    cmd = 'git diff --raw --no-index'
+    if extra_args:
+        cmd += ' ' + extra_args
+    a_dir_nosym = a_dir
+    if contains_symlinks(a_dir):
+        a_dir_nosym = make_resolved_dir(a_dir)
+        logging.debug('Inlined symlinks in left directory %s -> %s', a_dir, a_dir_nosym)
+    b_dir_nosym = b_dir
+    if contains_symlinks(b_dir):
+        b_dir_nosym = make_resolved_dir(b_dir)
+        logging.debug('Inlined symlinks in right directory %s -> %s', b_dir, b_dir_nosym)
+    args = cmd.split(' ') + [a_dir_nosym, b_dir_nosym]
+    logging.debug('Running git command: %s', args)
+    diff_output = subprocess.run(args, capture_output=True)
+    # git diff has an exit code of 1 on either a diff _or_ an error.
+    # TODO: how to distinguish these cases?
+    diff_stdout = diff_output.stdout.decode('utf8')
+    # "Cover our tracks" to make it look like the diff was between directories containing symlinks.
+    if a_dir != a_dir_nosym:
+        diff_stdout = diff_stdout.replace(a_dir_nosym, a_dir)
+    if b_dir != b_dir_nosym:
+        diff_stdout = diff_stdout.replace(b_dir_nosym, b_dir)
+    lines = parse_raw_diff(diff_stdout)
+    return [LocalFileDiff.from_diff_raw_line(line, a_dir, b_dir) for line in lines]

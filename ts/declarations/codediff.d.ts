@@ -1,3 +1,5 @@
+// TODO: bundle this with codediff now that it's written in TS
+
 declare module codediff {
   export interface Options {
     /**
@@ -28,4 +30,5 @@ declare module codediff {
   function guessLanguageUsingFileName(path: string): string;
   function guessLanguageUsingContents(contents: string): string;
   function buildView(before: string, after: string, opts: Options): HTMLElement;
+  function buildViewFromOps(beforeText: string, afterText: string, ops: any[], opts: Options): HTMLElement;
 }

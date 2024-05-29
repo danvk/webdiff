@@ -6,7 +6,7 @@ with open('README.md', encoding='utf8') as fh:
 
 
 setup(name='webdiff',
-      version='0.16.0',
+      version='1.0.0',
       description='Two-column web-based git difftool',
       long_description=long_description,
       long_description_content_type='text/markdown',
@@ -25,7 +25,9 @@ setup(name='webdiff',
           'flask==2.2.2',
           'pillow',
           'requests',
-          'PyGithub==1.55'
+          'PyGithub==1.55',
+          'unidiff==0.7.4',
+          'Werkzeug==2.2.2',
       ],
       include_package_data=True,
       package_data = {

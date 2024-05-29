@@ -37,6 +37,7 @@ def parse(args, version=None):
     )
     args = parser.parse_args(args=args)
 
+    # TODO: convert out to a dataclass
     out = {}
     if args.port != -1:
         out['port'] = args.port
@@ -87,16 +88,21 @@ def parse(args, version=None):
 
 # TODO: move into dirdiff?
 def _shim_for_file_diff(a_file, b_file):
-    '''Sets A_DIR, B_DIR and DIFF to do a one-file diff.'''
+    '''Returns a LocalFileDiff object for a one-file diff.'''
     return LocalFileDiff(
-        os.path.dirname(a_file), a_file, os.path.dirname(b_file), b_file, False
-    )  # probably not a move
+        a_root=os.path.dirname(a_file),
+        a_path=a_file,
+        b_root=os.path.dirname(b_file),
+        b_path=b_file,
+        is_move=False,  # probably not a move
+    )
 
 
-def diff_for_args(args):
+def diff_for_args(args, webdiff_config):
     '''Returns a list of Diff objects for parsed command line args.'''
     if 'dirs' in args:
-        return dirdiff.diff(*args['dirs'])
+        # return dirdiff.diff(*args['dirs'])
+        return dirdiff.gitdiff(*args['dirs'], webdiff_config)
 
     if 'files' in args:
         return [_shim_for_file_diff(*args['files'])]

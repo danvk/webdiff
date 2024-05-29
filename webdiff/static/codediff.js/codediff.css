@@ -17,7 +17,7 @@ td.code {
   /* for table cells, `width` behaves more like `max-width`. */
   width: 61ch;
   white-space: pre-wrap;
-  word-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 table.diff td {
