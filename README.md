@@ -148,6 +148,28 @@ And to the real pypi:
 
 See [pypirc][] docs for details on setting up `~/.pypirc`.
 
+## Implementation notes
+
+webdiff doesn't calculate any diffs itself. Instead, it relies on `git diff`. This is possible because `git diff` has a `--no-index` mode that allows it to operate outside of a git repository. Of course, this means that you need to have `git` installed to use webdiff!
+
+When you run `webdiff dir1 dir2`, webdiff runs:
+
+    git diff --raw --no-index dir1 dir2
+
+To ask `git` which files are adds, removes, renames and changes. Then, when it's serving the web UI for a particular diff, it runs:
+
+    git diff --no-index (diff args) file1 file2
+
+This produces a patch, which is what the web UI renders. (It also needs both full files for syntax highlighting.)
+
+When you run `git webdiff (args)`, it runs:
+
+    git difftool -d -x webdiff (args)
+
+This tells `git` to set up two directories and invoke `webdiff leftdir rightdir`.
+
+There's one complication involving symlinks. `git difftool -d` may fill one of the sides (typically the right) with symlinks. This is faster than copying files, but unfortunately `git diff --no-index` does not resolve these symlinks. To make this work, if a directory contains symlinks, webdiff makes a copy of it before diffing. For file diffs, it resolves the symlink before passing it to `git diff --no-index`. The upshot is that you can run `git webdiff`, edit a file, reload the browser window and see the changes.
+
 [pypirc]: https://packaging.python.org/specifications/pypirc/
 [Homebrew]: https://brew.sh/
 [ImageMagick]: https://imagemagick.org/index.php
