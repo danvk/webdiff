@@ -14,7 +14,7 @@ DEFAULTS = {
         "theme": "googlecode",
         "maxLinesForSyntax": 10_000,
     },
-    "colors.webdiff": {
+    "webdiff.colors": {
         "insert": "#efe",
         "delete": "#fee",
         "charInsert": "#cfc",
@@ -51,7 +51,9 @@ def get_config():
     for section_name, section_defaults in DEFAULTS.items():
         section = {}
         for key, default_value in section_defaults.items():
-            section[key] = _get_git_config(f"{section_name}.{key}", default_value)
+            this_key = f'{section_name}.{key}'
+            v = _get_git_config(this_key, default_value)
+            section[key] = v
         out[section_name] = section
 
     return out

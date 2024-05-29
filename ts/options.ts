@@ -1,7 +1,7 @@
 /** Type of global git_config object */
 export interface GitConfig {
   webdiff: WebdiffConfig;
-  'colors.webdiff': ColorsConfig;
+  'webdiff.colors': ColorsConfig;
 }
 
 export interface WebdiffConfig {
@@ -26,7 +26,7 @@ declare const GIT_CONFIG: GitConfig;
 
 export function injectStylesFromConfig() {
   const config = GIT_CONFIG.webdiff;
-  const colors = GIT_CONFIG["colors.webdiff"];
+  const colors = GIT_CONFIG["webdiff.colors"];
   document.write(`
   <style>
   td.code {
