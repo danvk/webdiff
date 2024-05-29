@@ -61,6 +61,34 @@ Make sure you chmod this file to only be readable by yourself. You can generate
 a personal access token for webdiff via github.com → profile → Settings →
 Personal access tokens. Make sure to grant all the "repo" privileges.
 
+## Configuration
+
+webdiff can be configured via [`git config`][git config]. To change the syntax highlighting theme, for example:
+
+    git config webdiff.theme rainbow
+
+(You can find a list of supported themes in the [themes] directory.)
+
+As with any git configuration setting, these can be set globally or per-repo.
+
+Options are:
+
+| Setting        | Default       | Notes  |
+| -------------- | ------------- | ------ |
+| webdiff.theme  | googlecode    | Syntax highlighting theme |
+| webdiff.port   | -1            | Port on which to serve webdiff. Default is random open port. This can be overridden with `--port`. |
+| webdiff.maxDiffWidth | 100 | Maximum length of lines in the diff display. After this width, lines will wrap. |
+| webdiff.unified | 8 | Lines of context to display by default (`git diff -U`) |
+| webdiff.extraDirDiffArgs | "" | Any extra arguments to pass to `git diff` when diffing
+directories. |
+| webdiff.extraFileDiffArgs | "" | Any extra arguments to pass to `git diff` when diffing files. |
+| webdiff.openBrowser | true | Whether to automatically open the browser UI when you run webdiff. |
+| webdiff.maxLinesForSyntax | 10000 | Maximum lines in file to do syntax highlighting. |
+| webdiff.colors.delete | #fee | CSS background color for delete (left) lines |
+| webdiff.colors.insert | #efe | CSS background color for insert (right) lines |
+| webdiff.colors.charDelete | #fcc | CSS background color for deleted characters in a delete (left) line |
+| webdiff.colors.charInsert | #cfc | CSS background color for inserted characters in an insert (right) line |
+
 ## Development
 
     python3 -m venv venv
@@ -124,3 +152,5 @@ See [pypirc][] docs for details on setting up `~/.pypirc`.
 [pypirc]: https://packaging.python.org/specifications/pypirc/
 [Homebrew]: https://brew.sh/
 [ImageMagick]: https://imagemagick.org/index.php
+[git config]: https://git-scm.com/docs/git-config
+[themes]: http://example.com
