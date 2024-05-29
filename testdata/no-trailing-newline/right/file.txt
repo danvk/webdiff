@@ -1,4 +1,4 @@
 This is a file
 It has still four lines
 and a
-traiiiiling newline
+trailing new line

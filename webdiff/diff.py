@@ -33,8 +33,10 @@ def get_thin_dict(diff):
 
 
 def fast_num_lines(path: str) -> int:
-    # https://stackoverflow.com/q/9629179/388951
-    return int(subprocess.check_output(['wc', '-l', path]).split()[0])
+    # See https://stackoverflow.com/q/9629179/388951 for the idea to use a Unix command.
+    # Unfortunately `wc -l` ignores the last line if there is no trailing newline. So
+    # instead, see https://stackoverflow.com/a/38870057/388951
+    return int(subprocess.check_output(['grep', '-c', '', path]))
 
 
 def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
@@ -44,8 +46,8 @@ def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
     ['-w', '--diff-algorithm=patience'].
     """
     # git diff --no-index doesn't follow symlinks. So we help it a bit.
-    a_path = os.path.realpath(diff.a_path)
-    b_path = os.path.realpath(diff.b_path)
+    a_path = os.path.realpath(diff.a_path) if diff.a_path else ''
+    b_path = os.path.realpath(diff.b_path) if diff.b_path else ''
     if a_path and b_path:
         num_lines = fast_num_lines(b_path)
         args = (
@@ -64,7 +66,7 @@ def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
         return [Code('delete', before=(0, num_lines), after=(0, 0))]
     elif b_path:
         num_lines = fast_num_lines(b_path)
-        return [Code('insert', before=(0, 0), after=(0, num_lines))]
+        return [Code('insert', before=(0, 0), after=(0, num_lines + 1))]
 
 
 def get_thick_dict(diff):
