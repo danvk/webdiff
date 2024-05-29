@@ -85,11 +85,6 @@ To run the Python tests:
 
     pytest
 
-To run the JavaScript tests:
-
-    python -m SimpleHTTPServer
-    open tests/runner.html
-
 To format the code, run:
 
     ./scripts/black.sh

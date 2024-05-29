@@ -27,6 +27,7 @@ setup(name='webdiff',
           'requests',
           'PyGithub==1.55',
           'unidiff==0.7.4',
+          'Werkzeug==2.2.2',
       ],
       include_package_data=True,
       package_data = {
