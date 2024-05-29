@@ -7,7 +7,7 @@ import {Root} from './Root';
 const App = () => (
   <Router>
     <Switch>
-      <Route name="pair" path="/:index?" component={Root} />
+      <Route path="/:index?" component={Root} />
     </Switch>
   </Router>
 );
