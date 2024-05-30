@@ -71,50 +71,50 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(payload).encode('utf-8'))
 
     def do_GET(self):
-        global LAST_REQUEST_MS
-        LAST_REQUEST_MS = time.time() * 1000
+        note_request_time()
         parsed_path = urlparse(self.path)
-        path_elements = parsed_path.path.strip('/').split('/')
+        parts = parsed_path.path.strip('/').split('/')
+        path = '/'.join(parts)
 
-        if path_elements[0] == "":
+        if path == '':
             self.handle_index(0)
-        elif len(path_elements) == 1 and path_elements[0].isdigit():
-            self.handle_index(int(path_elements[0]))
-        elif path_elements[0] == "favicon.ico":
+        elif len(parts) == 1 and parts[0].isdigit():
+            self.handle_index(int(parts[0]))
+        elif path == "favicon.ico":
             self.handle_favicon()
-        elif path_elements[0] == "theme.css":
+        elif path == "theme.css":
             self.handle_theme()
-        elif path_elements[0] == 'static':
-            self.handle_static('/'.join(path_elements))
-        elif len(path_elements) == 2 and path_elements[0] == 'thick' and path_elements[1].isdigit():
-            self.handle_thick(int(path_elements[1]))
-        elif len(path_elements) == 3 and path_elements[1] == "image":
-            self.handle_image(path_elements[0], path_elements[2])
-        elif len(path_elements) == 2 and path_elements[0] == "pdiff":
-            self.handle_pdiff(int(path_elements[1]))
-        elif len(path_elements) == 2 and path_elements[0] == "pdiffbbox":
-            self.handle_pdiff_bbox(int(path_elements[1]))
+        elif path.startswith('static/'):
+            self.handle_static(path)
+        elif len(parts) == 2 and parts[0] == 'thick' and parts[1].isdigit():
+            self.handle_thick(int(parts[1]))
+        elif len(parts) == 3 and parts[1] == "image":
+            self.handle_image(parts[0], parts[2])
+        elif len(parts) == 2 and parts[0] == "pdiff":
+            self.handle_pdiff(int(parts[1]))
+        elif len(parts) == 2 and parts[0] == "pdiffbbox":
+            self.handle_pdiff_bbox(int(parts[1]))
         else:
             self.send_error(404, "File not found")
 
     def do_POST(self):
-        global LAST_REQUEST_MS
-        LAST_REQUEST_MS = time.time() * 1000
+        note_request_time()
         parsed_path = urlparse(self.path)
-        path_elements = parsed_path.path.strip('/').split('/')
+        parts = parsed_path.path.strip('/').split('/')
+        path = '/'.join(parts)
 
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
 
-        if len(path_elements) == 2 and path_elements[1] == "get_contents":
+        if len(parts) == 2 and parts[1] == "get_contents":
             form_data = parse_qs(post_data.decode('utf-8'))
-            self.handle_get_contents(path_elements[0], form_data)
-        elif len(path_elements) == 2 and path_elements[0] == "diff":
+            self.handle_get_contents(parts[0], form_data)
+        elif len(parts) == 2 and parts[0] == "diff":
             payload = json.loads(post_data.decode('utf-8'))
-            self.handle_diff_ops(int(path_elements[1]), payload)
-        elif path_elements[0] == "seriouslykill":
+            self.handle_diff_ops(int(parts[1]), payload)
+        elif path == "seriouslykill":
             self.handle_seriouslykill()
-        elif path_elements[0] == "kill":
+        elif path == "kill":
             self.handle_kill()
         else:
             self.send_error(404, "File not found")
@@ -153,31 +153,19 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def handle_image(self, side, path):
         if side not in ('a', 'b'):
-            self.send_response_with_json(400, {'error': 'invalid side'})
-            return
+            return self.send_response_with_json(400, {'error': 'invalid side'})
 
         mime_type, _ = mimetypes.guess_type(path)
         if not mime_type or not mime_type.startswith('image/'):
-            self.send_response_with_json(400, {'error': 'wrong type'})
-            return
+            return self.send_response_with_json(400, {'error': 'wrong type'})
 
         idx = diff.find_diff_index(DIFF, side, path)
         if idx is None:
-            self.send_response_with_json(400, {'error': 'not found'})
-            return
+            return self.send_response_with_json(400, {'error': 'not found'})
 
         d = DIFF[idx]
         abs_path = d.a_path if side == 'a' else d.b_path
-
-        try:
-            with open(abs_path, 'rb') as file:
-                contents = file.read()
-            self.send_response(200)
-            self.send_header('Content-Type', mime_type)
-            self.end_headers()
-            self.wfile.write(contents)
-        except Exception as e:
-            self.send_response_with_json(500, {'error': str(e)})
+        self.serve_static_file(abs_path, mime_type)
 
     def handle_pdiff(self, idx):
         d = DIFF[idx]
@@ -203,18 +191,15 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def handle_get_contents(self, side, form_data):
         if side not in ('a', 'b'):
-            self.send_response_with_json(400, {'error': 'invalid side'})
-            return
+            return self.send_response_with_json(400, {'error': 'invalid side'})
 
         path = form_data.get('path', [''])[0]
         if not path:
-            self.send_response_with_json(400, {'error': 'incomplete'})
-            return
+            return self.send_response_with_json(400, {'error': 'incomplete'})
 
         idx = diff.find_diff_index(DIFF, side, path)
         if idx is None:
-            self.send_response_with_json(400, {'error': 'not found'})
-            return
+            return self.send_response_with_json(400, {'error': 'not found'})
 
         d = DIFF[idx]
         abs_path = d.a_path if side == 'a' else d.b_path
@@ -277,6 +262,10 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         if DEBUG:
             super().log_request(*args)
 
+
+def note_request_time():
+    global LAST_REQUEST_MS
+    LAST_REQUEST_MS = time.time() * 1000
 
 # See https://stackoverflow.com/a/69812984/388951
 exiting = False
