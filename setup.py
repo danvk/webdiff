@@ -35,7 +35,6 @@ setup(name='webdiff',
       classifiers=[
           'Environment :: Console',
           'Environment :: Web Environment',
-          'Framework :: Flask',
           'Development Status :: 4 - Beta',
           'Intended Audience :: Developers',
           'License :: OSI Approved :: Apache Software License',
