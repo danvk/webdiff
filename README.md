@@ -3,18 +3,10 @@
 Two-column web-based git difftool.
 
 <p align="center">
-  <a href="https://pypi.org/project/webdiff/" target="_blank">
-    <img alt="PyPI - Version" src="https://img.shields.io/pypi/v/webdiff">
-  </a>
-  <a href="https://dl.circleci.com/status-badge/redirect/gh/danvk/webdiff/tree/master" target="_blank">
-    <img alt="CircleCI 📝" src="https://dl.circleci.com/status-badge/img/gh/danvk/webdiff/tree/master.svg?style=svg">
-  </a>
-  <a href="https://github.com/danvk/webdiff/blob/master/LICENSE" target="_blank">
-    <img alt="License: Apache2 📝" src="https://img.shields.io/github/license/danvk/webdiff">
-  </a>
-  <a href="https://github.com/sponsors/danvk" target="_blank">
-    <img alt="Sponsor: On GitHub 💸" src="https://img.shields.io/badge/sponsor-on_github_💸-21bb42.svg" />
-  </a>
+  <a href="https://pypi.org/project/webdiff/" target="_blank"><img alt="PyPI - Version" src="https://img.shields.io/pypi/v/webdiff" /></a>
+  <a href="https://dl.circleci.com/status-badge/redirect/gh/danvk/webdiff/tree/master" target="_blank"><img alt="CircleCI 📝" src="https://dl.circleci.com/status-badge/img/gh/danvk/webdiff/tree/master.svg?style=svg" /></a>
+  <a href="https://github.com/danvk/webdiff/blob/master/LICENSE" target="_blank"><img alt="License: Apache2 📝" src="https://img.shields.io/github/license/danvk/webdiff" /></a>
+  <a href="https://github.com/sponsors/danvk" target="_blank"><img alt="Sponsor: On GitHub 💸" src="https://img.shields.io/badge/sponsor-on_github_💸-21bb42.svg" /></a>
 </p>
 
 Features include:
@@ -90,7 +82,8 @@ Options are:
 | Setting        | Default       | Notes  |
 | -------------- | ------------- | ------ |
 | webdiff.theme  | googlecode    | Syntax highlighting theme (see [themes] directory). |
-| webdiff.port   | -1            | Port on which to serve webdiff. Default is random open port. This can be overridden with `--port`. |
+| webdiff.port   | -1            | Port on which to serve webdiff. Default is random open port. This can be overridden with the `--port` command line flag or the `WEBDIFF_PORT` environment variable. |
+| webdiff.host   | localhost     | Host name on which to serve the webdiff UI. Use `0.0.0.0` to serve publicly. The special value `<hostname>` uses your computer's network name. This can be overridden with the `--host` command line flag or the `WEBDIFF_HOST` environment variable. |
 | webdiff.maxDiffWidth | 100 | Maximum length of lines in the diff display. After this width, lines will wrap. |
 | webdiff.unified | 8 | Lines of context to display by default (`git diff -U`) |
 | webdiff.extraDirDiffArgs | "" | Any extra arguments to pass to `git diff` when diffing directories. |

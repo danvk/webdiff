@@ -31,6 +31,11 @@ def parse(args, version=None):
     """Returns {port, dirs: [], files: [], pr: {owner, repo, number}}."""
     parser = argparse.ArgumentParser(description='Run webdiff.', usage=USAGE)
     parser.add_argument('--version', action='version', version='webdiff %s' % version)
+    parser.add_argument(
+        '--host', type=str,
+        help="Host name on which to serve webdiff UI. Default is localhost.",
+        default=None
+    )
     parser.add_argument('--port', '-p', type=int, help="Port to run webdiff on.", default=-1)
     parser.add_argument(
         'dirs', type=str, nargs='+', help="Directories to diff, or a github pull request URL."
@@ -41,6 +46,8 @@ def parse(args, version=None):
     out = {}
     if args.port != -1:
         out['port'] = args.port
+    if args.host:
+        out['host'] = args.host
 
     if len(args.dirs) > 2:
         raise UsageError('You must specify two files/dirs (got %d)' % len(args.dirs))
