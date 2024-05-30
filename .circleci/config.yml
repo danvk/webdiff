@@ -20,6 +20,7 @@ jobs:
           command: |
             export PYTHONPATH=.
             pytest
+            ruff check webdiff tests
 
   test-js:
     docker:
