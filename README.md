@@ -18,9 +18,10 @@ Features include:
 * Rich support for image diffs
 
 <!-- This is `git webdiff 05157bba^..05157bba`, in this repo -->
-![Screenshot of webdiff in action](http://www.danvk.org/webdiff.png)
+![Screenshot of webdiff in action](/images/webdiff.png)
 
-![Screenshot of image diffs](http://www.danvk.org/webdiff-images.png)
+<!-- This is `git webdiff c80f969^..c80f969` in the dygraphs-dpxdt repo -->
+![Screenshot of image diffs](/images/webdiff-images.png)
 
 ## Installation
 
