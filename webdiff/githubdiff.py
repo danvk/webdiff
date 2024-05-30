@@ -1,9 +1,9 @@
-'''Diff class for GitHub pull requests.
+"""Diff class for GitHub pull requests.
 
 The main feature of note is that this fetches files from GitHub lazily when
 a_path and b_path are accessed. This allows large PRs to be loaded quickly
 --more quickly than GitHub's UI does it!
-'''
+"""
 
 import os
 import tempfile
@@ -14,7 +14,7 @@ from webdiff.github_fetcher import github
 
 
 class GitHubDiff(object):
-    '''pr and github_file are objects from the Python GitHub API.'''
+    """pr and github_file are objects from the Python GitHub API."""
 
     def __init__(self, pr, github_file):
         self._pr = pr
@@ -61,8 +61,8 @@ class GitHubDiff(object):
 
 
 def fetch_pull_request(owner, repo, num):
-    '''Return a list of Diff objects for a pull request.'''
-    sys.stderr.write('Loading pull request %s/%s#%s from github...\n' % (owner, repo, num))
+    """Return a list of Diff objects for a pull request."""
+    sys.stderr.write(f'Loading pull request {owner}{repo}#{num} from github...\n')
     g = github()
     pr = g.get_user(owner).get_repo(repo).get_pull(num)
     files = pr.get_files()

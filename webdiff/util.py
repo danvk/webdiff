@@ -1,4 +1,5 @@
-'''Utility code for webdiff'''
+"""Utility code for webdiff"""
+
 import functools
 import hashlib
 import os
@@ -46,15 +47,14 @@ def are_files_identical(path1, path2):
 
 
 def image_metadata(path):
-    '''Returns a dict with metadata about the image located at path.'''
+    """Returns a dict with metadata about the image located at path."""
     md = {'num_bytes': os.path.getsize(path)}
     try:
         im = Image.open(path)
         width, height = im.size
         md.update({'width': width, 'height': height})
-    except:
-        pass
-    return md
+    finally:
+        return md
 
 
 @memoize
@@ -114,7 +114,7 @@ def generate_pdiff_image(before_path, after_path):
 
 @memoize
 def generate_dilated_pdiff_image(diff_path):
-    '''Given a pdiff image, dilate it to highlight small differences.'''
+    """Given a pdiff image, dilate it to highlight small differences."""
     if not is_imagemagick_available():
         raise ImageMagickNotAvailableError()
 
@@ -142,7 +142,7 @@ def generate_dilated_pdiff_image(diff_path):
 
 @memoize
 def get_pdiff_bbox(diff_path):
-    '''Returns {top,left,width,height} for the content of a pdiff.'''
+    """Returns {top,left,width,height} for the content of a pdiff."""
     if not is_imagemagick_available():
         raise ImageMagickNotAvailableError()
 

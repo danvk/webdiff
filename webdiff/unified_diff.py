@@ -30,7 +30,7 @@ def read_codes(p: PatchSet) -> Union[List[Code], None]:
         if hunk.source_start != last_source + 1:
             out.append(
                 Code(
-                    "skip",
+                    'skip',
                     (last_source, hunk.source_start - 1),
                     (last_target, hunk.target_start - 1),
                 )
@@ -42,26 +42,26 @@ def read_codes(p: PatchSet) -> Union[List[Code], None]:
             lines = [*chunk]
             first = lines[0]
             last = lines[-1]
-            if type == " ":
+            if type == ' ':
                 out.append(
                     Code(
-                        "equal",
+                        'equal',
                         (first.source_line_no - 1, last.source_line_no),
                         (first.target_line_no - 1, last.target_line_no),
                     )
                 )
-            elif type == "-":
+            elif type == '-':
                 out.append(
                     Code(
-                        "delete",
+                        'delete',
                         (first.source_line_no - 1, last.source_line_no),
                         (last_target, last_target),
                     )
                 )
-            elif type == "+":
+            elif type == '+':
                 out.append(
                     Code(
-                        "insert",
+                        'insert',
                         (last_source, last_source),
                         (first.target_line_no - 1, last.target_line_no),
                     )

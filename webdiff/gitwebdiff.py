@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''This lets you run "git webdiff" instead of "git difftool".'''
+"""This lets you run "git webdiff" instead of "git difftool"."""
 
 import os
 import subprocess
@@ -16,7 +16,11 @@ def run():
         sys.stderr.write(f'git webdiff invoked as: {sys.argv}\n')
 
     try:
-        cmd = 'webdiff' if not os.environ.get('DEBUG') else os.path.join(os.path.curdir, 'test.sh')
+        cmd = (
+            'webdiff'
+            if not os.environ.get('DEBUG')
+            else os.path.join(os.path.curdir, 'test.sh')
+        )
         subprocess.call(f'git difftool -d -x {cmd}'.split(' ') + sys.argv[1:])
     except KeyboardInterrupt:
         # Don't raise an exception to the user when sigint is received

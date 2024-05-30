@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "webdiff"
+version = "1.0.1"
+description = "Two-column web-based git difftool"
+readme = "README.md"
+readme-content-type = "text/markdown"
+authors = [
+    { name = "Dan Vanderkam", email = "danvdk@gmail.com" }
+]
+homepage = "https://github.com/danvk/webdiff/"
+classifiers = [
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Topic :: Software Development :: Version Control"
+]
+
+[project.urls]
+Homepage = "https://github.com/danvk/webdiff/"
+
+[project.entry-points.console_scripts]
+webdiff = "webdiff.app:run"
+git-webdiff = "webdiff.gitwebdiff:run"
+
+[project.dependencies]
+binaryornot = "*"
+pillow = "*"
+requests = "*"
+PyGithub = "==1.55"
+unidiff = "==0.7.4"
+
+[tool.setuptools.package-data]
+webdiff = ["static/*", "templates/*"]
+
+[tool.setuptools.packages.find]
+exclude = ["tests*"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.format]
+quote-style = "single"
+docstring-code-format = true

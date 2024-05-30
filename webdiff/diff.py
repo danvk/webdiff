@@ -1,4 +1,4 @@
-'''Utility code for working with Diff objects.
+"""Utility code for working with Diff objects.
 
 Diff objects must have these properties:
     - a      Name of the file on the left side of a diff
@@ -8,7 +8,7 @@ Diff objects must have these properties:
     - type   One of {'change', 'move', 'add', 'delete'}
 
 For concrete implementations, see githubdiff and localfilediff.
-'''
+"""
 
 import logging
 import mimetypes
@@ -57,8 +57,8 @@ def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
         diff_output = subprocess.run(args, capture_output=True)
         codes = diff_to_codes(diff_output.stdout.decode('utf8'), num_lines)
         if not codes:
-            # binary diff;
-            # these are rendered as "binary file (123 bytes)" so a 1-line replace is best here
+            # binary diff; these are rendered as "binary file (123 bytes)"
+            # so a 1-line replace is best here.
             codes = [Code(type='replace', before=(0, 1), after=(0, 1))]
         return codes
     elif a_path:
@@ -70,7 +70,7 @@ def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
 
 
 def get_thick_dict(diff):
-    '''Similar to thin_dict, but includes potentially expensive fields.'''
+    """Similar to thin_dict, but includes potentially expensive fields."""
     d = get_thin_dict(diff)
     d.update({'is_image_diff': is_image_diff(diff), 'no_changes': no_changes(diff)})
     if d['is_image_diff']:
@@ -80,7 +80,9 @@ def get_thick_dict(diff):
             d['image_b'] = util.image_metadata(diff.b_path)
         if d['a'] and d['b']:
             try:
-                d['are_same_pixels'], _ = util.generate_pdiff_image(diff.a_path, diff.b_path)
+                d['are_same_pixels'], _ = util.generate_pdiff_image(
+                    diff.a_path, diff.b_path
+                )
             except util.ImageMagickError:
                 d['are_same_pixels'] = False
             except util.ImageMagickNotAvailableError:
@@ -89,7 +91,7 @@ def get_thick_dict(diff):
 
 
 def get_thin_list(diffs, thick_idx=None):
-    '''Convert a list of diffs to dicts. This adds an 'idx' field.'''
+    """Convert a list of diffs to dicts. This adds an 'idx' field."""
     ds = [get_thin_dict(d) for d in diffs]
     if thick_idx is not None:
         ds[thick_idx] = get_thick_dict(ds[thick_idx])
