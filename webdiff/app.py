@@ -49,7 +49,9 @@ WEBDIFF_DIR = determine_path()
 if DEBUG:
     handler = logging.StreamHandler()
     handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     handler.setFormatter(formatter)
 
     for logname in ['']:
@@ -144,7 +146,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         theme = GIT_CONFIG['webdiff']['theme']
         theme_dir = os.path.dirname(theme)
         theme_file = os.path.basename(theme)
-        theme_path = os.path.join(WEBDIFF_DIR, 'static/css/themes', theme_dir, theme_file + '.css')
+        theme_path = os.path.join('static/css/themes', theme_dir, theme_file + '.css')
         self.serve_static_file(theme_path, 'text/css')
 
     def handle_static(self, path: str):

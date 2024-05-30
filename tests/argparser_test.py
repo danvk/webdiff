@@ -1,7 +1,6 @@
 from webdiff import argparser
 
 import tempfile
-import os
 import pytest
 
 _, file1 = tempfile.mkstemp()
@@ -27,15 +26,15 @@ def test_port():
 
 
 def test_github_pull_request():
-    assert {'github': {'owner': 'danvk', 'repo': 'dygraphs', 'num': 292}} == argparser.parse(
-        ['https://github.com/danvk/dygraphs/pull/292']
-    )
-    assert {'github': {'owner': 'danvk', 'repo': 'dygraphs', 'num': 292}} == argparser.parse(
-        ['https://github.com/danvk/dygraphs/pull/292/']
-    )
-    assert {'github': {'owner': 'danvk', 'repo': 'dygraphs', 'num': 292}} == argparser.parse(
-        ['https://github.com/danvk/dygraphs/pull/292/files']
-    )
-    assert {'github': {'owner': 'danvk', 'repo': 'dygraphs', 'num': 292}} == argparser.parse(
-        ['https://github.com/danvk/dygraphs/pull/292/commits']
-    )
+    assert {
+        "github": {"owner": "danvk", "repo": "dygraphs", "num": 292}
+    } == argparser.parse(["https://github.com/danvk/dygraphs/pull/292"])
+    assert {
+        "github": {"owner": "danvk", "repo": "dygraphs", "num": 292}
+    } == argparser.parse(["https://github.com/danvk/dygraphs/pull/292/"])
+    assert {
+        "github": {"owner": "danvk", "repo": "dygraphs", "num": 292}
+    } == argparser.parse(["https://github.com/danvk/dygraphs/pull/292/files"])
+    assert {
+        "github": {"owner": "danvk", "repo": "dygraphs", "num": 292}
+    } == argparser.parse(["https://github.com/danvk/dygraphs/pull/292/commits"])

@@ -31,7 +31,9 @@ def github():
         try:
             pairs = open(github_rc).read()
         except IOError:
-            return simple_fallback('Unable to read .githubrc file. Using anonymous API access.')
+            return simple_fallback(
+                'Unable to read .githubrc file. Using anonymous API access.'
+            )
         else:
             kvs = {}
             for line in pairs.split('\n'):
@@ -42,21 +44,24 @@ def github():
 
             login = kvs.get('user.login')
             if not login:
-                return simple_fallback('.githubrc missing user.login. Using anonymous API access.')
+                return simple_fallback(
+                    '.githubrc missing user.login. Using anonymous API access.'
+                )
 
             password = kvs.get('user.password')
             token = kvs.get('user.token')
 
             if password and token:
                 raise OnlyPasswordOrToken(
-                    'Only specify user.token or user.password ' 'in your .githubrc file (got both)'
+                    'Only specify user.token or user.password '
+                    'in your .githubrc file (got both)'
                 )
 
             auth = token or password
 
             if not auth:
                 return simple_fallback(
-                    '.githubrc has neither user.password nor user.token.'
+                    '.githubrc has neither user.password nor user.token. '
                     'Using anonymous API access.'
                 )
             return Github(login, auth)
@@ -116,7 +121,11 @@ def _uniqueify(iterable):
 def _get_github_remotes():
     '''Returns a list of github remotes for the current repo.'''
     remotes = _uniqueify(
-        [remote for remote in _get_remotes().values() if remote.group('host') == 'github.com']
+        [
+            remote
+            for remote in _get_remotes().values()
+            if remote.group('host') == 'github.com'
+        ]
     )
 
     def parse(remote):
@@ -143,7 +152,11 @@ def _parse_remote(remote):
 
 
 def _parse_remotes(remote_lines):
-    return {remote.group('name'): remote for remote in map(_parse_remote, remote_lines) if remote}
+    return {
+        remote.group('name'): remote
+        for remote in map(_parse_remote, remote_lines)
+        if remote
+    }
 
 
 def _get_remotes():

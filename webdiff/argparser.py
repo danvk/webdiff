@@ -36,9 +36,14 @@ def parse(args, version=None):
         help="Host name on which to serve webdiff UI. Default is localhost.",
         default=None
     )
-    parser.add_argument('--port', '-p', type=int, help="Port to run webdiff on.", default=-1)
     parser.add_argument(
-        'dirs', type=str, nargs='+', help="Directories to diff, or a github pull request URL."
+        '--port', '-p', type=int, help="Port to run webdiff on.", default=-1
+    )
+    parser.add_argument(
+        'dirs',
+        type=str,
+        nargs='+',
+        help='Directories to diff, or a github pull request URL.',
     )
     args = parser.parse_args(args=args)
 

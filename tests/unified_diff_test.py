@@ -150,10 +150,10 @@ def test_add_replaces():
 def test_parse_raw_diff_many():
     # git diff --no-index --raw testdata/manyfiles/{left,right}
     diff = open('testdata/unified/manyfiles.txt').read()
+    mod644 = ['100644', '100644', '0000000', '0000000']
     assert parse_raw_diff(diff) == [
         RawDiffLine(
-            '100644',
-            '100644',
+            *mod644,
             'f00c965',
             'f00c965',
             'R',
@@ -161,30 +161,14 @@ def test_parse_raw_diff_many():
             score=100,
             dst_path='testdata/manyfiles/right/a.txt',
         ),
-        RawDiffLine(
-            '100644', '100644', '0000000', '0000000', 'M', 'testdata/manyfiles/left/b.txt'
-        ),
-        RawDiffLine(
-            '100644', '100644', '0000000', '0000000', 'M', 'testdata/manyfiles/left/c.txt'
-        ),
-        RawDiffLine(
-            '100644', '100644', '0000000', '0000000', 'M', 'testdata/manyfiles/left/e.txt'
-        ),
-        RawDiffLine(
-            '100644', '100644', '0000000', '0000000', 'M', 'testdata/manyfiles/left/f.txt'
-        ),
-        RawDiffLine(
-            '100644', '100644', '0000000', '0000000', 'M', 'testdata/manyfiles/left/g.txt'
-        ),
-        RawDiffLine(
-            '100644', '100644', '0000000', '0000000', 'M', 'testdata/manyfiles/left/h.txt'
-        ),
-        RawDiffLine(
-            '100644', '100644', '0000000', '0000000', 'M', 'testdata/manyfiles/left/i.txt'
-        ),
-        RawDiffLine(
-            '100644', '100644', '0000000', '0000000', 'M', 'testdata/manyfiles/left/j.txt'
-        ),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/b.txt'),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/c.txt'),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/e.txt'),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/f.txt'),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/g.txt'),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/h.txt'),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/i.txt'),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/j.txt'),
     ]
 
 
@@ -205,9 +189,9 @@ def test_parse_raw_diff_rename():
     ]
 
 
-binary_diff = '''diff --git a/testdata/images/left/smiley.png.gz b/testdata/images/right/smiley.png.gz
+binary_diff = '''diff --git a/left/smiley.png.gz b/right/smiley.png.gz
 index 0bcfe40..6fbd5fd 100644
-Binary files a/testdata/images/left/smiley.png.gz and b/testdata/images/right/smiley.png.gz differ
+Binary files a/left/smiley.png.gz and b/right/smiley.png.gz differ
 '''
 
 

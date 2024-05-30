@@ -32,7 +32,8 @@ def make_resolved_dir(dir: str) -> str:
     temp_dir = tempfile.mkdtemp(prefix='webdiff')
     for root, dirs, files in os.walk(dir):
         for subdir in dirs:
-            os.mkdir(os.path.join(temp_dir, os.path.relpath(os.path.join(root, subdir), dir)))
+            rel = os.path.relpath(os.path.join(root, subdir), dir)
+            os.mkdir(os.path.join(temp_dir, rel))
         for file_name in files:
             src_file = os.path.join(root, file_name)
             rel = os.path.relpath(src_file, dir)
@@ -49,18 +50,18 @@ def gitdiff(a_dir, b_dir, webdiff_config):
     a_dir_nosym = a_dir
     if contains_symlinks(a_dir):
         a_dir_nosym = make_resolved_dir(a_dir)
-        logging.debug('Inlined symlinks in left directory %s -> %s', a_dir, a_dir_nosym)
+        logging.debug(f'Inlined symlinks in left directory {a_dir} -> {a_dir_nosym}')
     b_dir_nosym = b_dir
     if contains_symlinks(b_dir):
         b_dir_nosym = make_resolved_dir(b_dir)
-        logging.debug('Inlined symlinks in right directory %s -> %s', b_dir, b_dir_nosym)
+        logging.debug(f'Inlined symlinks in right directory {b_dir} -> {b_dir_nosym}')
     args = cmd.split(' ') + [a_dir_nosym, b_dir_nosym]
     logging.debug('Running git command: %s', args)
     diff_output = subprocess.run(args, capture_output=True)
     # git diff has an exit code of 1 on either a diff _or_ an error.
     # TODO: how to distinguish these cases?
     diff_stdout = diff_output.stdout.decode('utf8')
-    # "Cover our tracks" to make it look like the diff was between directories containing symlinks.
+    # Make it look like the diff was between directories containing symlinks.
     if a_dir != a_dir_nosym:
         diff_stdout = diff_stdout.replace(a_dir_nosym, a_dir)
     if b_dir != b_dir_nosym:

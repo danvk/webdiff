@@ -3,5 +3,5 @@ PyGithub==1.55
 pillow
 requests
 binaryornot
-black
+ruff==0.4.6
 unidiff==0.7.4
