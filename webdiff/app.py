@@ -152,7 +152,6 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.serve_static_file(path, mime_type)
 
     def handle_image(self, side, path):
-        print(f'handle_image {side=} {path=}')
         mime_type, _ = mimetypes.guess_type(path)
         if not mime_type or not mime_type.startswith('image/'):
             return self.send_response_with_json(400, {'error': 'wrong type'})
@@ -163,7 +162,6 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 
         d = DIFF[idx]
         abs_path = d.a_path if side == 'a' else d.b_path
-        print(abs_path)
         self.serve_file(abs_path, mime_type)
 
     def handle_pdiff(self, idx):
@@ -189,9 +187,6 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
             self.send_error(501, f'ImageMagick error {e}')
 
     def handle_get_contents(self, side, form_data):
-        if side not in ('a', 'b'):
-            return self.send_response_with_json(400, {'error': 'invalid side'})
-
         path = form_data.get('path', [''])[0]
         if not path:
             return self.send_response_with_json(400, {'error': 'incomplete'})
@@ -222,7 +217,9 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         extra_args = GIT_CONFIG['webdiff']['extraFileDiffArgs']
         if extra_args:
             options += extra_args.split(' ')
-        diff_ops = [dataclasses.asdict(op) for op in diff.get_diff_ops(DIFF[idx], options)]
+        diff_ops = [
+            dataclasses.asdict(op) for op in diff.get_diff_ops(DIFF[idx], options)
+        ]
         self.send_response_with_json(200, diff_ops)
 
     def handle_seriouslykill(self):
