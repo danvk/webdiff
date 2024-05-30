@@ -1,27 +1,42 @@
-{%- extends "base.html" -%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Diff</title>
 
-{% block title %} Diff {% endblock %}
+  <script src="/static/js/jquery-2.1.1.min.js"></script>
 
-{% block head %}
-{% endblock %}
+  <script src="/static/js/highlight.min.js"></script>
+  <link rel="stylesheet" href="/theme.css">
 
-{% block body %}
+  <script src="/static/codediff.js/difflib.js"></script>
+  <script src="/static/codediff.js/codediff.js"></script>
+  <link rel="stylesheet" href="/static/codediff.js/codediff.css">
 
-<div id="application"></div>
+  <link href='/static/css/inconsolata.css' rel='stylesheet'>
+
+  <link rel="stylesheet" href="/static/css/style.css">
+
+</head>
+
+<body>
+<div class="container">
+  <div id="application"></div>
+</div>
+</body>
 
 <script>
-var pairs = {{pairs|tojson}};
-var initialIdx = {{idx|tojson}};
-var HAS_IMAGE_MAGICK = {{has_magick|tojson}};
-var GIT_CONFIG = {{git_config|tojson}};
+var {pairs, idx, has_magick, git_config} = {{data}};
+var initialIdx = idx;
+var HAS_IMAGE_MAGICK = has_magick;
+var GIT_CONFIG = git_config;
 </script>
 
 <script src="/static/js/file_diff.js"></script>
 
 <script>
-window.addEventListener('beforeunload', function(e) {
-  $.post('/kill');
-});
+  window.addEventListener('beforeunload', function(e) {
+    $.post('/kill');
+  });
 </script>
 
-{% endblock %}
+</html>

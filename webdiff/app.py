@@ -42,6 +42,7 @@ DIFF = None
 PORT = None
 HOSTNAME = 'localhost'
 DEBUG = os.environ.get('DEBUG')
+WEBDIFF_DIR = determine_path()
 
 if DEBUG:
     handler = logging.StreamHandler()
@@ -75,11 +76,15 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         path_elements = parsed_path.path.strip('/').split('/')
 
         if path_elements[0] == "":
-            self.handle_index()
+            self.handle_index(0)
+        elif len(path_elements) == 1 and path_elements[0].isdigit():
+            self.handle_index(int(path_elements[0]))
         elif path_elements[0] == "favicon.ico":
             self.handle_favicon()
         elif path_elements[0] == "theme.css":
             self.handle_theme()
+        elif path_elements[0] == 'static':
+            self.handle_static('/'.join(path_elements))
         elif len(path_elements) == 3 and path_elements[1] == "image":
             self.handle_image(path_elements[0], path_elements[2])
         elif len(path_elements) == 2 and path_elements[0] == "pdiff":
@@ -110,12 +115,20 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         else:
             self.send_error(404, "File not found")
 
-    def handle_index(self):
+    def handle_index(self, idx: int):
+        pairs = diff.get_thin_list(DIFF)
         self.send_response(200)
         self.send_header('Content-Type', 'text/html')
         self.end_headers()
-        with open('templates/file_diff.html', 'r') as file:
-            self.wfile.write(file.read().encode('utf-8'))
+        with open(os.path.join(WEBDIFF_DIR, 'templates/file_diff.html'), 'r') as file:
+            html = file.read()
+            html = html.replace('{{data}}', json.dumps({
+                'idx': idx,
+                'has_magick': util.is_imagemagick_available(),
+                'pairs': pairs,
+                'git_config': GIT_CONFIG,
+            }, indent=2))
+            self.wfile.write(html.encode('utf-8'))
 
     def handle_favicon(self):
         self.serve_static_file('static/img/favicon.ico', 'image/vnd.microsoft.icon')
@@ -124,8 +137,12 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         theme = GIT_CONFIG['webdiff']['theme']
         theme_dir = os.path.dirname(theme)
         theme_file = os.path.basename(theme)
-        theme_path = os.path.join('static/css/themes', theme_dir, theme_file + '.css')
+        theme_path = os.path.join(WEBDIFF_DIR, 'static/css/themes', theme_dir, theme_file + '.css')
         self.serve_static_file(theme_path, 'text/css')
+
+    def handle_static(self, path: str):
+        mime_type, _ = mimetypes.guess_type(path)
+        self.serve_static_file(path, mime_type)
 
     def handle_image(self, side, path):
         if side not in ('a', 'b'):
@@ -242,7 +259,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def serve_static_file(self, file_path, mime_type):
         try:
-            with open(file_path, 'rb') as file:
+            with open(os.path.join(WEBDIFF_DIR, file_path), 'rb') as file:
                 contents = file.read()
             self.send_response(200)
             self.send_header('Content-Type', mime_type)
