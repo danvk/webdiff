@@ -153,7 +153,8 @@ def test_parse_raw_diff_many():
     mod644 = ['100644', '100644', '0000000', '0000000']
     assert parse_raw_diff(diff) == [
         RawDiffLine(
-            *mod644,
+            '100644',
+            '100644',
             'f00c965',
             'f00c965',
             'R',
