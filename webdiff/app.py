@@ -310,14 +310,6 @@ def pick_a_port(args, webdiff_config):
     return port
 
 
-def abs_path_from_rel(path):
-    '''Changes relative paths to be abs w/r/t/ the original cwd.'''
-    if os.path.isabs(path):
-        return path
-    else:
-        return os.path.join(os.getcwd(), path)
-
-
 def is_webdiff_from_head():
     '''Was webdiff invoked as `git webdiff` with no other non-flag args?'''
     return os.environ.get('WEBDIFF_FROM_HEAD') is not None
@@ -340,8 +332,6 @@ def run():
         sys.stderr.write('Args: %s\n' % parsed_args)
         sys.stderr.write('Diff: %s\n' % DIFF)
         sys.stderr.write('GitConfig: %s\n' % GIT_CONFIG)
-
-    # print({k: v for k, v in os.environ.items() if k.startswith('WEBDIFF')})
 
     PORT = pick_a_port(parsed_args, WEBDIFF_CONFIG)
     HOSTNAME = (
