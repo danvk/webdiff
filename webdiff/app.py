@@ -9,6 +9,7 @@ import json
 import logging
 import mimetypes
 import os
+import re
 import platform
 import requests
 import socket
@@ -51,7 +52,6 @@ if DEBUG:
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     handler.setFormatter(formatter)
 
-    # app.logger.addHandler(handler)
     for logname in ['']:
         log = logging.getLogger(logname)
         log.setLevel(logging.DEBUG)
@@ -74,26 +74,26 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         note_request_time()
         parsed_path = urlparse(self.path)
         parts = parsed_path.path.strip('/').split('/')
-        path = '/'.join(parts)
+        path = '/' + '/'.join(parts)
 
-        if path == '':
+        if path == '/':
             self.handle_index(0)
         elif len(parts) == 1 and parts[0].isdigit():
             self.handle_index(int(parts[0]))
-        elif path == "favicon.ico":
+        elif path == "/favicon.ico":
             self.handle_favicon()
-        elif path == "theme.css":
+        elif path == "/theme.css":
             self.handle_theme()
-        elif path.startswith('static/'):
-            self.handle_static(path)
-        elif len(parts) == 2 and parts[0] == 'thick' and parts[1].isdigit():
-            self.handle_thick(int(parts[1]))
-        elif len(parts) == 3 and parts[1] == "image":
-            self.handle_image(parts[0], parts[2])
-        elif len(parts) == 2 and parts[0] == "pdiff":
-            self.handle_pdiff(int(parts[1]))
-        elif len(parts) == 2 and parts[0] == "pdiffbbox":
-            self.handle_pdiff_bbox(int(parts[1]))
+        elif path.startswith('/static/'):
+            self.handle_static(path[1:])
+        elif m := re.match(r'/thick/(?P<idx>\d+)', path):
+            self.handle_thick(int(m['idx']))
+        elif m := re.match(r'/(?P<side>a|b)/image/(?P<path>.*)', path):
+            self.handle_image(m['side'], m['path'])
+        elif m := re.match(r'/pdiff/(?P<idx>\d+)', path):
+            self.handle_pdiff(int(m['idx']))
+        elif m := re.match(r'/pdiffbox/(?P<idx>\d+)', path):
+            self.handle_pdiff_bbox(int(m['idx']))
         else:
             self.send_error(404, "File not found")
 
@@ -101,20 +101,20 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         note_request_time()
         parsed_path = urlparse(self.path)
         parts = parsed_path.path.strip('/').split('/')
-        path = '/'.join(parts)
+        path = '/' + '/'.join(parts)
 
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
 
-        if len(parts) == 2 and parts[1] == "get_contents":
+        if m := re.match(r'/(?P<side>a|b)/get_contents', path):
             form_data = parse_qs(post_data.decode('utf-8'))
-            self.handle_get_contents(parts[0], form_data)
-        elif len(parts) == 2 and parts[0] == "diff":
+            self.handle_get_contents(m['side'], form_data)
+        elif m := re.match(r'/diff/(?P<idx>\d+)', path):
             payload = json.loads(post_data.decode('utf-8'))
-            self.handle_diff_ops(int(parts[1]), payload)
-        elif path == "seriouslykill":
+            self.handle_diff_ops(int(m['idx']), payload)
+        elif path == "/seriouslykill":
             self.handle_seriouslykill()
-        elif path == "kill":
+        elif path == "/kill":
             self.handle_kill()
         else:
             self.send_error(404, "File not found")
@@ -152,9 +152,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.serve_static_file(path, mime_type)
 
     def handle_image(self, side, path):
-        if side not in ('a', 'b'):
-            return self.send_response_with_json(400, {'error': 'invalid side'})
-
+        print(f'handle_image {side=} {path=}')
         mime_type, _ = mimetypes.guess_type(path)
         if not mime_type or not mime_type.startswith('image/'):
             return self.send_response_with_json(400, {'error': 'wrong type'})
@@ -165,7 +163,8 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 
         d = DIFF[idx]
         abs_path = d.a_path if side == 'a' else d.b_path
-        self.serve_static_file(abs_path, mime_type)
+        print(abs_path)
+        self.serve_file(abs_path, mime_type)
 
     def handle_pdiff(self, idx):
         d = DIFF[idx]
@@ -248,8 +247,11 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(b'Shutting down...')
 
     def serve_static_file(self, file_path, mime_type):
+        self.serve_file(os.path.join(WEBDIFF_DIR, file_path), mime_type)
+
+    def serve_file(self, file_path, mime_type):
         try:
-            with open(os.path.join(WEBDIFF_DIR, file_path), 'rb') as file:
+            with open(file_path, 'rb') as file:
                 contents = file.read()
             self.send_response(200)
             self.send_header('Content-Type', mime_type)
