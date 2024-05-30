@@ -22,7 +22,7 @@ setup(name='webdiff',
       packages=find_packages(exclude=['tests*']),
       install_requires=[
           'binaryornot',
-          'flask==2.2.2',
+          'flask==2.2.5',
           'pillow',
           'requests',
           'PyGithub==1.55',
