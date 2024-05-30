@@ -4,32 +4,24 @@
 For usage, see README.md.
 '''
 
-from binaryornot.check import is_binary
+import dataclasses
+import json
 import logging
 import mimetypes
 import os
+import re
 import platform
 import requests
 import socket
 import sys
-from threading import Timer
+import threading
 import time
 import webbrowser
+from binaryornot.check import is_binary
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import urlparse, parse_qs
 
-from flask import (
-    Flask,
-    render_template,
-    send_from_directory,
-    send_file,
-    request,
-    jsonify,
-    Response,
-)
-
-from webdiff import diff
-from webdiff import util
-from webdiff import argparser
-from webdiff import options
+from webdiff import diff, util, argparser, options
 
 VERSION = '1.0.1'
 
@@ -41,248 +33,249 @@ def determine_path():
         if os.path.islink(root):
             root = os.path.realpath(root)
         return os.path.dirname(os.path.abspath(root))
-    except:
-        print("I'm sorry, but something is wrong.")
+    except Exception as e:
+        print(f"I'm sorry, but something is wrong. Error: {e}")
         print("There is no __file__ variable. Please contact the author.")
         sys.exit()
 
-
-def is_hot_reload():
-    """In debug mode, Werkzeug reloads the app on any changes."""
-    return os.environ.get('WERKZEUG_RUN_MAIN')
-
-
-class Config:
-    TESTING = False  # not exactly sure what this does...
-    JSONIFY_PRETTYPRINT_REGULAR = False
-
-
-app = Flask(__name__)
-app.config.from_object(Config)
-app.config.from_envvar('WEBDIFF_CONFIG', silent=True)
 
 GIT_CONFIG = {}
 DIFF = None
 PORT = None
 HOSTNAME = 'localhost'
+DEBUG = os.environ.get('DEBUG')
+WEBDIFF_DIR = determine_path()
 
-if app.config['TESTING'] or app.config['DEBUG']:
+if DEBUG:
     handler = logging.StreamHandler()
     handler.setLevel(logging.DEBUG)
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     handler.setFormatter(formatter)
 
-    app.logger.addHandler(handler)
     for logname in ['']:
         log = logging.getLogger(logname)
         log.setLevel(logging.DEBUG)
         log.addHandler(handler)
     logging.getLogger('github').setLevel(logging.ERROR)
-else:
-    # quiet down werkzeug -- no need to log every request.
-    logging.getLogger('werkzeug').setLevel(logging.ERROR)
+
+# GPT's alternative:
+# logging.basicConfig(level=logging.DEBUG if 'DEBUG' in os.environ else logging.INFO)
+# logger = logging.getLogger(__name__)
 
 
-LAST_REQUEST_MS = 0
+class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
+    def send_response_with_json(self, code, payload):
+        self.send_response(code)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps(payload).encode('utf-8'))
+
+    def do_GET(self):
+        note_request_time()
+        parsed_path = urlparse(self.path)
+        parts = parsed_path.path.strip('/').split('/')
+        path = '/' + '/'.join(parts)
+
+        if path == '/':
+            self.handle_index(0)
+        elif len(parts) == 1 and parts[0].isdigit():
+            self.handle_index(int(parts[0]))
+        elif path == "/favicon.ico":
+            self.handle_favicon()
+        elif path == "/theme.css":
+            self.handle_theme()
+        elif path.startswith('/static/'):
+            self.handle_static(path[1:])
+        elif m := re.match(r'/thick/(?P<idx>\d+)', path):
+            self.handle_thick(int(m['idx']))
+        elif m := re.match(r'/(?P<side>a|b)/image/(?P<path>.*)', path):
+            self.handle_image(m['side'], m['path'])
+        elif m := re.match(r'/pdiff/(?P<idx>\d+)', path):
+            self.handle_pdiff(int(m['idx']))
+        elif m := re.match(r'/pdiffbox/(?P<idx>\d+)', path):
+            self.handle_pdiff_bbox(int(m['idx']))
+        else:
+            self.send_error(404, "File not found")
+
+    def do_POST(self):
+        note_request_time()
+        parsed_path = urlparse(self.path)
+        parts = parsed_path.path.strip('/').split('/')
+        path = '/' + '/'.join(parts)
+
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+
+        if m := re.match(r'/(?P<side>a|b)/get_contents', path):
+            form_data = parse_qs(post_data.decode('utf-8'))
+            self.handle_get_contents(m['side'], form_data)
+        elif m := re.match(r'/diff/(?P<idx>\d+)', path):
+            payload = json.loads(post_data.decode('utf-8'))
+            self.handle_diff_ops(int(m['idx']), payload)
+        elif path == "/seriouslykill":
+            self.handle_seriouslykill()
+        elif path == "/kill":
+            self.handle_kill()
+        else:
+            self.send_error(404, "File not found")
+
+    def handle_index(self, idx: int):
+        pairs = diff.get_thin_list(DIFF)
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/html; charset=utf-8')
+        self.end_headers()
+        with open(os.path.join(WEBDIFF_DIR, 'templates/file_diff.html'), 'r') as file:
+            html = file.read()
+            html = html.replace('{{data}}', json.dumps({
+                'idx': idx,
+                'has_magick': util.is_imagemagick_available(),
+                'pairs': pairs,
+                'git_config': GIT_CONFIG,
+            }, indent=2))
+            self.wfile.write(html.encode('utf-8'))
+
+    def handle_thick(self, idx: int):
+        self.send_response_with_json(200, diff.get_thick_dict(DIFF[idx]))
+
+    def handle_favicon(self):
+        self.serve_static_file('static/img/favicon.ico', 'image/vnd.microsoft.icon')
+
+    def handle_theme(self):
+        theme = GIT_CONFIG['webdiff']['theme']
+        theme_dir = os.path.dirname(theme)
+        theme_file = os.path.basename(theme)
+        theme_path = os.path.join(WEBDIFF_DIR, 'static/css/themes', theme_dir, theme_file + '.css')
+        self.serve_static_file(theme_path, 'text/css')
+
+    def handle_static(self, path: str):
+        mime_type, _ = mimetypes.guess_type(path)
+        self.serve_static_file(path, mime_type)
+
+    def handle_image(self, side, path):
+        mime_type, _ = mimetypes.guess_type(path)
+        if not mime_type or not mime_type.startswith('image/'):
+            return self.send_response_with_json(400, {'error': 'wrong type'})
+
+        idx = diff.find_diff_index(DIFF, side, path)
+        if idx is None:
+            return self.send_response_with_json(400, {'error': 'not found'})
+
+        d = DIFF[idx]
+        abs_path = d.a_path if side == 'a' else d.b_path
+        self.serve_file(abs_path, mime_type)
+
+    def handle_pdiff(self, idx):
+        d = DIFF[idx]
+        try:
+            _, pdiff_image = util.generate_pdiff_image(d.a_path, d.b_path)
+            dilated_image_path = util.generate_dilated_pdiff_image(pdiff_image)
+            self.serve_static_file(dilated_image_path, 'image/png')
+        except util.ImageMagickNotAvailableError:
+            self.send_error(501, 'ImageMagick is not available')
+        except util.ImageMagickError as e:
+            self.send_error(501, f'ImageMagick error {e}')
+
+    def handle_pdiff_bbox(self, idx):
+        d = DIFF[idx]
+        try:
+            _, pdiff_image = util.generate_pdiff_image(d.a_path, d.b_path)
+            bbox = util.get_pdiff_bbox(pdiff_image)
+            self.send_response_with_json(200, bbox)
+        except util.ImageMagickNotAvailableError:
+            self.send_error(501, 'ImageMagick is not available')
+        except util.ImageMagickError as e:
+            self.send_error(501, f'ImageMagick error {e}')
+
+    def handle_get_contents(self, side, form_data):
+        path = form_data.get('path', [''])[0]
+        if not path:
+            return self.send_response_with_json(400, {'error': 'incomplete'})
+
+        idx = diff.find_diff_index(DIFF, side, path)
+        if idx is None:
+            return self.send_response_with_json(400, {'error': 'not found'})
+
+        d = DIFF[idx]
+        abs_path = d.a_path if side == 'a' else d.b_path
+
+        try:
+            if is_binary(abs_path):
+                size = os.path.getsize(abs_path)
+                contents = f"Binary file ({size} bytes)"
+            else:
+                with open(abs_path, 'r') as file:
+                    contents = file.read()
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(contents.encode('utf-8'))
+        except Exception as e:
+            self.send_response_with_json(500, {'error': str(e)})
+
+    def handle_diff_ops(self, idx, payload):
+        options = payload.get('options') or []
+        extra_args = GIT_CONFIG['webdiff']['extraFileDiffArgs']
+        if extra_args:
+            options += extra_args.split(' ')
+        diff_ops = [
+            dataclasses.asdict(op) for op in diff.get_diff_ops(DIFF[idx], options)
+        ]
+        self.send_response_with_json(200, diff_ops)
+
+    def handle_seriouslykill(self):
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/plain')
+        self.end_headers()
+        self.wfile.write(b"Shutting down...")
+        threading.Thread(target=self.server.shutdown).start()
+
+    def handle_kill(self):
+        global LAST_REQUEST_MS
+        last_ms = LAST_REQUEST_MS
+
+        def shutdown():
+            if LAST_REQUEST_MS <= last_ms:  # subsequent requests abort shutdown
+                requests.post('http://localhost:%d/seriouslykill' % PORT)
+
+        threading.Timer(0.5, shutdown).start()
+        self.send_response(200)
+        self.send_header('Content-Type', 'text/plain')
+        self.end_headers()
+        self.wfile.write(b'Shutting down...')
+
+    def serve_static_file(self, file_path, mime_type):
+        self.serve_file(os.path.join(WEBDIFF_DIR, file_path), mime_type)
+
+    def serve_file(self, file_path, mime_type):
+        try:
+            with open(file_path, 'rb') as file:
+                contents = file.read()
+            self.send_response(200)
+            self.send_header('Content-Type', mime_type)
+            self.end_headers()
+            self.wfile.write(contents)
+        except Exception as e:
+            self.send_response_with_json(500, {'error': str(e)})
+
+    def log_request(self, *args):
+        if DEBUG:
+            super().log_request(*args)
 
 
-@app.before_request
-def update_last_request_ms():
+def note_request_time():
     global LAST_REQUEST_MS
     LAST_REQUEST_MS = time.time() * 1000
 
-
-def error(code, message):
-    e = {"code": code, "message": message}
-    response = jsonify(e)
-    response.status_code = 400
-    return response
-
-
-@app.route("/<side>/get_contents", methods=['POST'])
-def get_contents(side):
-    if side not in ('a', 'b'):
-        return error('invalid side', 'Side must be "a" or "b", got %s' % side)
-
-    # TODO: switch to index? might be simpler
-    path = request.form.get('path', '')
-    if not path:
-        return error('incomplete', 'Incomplete request (need path)')
-
-    idx = diff.find_diff_index(DIFF, side, path)
-    if idx is None:
-        return error('not found', 'Invalid path on side %s: %s' % (side, path))
-
-    d = DIFF[idx]
-    abs_path = d.a_path if side == 'a' else d.b_path
-
-    try:
-        if is_binary(abs_path):
-            size = os.path.getsize(abs_path)
-            contents = "Binary file (%d bytes)" % size
-        else:
-            contents = open(abs_path).read()
-        return Response(contents, mimetype='text/plain')
-    except Exception:
-        return error('read-error', 'Unable to read %s' % abs_path)
-
-
-@app.route("/<side>/image/<path:path>")
-def get_image(side, path):
-    if side not in ('a', 'b'):
-        return error('invalid side', 'Side must be "a" or "b", got %s' % side)
-
-    # TODO: switch to index? might be simpler
-    if not path:
-        return error('incomplete', 'Incomplete request (need path)')
-
-    mime_type, enc = mimetypes.guess_type(path)
-    if not mime_type or not mime_type.startswith('image/') or enc is not None:
-        return error('wrongtype', 'Requested file of type (%s, %s) as image' % (mime_type, enc))
-
-    idx = diff.find_diff_index(DIFF, side, path)
-    if idx is None:
-        return error('not found', 'Invalid path on side %s: %s' % (side, path))
-
-    d = DIFF[idx]
-    abs_path = d.a_path if side == 'a' else d.b_path
-
-    try:
-        contents = open(abs_path, mode='rb').read()
-        return Response(contents, mimetype=mime_type)
-    except Exception:
-        return error('read-error', 'Unable to read %s' % abs_path)
-
-
-@app.route("/pdiff/<int:idx>")
-def get_pdiff(idx):
-    idx = int(idx)
-    d = DIFF[idx]
-    try:
-        _, pdiff_image = util.generate_pdiff_image(d.a_path, d.b_path)
-        dilated_image = util.generate_dilated_pdiff_image(pdiff_image)
-    except util.ImageMagickNotAvailableError:
-        return 'ImageMagick is not available', 501
-    except util.ImageMagickError as e:
-        return 'ImageMagick error %s' % e, 501
-    return send_file(dilated_image)
-
-
-@app.route("/pdiffbbox/<int:idx>")
-def get_pdiff_bbox(idx):
-    idx = int(idx)
-    d = DIFF[idx]
-    try:
-        _, pdiff_image = util.generate_pdiff_image(d.a_path, d.b_path)
-        bbox = util.get_pdiff_bbox(pdiff_image)
-    except util.ImageMagickNotAvailableError:
-        return 'ImageMagick is not available', 501
-    except util.ImageMagickError as e:
-        return 'ImageMagick error %s' % e, 501
-    return jsonify(bbox)
-
-
-# Show the first diff by default
-@app.route("/")
-def index():
-    return file_diff('0')
-
-
-@app.route("/<int:idx>")
-def file_diff(idx):
-    idx = int(idx)
-    pairs = diff.get_thin_list(DIFF)
-    return render_template(
-        'file_diff.html',
-        idx=idx,
-        has_magick=util.is_imagemagick_available(),
-        pairs=pairs,
-        git_config=GIT_CONFIG,
-    )
-
-
-@app.route('/thick/<int:idx>')
-def thick_diff(idx):
-    idx = int(idx)
-    return jsonify(diff.get_thick_dict(DIFF[idx]))
-
-
-@app.route('/diff/<int:idx>', methods=['POST'])
-def get_diff_ops(idx):
-    idx = int(idx)
-    options = request.json.get('options')
-    extra_args = GIT_CONFIG['webdiff']['extraFileDiffArgs']
-    if extra_args:
-        options += extra_args.split(' ')
-    return jsonify(diff.get_diff_ops(DIFF[idx], options))
-
-
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(
-        os.path.join(app.root_path, 'static/img'),
-        'favicon.ico',
-        mimetype='image/vnd.microsoft.icon',
-    )
-
-
-@app.route('/theme.css')
-def theme():
-    theme = GIT_CONFIG['webdiff']['theme']
-    theme_dir = os.path.dirname(theme)
-    theme_file = os.path.basename(theme)
-    return send_from_directory(
-        os.path.join(*([app.root_path, 'static/css/themes'] + ([theme_dir] if theme_dir else []))),
-        theme_file + '.css',
-        mimetype='text/css',
-    )
-
-
 # See https://stackoverflow.com/a/69812984/388951
 exiting = False
-
-
-@app.route('/seriouslykill', methods=['POST'])
-def seriouslykill():
-    global exiting
-    exiting = True
-    return "Shutting down..."
-
-
-@app.teardown_request
-def teardown(exception):
-    if exiting:
-        os._exit(0)
-
-
-@app.route('/kill', methods=['POST'])
-def kill():
-    global PORT
-    if 'STAY_RUNNING' in app.config:
-        return 'Will stay running.'
-
-    last_ms = LAST_REQUEST_MS
-
-    def shutdown():
-        if LAST_REQUEST_MS <= last_ms:  # subsequent requests abort shutdown
-            requests.post('http://%s:%d/seriouslykill' % (HOSTNAME, PORT))
-        else:
-            pass
-
-    Timer(0.5, shutdown).start()
-
-    return 'Shutting down...'
 
 
 def open_browser():
     global PORT
     global HOSTNAME
     global GIT_CONFIG
-    if GIT_CONFIG['webdiff']['openBrowser']:
-        if is_hot_reload():
-            log.debug('Skipping browser open on reload')
-        else:
-            webbrowser.open_new_tab('http://%s:%s' % (HOSTNAME, PORT))
+    if not os.environ.get('WEBDIFF_NO_OPEN') and GIT_CONFIG['webdiff']['openBrowser']:
+        webbrowser.open_new_tab('http://%s:%s' % (HOSTNAME, PORT))
 
 
 def usage_and_die():
@@ -309,19 +302,6 @@ def pick_a_port(args, webdiff_config):
     return port
 
 
-def abs_path_from_rel(path):
-    '''Changes relative paths to be abs w/r/t/ the original cwd.'''
-    if os.path.isabs(path):
-        return path
-    else:
-        return os.path.join(os.getcwd(), path)
-
-
-def is_webdiff_from_head():
-    '''Was webdiff invoked as `git webdiff` with no other non-flag args?'''
-    return os.environ.get('WEBDIFF_FROM_HEAD') is not None
-
-
 def run():
     global DIFF, PORT, HOSTNAME, GIT_CONFIG
     try:
@@ -334,7 +314,7 @@ def run():
     WEBDIFF_CONFIG = GIT_CONFIG['webdiff']
     DIFF = argparser.diff_for_args(parsed_args, WEBDIFF_CONFIG)
 
-    if app.config['TESTING'] or app.config['DEBUG']:
+    if DEBUG:
         sys.stderr.write('Invoked as: %s\n' % sys.argv)
         sys.stderr.write('Args: %s\n' % parsed_args)
         sys.stderr.write('Diff: %s\n' % DIFF)
@@ -360,8 +340,10 @@ Close the browser tab or hit Ctrl-C when you're done.
 '''
         % (HOSTNAME, PORT)
     )
-    Timer(0.1, open_browser).start()
-    app.run(host=HOSTNAME, port=PORT)
+    threading.Timer(0.1, open_browser).start()
+
+    server = HTTPServer((HOSTNAME, PORT), CustomHTTPRequestHandler)
+    server.serve_forever()
 
 
 if __name__ == '__main__':
