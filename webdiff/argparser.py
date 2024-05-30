@@ -62,8 +62,8 @@ def parse(args, version=None):
         # Or perhaps something simpler like '#292'?
         m = re.match(PULL_REQUEST_NUM_RE, args.dirs[0])
         if m:
-            num = int(m.group(1))
-            owner, repo, num = github_fetcher.get_pr_repo(num)
+            num = m.group(1)
+            owner, repo, num = github_fetcher.get_pr_repo(int(num))
 
         if not owner:
             raise UsageError(
