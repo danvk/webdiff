@@ -1,25 +1,26 @@
 """Read webdiff options from the .gitconfig system."""
+
 import json
 import subprocess
 
 
 DEFAULTS = {
-    "webdiff": {
-        "unified": 8,
-        "extraDirDiffArgs": "",
-        "extraFileDiffArgs": "",
-        "openBrowser": True,
-        "port": -1,  # random
-        "host": "localhost",
-        "maxDiffWidth": 100,
-        "theme": "googlecode",
-        "maxLinesForSyntax": 10_000,
+    'webdiff': {
+        'unified': 8,
+        'extraDirDiffArgs': '',
+        'extraFileDiffArgs': '',
+        'openBrowser': True,
+        'port': -1,  # random
+        'host': 'localhost',
+        'maxDiffWidth': 100,
+        'theme': 'googlecode',
+        'maxLinesForSyntax': 10_000,
     },
-    "webdiff.colors": {
-        "insert": "#efe",
-        "delete": "#fee",
-        "charInsert": "#cfc",
-        "charDelete": "#fcc",
+    'webdiff.colors': {
+        'insert': '#efe',
+        'delete': '#fee',
+        'charInsert': '#cfc',
+        'charDelete': '#fcc',
     },
 }
 
@@ -29,15 +30,15 @@ def _get_git_config(key: str, default_value=None):
     is_int = isinstance(default_value, int)
     try:
         cmd = [
-            "git",
-            "config",
-            *(["--bool-or-int"] if (is_bool or is_int) else []),
-            "--get",
+            'git',
+            'config',
+            *(['--bool-or-int'] if (is_bool or is_int) else []),
+            '--get',
             key,
         ]
         result = subprocess.check_output(cmd, universal_newlines=True).strip()
         if is_bool:
-            return result == "true"
+            return result == 'true'
         elif is_int:
             return int(result)
         return result
@@ -60,5 +61,5 @@ def get_config():
     return out
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     print(json.dumps(get_config(), indent=2))

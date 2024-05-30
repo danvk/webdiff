@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-'''This lets you run "git webdiff" instead of "git difftool".'''
+"""This lets you run "git webdiff" instead of "git difftool"."""
 
 import os
 import subprocess

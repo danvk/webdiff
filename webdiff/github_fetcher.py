@@ -19,7 +19,7 @@ from webdiff.util import memoize
 
 @memoize
 def github():
-    '''Returns a GitHub API object with auth, if it's available.'''
+    """Returns a GitHub API object with auth, if it's available."""
 
     def simple_fallback(message=None):
         if message:
@@ -119,7 +119,7 @@ def _uniqueify(iterable):
 
 
 def _get_github_remotes():
-    '''Returns a list of github remotes for the current repo.'''
+    """Returns a list of github remotes for the current repo."""
     remotes = _uniqueify(
         [
             remote

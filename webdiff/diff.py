@@ -1,4 +1,4 @@
-'''Utility code for working with Diff objects.
+"""Utility code for working with Diff objects.
 
 Diff objects must have these properties:
     - a      Name of the file on the left side of a diff
@@ -8,7 +8,7 @@ Diff objects must have these properties:
     - type   One of {'change', 'move', 'add', 'delete'}
 
 For concrete implementations, see githubdiff and localfilediff.
-'''
+"""
 
 import logging
 import mimetypes
@@ -70,7 +70,7 @@ def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
 
 
 def get_thick_dict(diff):
-    '''Similar to thin_dict, but includes potentially expensive fields.'''
+    """Similar to thin_dict, but includes potentially expensive fields."""
     d = get_thin_dict(diff)
     d.update({'is_image_diff': is_image_diff(diff), 'no_changes': no_changes(diff)})
     if d['is_image_diff']:
@@ -91,7 +91,7 @@ def get_thick_dict(diff):
 
 
 def get_thin_list(diffs, thick_idx=None):
-    '''Convert a list of diffs to dicts. This adds an 'idx' field.'''
+    """Convert a list of diffs to dicts. This adds an 'idx' field."""
     ds = [get_thin_dict(d) for d in diffs]
     if thick_idx is not None:
         ds[thick_idx] = get_thick_dict(ds[thick_idx])

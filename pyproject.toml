@@ -41,6 +41,9 @@ webdiff = ["static/*", "templates/*"]
 [tool.setuptools.packages.find]
 exclude = ["tests*"]
 
+[tool.ruff]
+line-length = 88
+
 [tool.ruff.format]
 quote-style = "single"
 docstring-code-format = true

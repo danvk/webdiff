@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-'''Web-based file differ.
+"""Web-based file differ.
 
 For usage, see README.md.
-'''
+"""
 
 import dataclasses
 import json
@@ -35,7 +35,7 @@ def determine_path():
         return os.path.dirname(os.path.abspath(root))
     except Exception as e:
         print(f"I'm sorry, but something is wrong. Error: {e}")
-        print("There is no __file__ variable. Please contact the author.")
+        print('There is no __file__ variable. Please contact the author.')
         sys.exit()
 
 
@@ -68,7 +68,7 @@ if DEBUG:
 class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
     def send_response_with_json(self, code, payload):
         self.send_response(code)
-        self.send_header("Content-Type", "application/json")
+        self.send_header('Content-Type', 'application/json')
         self.end_headers()
         self.wfile.write(json.dumps(payload).encode('utf-8'))
 
@@ -82,9 +82,9 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
             self.handle_index(0)
         elif len(parts) == 1 and parts[0].isdigit():
             self.handle_index(int(parts[0]))
-        elif path == "/favicon.ico":
+        elif path == '/favicon.ico':
             self.handle_favicon()
-        elif path == "/theme.css":
+        elif path == '/theme.css':
             self.handle_theme()
         elif path.startswith('/static/'):
             self.handle_static(path[1:])
@@ -97,7 +97,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         elif m := re.match(r'/pdiffbox/(?P<idx>\d+)', path):
             self.handle_pdiff_bbox(int(m['idx']))
         else:
-            self.send_error(404, "File not found")
+            self.send_error(404, 'File not found')
 
     def do_POST(self):
         note_request_time()
@@ -114,12 +114,12 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         elif m := re.match(r'/diff/(?P<idx>\d+)', path):
             payload = json.loads(post_data.decode('utf-8'))
             self.handle_diff_ops(int(m['idx']), payload)
-        elif path == "/seriouslykill":
+        elif path == '/seriouslykill':
             self.handle_seriouslykill()
-        elif path == "/kill":
+        elif path == '/kill':
             self.handle_kill()
         else:
-            self.send_error(404, "File not found")
+            self.send_error(404, 'File not found')
 
     def handle_index(self, idx: int):
         pairs = diff.get_thin_list(DIFF)
@@ -128,12 +128,18 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
         with open(os.path.join(WEBDIFF_DIR, 'templates/file_diff.html'), 'r') as file:
             html = file.read()
-            html = html.replace('{{data}}', json.dumps({
-                'idx': idx,
-                'has_magick': util.is_imagemagick_available(),
-                'pairs': pairs,
-                'git_config': GIT_CONFIG,
-            }, indent=2))
+            html = html.replace(
+                '{{data}}',
+                json.dumps(
+                    {
+                        'idx': idx,
+                        'has_magick': util.is_imagemagick_available(),
+                        'pairs': pairs,
+                        'git_config': GIT_CONFIG,
+                    },
+                    indent=2,
+                ),
+            )
             self.wfile.write(html.encode('utf-8'))
 
     def handle_thick(self, idx: int):
@@ -203,7 +209,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         try:
             if is_binary(abs_path):
                 size = os.path.getsize(abs_path)
-                contents = f"Binary file ({size} bytes)"
+                contents = f'Binary file ({size} bytes)'
             else:
                 with open(abs_path, 'r') as file:
                     contents = file.read()
@@ -228,7 +234,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain')
         self.end_headers()
-        self.wfile.write(b"Shutting down...")
+        self.wfile.write(b'Shutting down...')
         threading.Thread(target=self.server.shutdown).start()
 
     def handle_kill(self):
@@ -267,6 +273,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 def note_request_time():
     global LAST_REQUEST_MS
     LAST_REQUEST_MS = time.time() * 1000
+
 
 # See https://stackoverflow.com/a/69812984/388951
 exiting = False
@@ -337,9 +344,9 @@ def run():
             HOSTNAME = _hostname
 
     sys.stderr.write(
-        '''Serving diffs on http://%s:%s
+        """Serving diffs on http://%s:%s
 Close the browser tab or hit Ctrl-C when you're done.
-'''
+"""
         % (HOSTNAME, PORT)
     )
     threading.Timer(0.1, open_browser).start()

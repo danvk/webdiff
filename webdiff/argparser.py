@@ -1,4 +1,5 @@
 """Parse command line arguments to webdiff."""
+
 import argparse
 import os
 import re
@@ -13,12 +14,12 @@ class UsageError(Exception):
     pass
 
 
-USAGE = '''Usage: webdiff <left_dir> <right_dir>
+USAGE = """Usage: webdiff <left_dir> <right_dir>
        webdiff <left_file> <right_file>
        webdiff https://github.com/<owner>/<repo>/pull/<num>
 
 Or run "git webdiff" from a git repository.
-'''
+"""
 
 # e.g. https://github.com/danvk/dygraphs/pull/292
 PULL_REQUEST_RE = re.compile(
@@ -32,12 +33,13 @@ def parse(args, version=None):
     parser = argparse.ArgumentParser(description='Run webdiff.', usage=USAGE)
     parser.add_argument('--version', action='version', version='webdiff %s' % version)
     parser.add_argument(
-        '--host', type=str,
-        help="Host name on which to serve webdiff UI. Default is localhost.",
-        default=None
+        '--host',
+        type=str,
+        help='Host name on which to serve webdiff UI. Default is localhost.',
+        default=None,
     )
     parser.add_argument(
-        '--port', '-p', type=int, help="Port to run webdiff on.", default=-1
+        '--port', '-p', type=int, help='Port to run webdiff on.', default=-1
     )
     parser.add_argument(
         'dirs',
@@ -100,7 +102,7 @@ def parse(args, version=None):
 
 # TODO: move into dirdiff?
 def _shim_for_file_diff(a_file, b_file):
-    '''Returns a LocalFileDiff object for a one-file diff.'''
+    """Returns a LocalFileDiff object for a one-file diff."""
     return LocalFileDiff(
         a_root=os.path.dirname(a_file),
         a_path=a_file,
@@ -111,7 +113,7 @@ def _shim_for_file_diff(a_file, b_file):
 
 
 def diff_for_args(args, webdiff_config):
-    '''Returns a list of Diff objects for parsed command line args.'''
+    """Returns a list of Diff objects for parsed command line args."""
     if 'dirs' in args:
         # return dirdiff.diff(*args['dirs'])
         return dirdiff.gitdiff(*args['dirs'], webdiff_config)

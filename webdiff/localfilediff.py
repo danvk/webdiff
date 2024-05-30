@@ -1,4 +1,4 @@
-'''This class represents the diff between two files on local disk.'''
+"""This class represents the diff between two files on local disk."""
 
 import os
 from dataclasses import dataclass

@@ -1,4 +1,4 @@
-'''Compute the diff between two directories on local disk.'''
+"""Compute the diff between two directories on local disk."""
 
 import os
 import logging

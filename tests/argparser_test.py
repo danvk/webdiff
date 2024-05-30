@@ -27,14 +27,14 @@ def test_port():
 
 def test_github_pull_request():
     assert {
-        "github": {"owner": "danvk", "repo": "dygraphs", "num": 292}
-    } == argparser.parse(["https://github.com/danvk/dygraphs/pull/292"])
+        'github': {'owner': 'danvk', 'repo': 'dygraphs', 'num': 292}
+    } == argparser.parse(['https://github.com/danvk/dygraphs/pull/292'])
     assert {
-        "github": {"owner": "danvk", "repo": "dygraphs", "num": 292}
-    } == argparser.parse(["https://github.com/danvk/dygraphs/pull/292/"])
+        'github': {'owner': 'danvk', 'repo': 'dygraphs', 'num': 292}
+    } == argparser.parse(['https://github.com/danvk/dygraphs/pull/292/'])
     assert {
-        "github": {"owner": "danvk", "repo": "dygraphs", "num": 292}
-    } == argparser.parse(["https://github.com/danvk/dygraphs/pull/292/files"])
+        'github': {'owner': 'danvk', 'repo': 'dygraphs', 'num': 292}
+    } == argparser.parse(['https://github.com/danvk/dygraphs/pull/292/files'])
     assert {
-        "github": {"owner": "danvk", "repo": "dygraphs", "num": 292}
-    } == argparser.parse(["https://github.com/danvk/dygraphs/pull/292/commits"])
+        'github': {'owner': 'danvk', 'repo': 'dygraphs', 'num': 292}
+    } == argparser.parse(['https://github.com/danvk/dygraphs/pull/292/commits'])
