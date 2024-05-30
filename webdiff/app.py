@@ -105,12 +105,13 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
-        form_data = parse_qs(post_data.decode('utf-8'))
 
         if len(path_elements) == 2 and path_elements[1] == "get_contents":
+            form_data = parse_qs(post_data.decode('utf-8'))
             self.handle_get_contents(path_elements[0], form_data)
         elif len(path_elements) == 2 and path_elements[0] == "diff":
-            self.handle_diff_ops(int(path_elements[1]), form_data)
+            payload = json.loads(post_data.decode('utf-8'))
+            self.handle_diff_ops(int(path_elements[1]), payload)
         elif path_elements[0] == "seriouslykill":
             self.handle_seriouslykill()
         elif path_elements[0] == "kill":
@@ -235,13 +236,13 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         except Exception as e:
             self.send_response_with_json(500, {'error': str(e)})
 
-    def handle_diff_ops(self, idx, form_data):
-        options = json.loads(form_data.get('options', ['{}'])[0])
+    def handle_diff_ops(self, idx, payload):
+        options = payload.get('options') or []
         extra_args = GIT_CONFIG['webdiff']['extraFileDiffArgs']
         if extra_args:
             options += extra_args.split(' ')
+        print(f'{options=}')
         diff_ops = [dataclasses.asdict(op) for op in diff.get_diff_ops(DIFF[idx], options)]
-        print(diff_ops)
         self.send_response_with_json(200, diff_ops)
 
     def handle_seriouslykill(self):
@@ -285,7 +286,7 @@ def open_browser():
     global PORT
     global HOSTNAME
     global GIT_CONFIG
-    if GIT_CONFIG['webdiff']['openBrowser']:
+    if not os.environ.get('WEBDIFF_NO_OPEN') and GIT_CONFIG['webdiff']['openBrowser']:
         webbrowser.open_new_tab('http://%s:%s' % (HOSTNAME, PORT))
 
 
@@ -343,6 +344,8 @@ def run():
         sys.stderr.write('Args: %s\n' % parsed_args)
         sys.stderr.write('Diff: %s\n' % DIFF)
         sys.stderr.write('GitConfig: %s\n' % GIT_CONFIG)
+
+    # print({k: v for k, v in os.environ.items() if k.startswith('WEBDIFF')})
 
     PORT = pick_a_port(parsed_args, WEBDIFF_CONFIG)
     HOSTNAME = (
