@@ -4,6 +4,7 @@
 For usage, see README.md.
 '''
 
+import dataclasses
 import json
 import logging
 import mimetypes
@@ -85,6 +86,8 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
             self.handle_theme()
         elif path_elements[0] == 'static':
             self.handle_static('/'.join(path_elements))
+        elif len(path_elements) == 2 and path_elements[0] == 'thick' and path_elements[1].isdigit():
+            self.handle_thick(int(path_elements[1]))
         elif len(path_elements) == 3 and path_elements[1] == "image":
             self.handle_image(path_elements[0], path_elements[2])
         elif len(path_elements) == 2 and path_elements[0] == "pdiff":
@@ -104,7 +107,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         post_data = self.rfile.read(content_length)
         form_data = parse_qs(post_data.decode('utf-8'))
 
-        if len(path_elements) == 3 and path_elements[2] == "get_contents":
+        if len(path_elements) == 2 and path_elements[1] == "get_contents":
             self.handle_get_contents(path_elements[0], form_data)
         elif len(path_elements) == 2 and path_elements[0] == "diff":
             self.handle_diff_ops(int(path_elements[1]), form_data)
@@ -118,7 +121,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
     def handle_index(self, idx: int):
         pairs = diff.get_thin_list(DIFF)
         self.send_response(200)
-        self.send_header('Content-Type', 'text/html')
+        self.send_header('Content-Type', 'text/html; charset=utf-8')
         self.end_headers()
         with open(os.path.join(WEBDIFF_DIR, 'templates/file_diff.html'), 'r') as file:
             html = file.read()
@@ -129,6 +132,9 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
                 'git_config': GIT_CONFIG,
             }, indent=2))
             self.wfile.write(html.encode('utf-8'))
+
+    def handle_thick(self, idx: int):
+        self.send_response_with_json(200, diff.get_thick_dict(DIFF[idx]))
 
     def handle_favicon(self):
         self.serve_static_file('static/img/favicon.ico', 'image/vnd.microsoft.icon')
@@ -234,7 +240,9 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         extra_args = GIT_CONFIG['webdiff']['extraFileDiffArgs']
         if extra_args:
             options += extra_args.split(' ')
-        self.send_response_with_json(200, diff.get_diff_ops(DIFF[idx], options))
+        diff_ops = [dataclasses.asdict(op) for op in diff.get_diff_ops(DIFF[idx], options)]
+        print(diff_ops)
+        self.send_response_with_json(200, diff_ops)
 
     def handle_seriouslykill(self):
         self.send_response(200)
