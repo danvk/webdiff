@@ -6,4 +6,4 @@ requests
 binaryornot
 black
 unidiff==0.7.4
-Werkzeug==2.2.2
+Werkzeug==3.0.3
