@@ -82,7 +82,8 @@ Options are:
 | Setting        | Default       | Notes  |
 | -------------- | ------------- | ------ |
 | webdiff.theme  | googlecode    | Syntax highlighting theme (see [themes] directory). |
-| webdiff.port   | -1            | Port on which to serve webdiff. Default is random open port. This can be overridden with `--port`. |
+| webdiff.port   | -1            | Port on which to serve webdiff. Default is random open port. This can be overridden with the `--port` command line flag or the `WEBDIFF_PORT` environment variable. |
+| webdiff.host   | localhost     | Host name on which to serve the webdiff UI. Use `0.0.0.0` to serve publicly. The special value `<hostname>` uses your computer's network name. This can be overridden with the `--host` command line flag or the `WEBDIFF_HOST` environment variable. |
 | webdiff.maxDiffWidth | 100 | Maximum length of lines in the diff display. After this width, lines will wrap. |
 | webdiff.unified | 8 | Lines of context to display by default (`git diff -U`) |
 | webdiff.extraDirDiffArgs | "" | Any extra arguments to pass to `git diff` when diffing directories. |

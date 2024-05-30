@@ -278,7 +278,7 @@ def open_browser():
     global PORT
     global HOSTNAME
     global GIT_CONFIG
-    if (not 'NO_OPEN_BROWSER' in app.config) and GIT_CONFIG['webdiff']['openBrowser']:
+    if GIT_CONFIG['webdiff']['openBrowser']:
         if is_hot_reload():
             log.debug('Skipping browser open on reload')
         else:
@@ -294,8 +294,9 @@ def pick_a_port(args, webdiff_config):
     if 'port' in args:
         return args['port']
 
-    if os.environ.get('WEBDIFF_PORT'):
-        return int(os.environ.get('WEBDIFF_PORT'))
+    env_port = os.environ.get('WEBDIFF_PORT')
+    if env_port:
+        return int(env_port)
 
     # gitconfig
     if webdiff_config['port'] != -1:
@@ -340,7 +341,11 @@ def run():
         sys.stderr.write('GitConfig: %s\n' % GIT_CONFIG)
 
     PORT = pick_a_port(parsed_args, WEBDIFF_CONFIG)
-    HOSTNAME = os.environ.get('WEBDIFF_HOST') or WEBDIFF_CONFIG['host']
+    HOSTNAME = (
+        parsed_args.get('host')
+        or os.environ.get('WEBDIFF_HOST')
+        or WEBDIFF_CONFIG['host']
+    )
     if HOSTNAME == '<hostname>':
         _hostname = platform.node()
         # platform.node will return empty string if it can't find the hostname
