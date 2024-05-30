@@ -273,6 +273,10 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         except Exception as e:
             self.send_response_with_json(500, {'error': str(e)})
 
+    def log_request(self, *args):
+        if DEBUG:
+            super().log_request(*args)
+
 
 # See https://stackoverflow.com/a/69812984/388951
 exiting = False
@@ -308,11 +312,6 @@ def pick_a_port(args, webdiff_config):
     port = sock.getsockname()[1]
     sock.close()
     return port
-
-
-def is_webdiff_from_head():
-    '''Was webdiff invoked as `git webdiff` with no other non-flag args?'''
-    return os.environ.get('WEBDIFF_FROM_HEAD') is not None
 
 
 def run():

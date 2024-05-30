@@ -15,12 +15,6 @@ def run():
     if os.environ.get('DEBUG'):
         sys.stderr.write(f'git webdiff invoked as: {sys.argv}\n')
 
-    if not any_nonflag_args(sys.argv[1:]):
-        # This tells webdiff that it was invoked as a simple "git webdiff", not
-        # "git webdiff <sha>". This allows special treatment (e.g. for
-        # staging diffhunks).
-        os.environ['WEBDIFF_FROM_HEAD'] = 'yes'
-
     try:
         cmd = 'webdiff' if not os.environ.get('DEBUG') else os.path.join(os.path.curdir, 'test.sh')
         subprocess.call(f'git difftool -d -x {cmd}'.split(' ') + sys.argv[1:])
