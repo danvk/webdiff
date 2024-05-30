@@ -6,7 +6,7 @@ with open('README.md', encoding='utf8') as fh:
 
 
 setup(name='webdiff',
-      version='1.0.0',
+      version='1.0.1',
       description='Two-column web-based git difftool',
       long_description=long_description,
       long_description_content_type='text/markdown',

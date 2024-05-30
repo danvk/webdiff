@@ -17,11 +17,12 @@ Features include:
 * Step back and forth through multiple files in a single diff
 * Rich support for image diffs
 
+<!-- These are absolute URLs so that they display on pypi.org -->
 <!-- This is `git webdiff 05157bba^..05157bba`, in this repo -->
-![Screenshot of webdiff in action](/images/webdiff.png)
+![Screenshot of webdiff in action](https://raw.githubusercontent.com/danvk/webdiff/master/images/webdiff.png)
 
 <!-- This is `git webdiff c80f969^..c80f969` in the dygraphs-dpxdt repo -->
-![Screenshot of image diffs](/images/webdiff-images.png)
+![Screenshot of image diffs](https://raw.githubusercontent.com/danvk/webdiff/master/images/webdiff-images.png)
 
 ## Installation
 
@@ -54,7 +55,7 @@ You can pass all the same arguments that you would to `git diff`, e.g.
 You can also use `webdiff` to view GitHub pull requests:
 
     webdiff https://github.com/owner/repo/pull/123
-    webdiff #123  # if you're in a git repo with a github remote
+    webdiff '#123'  # if you're in a git repo with a github remote
 
 This will download the files relevant to the Pull Request and run `webdiff`.
 
