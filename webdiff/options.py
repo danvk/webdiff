@@ -10,6 +10,7 @@ DEFAULTS = {
         "extraFileDiffArgs": "",
         "openBrowser": True,
         "port": -1,  # random
+        "host": "localhost",
         "maxDiffWidth": 100,
         "theme": "googlecode",
         "maxLinesForSyntax": 10_000,

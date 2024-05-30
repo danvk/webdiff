@@ -340,8 +340,8 @@ def run():
         sys.stderr.write('GitConfig: %s\n' % GIT_CONFIG)
 
     PORT = pick_a_port(parsed_args, WEBDIFF_CONFIG)
-
-    if app.config.get('USE_HOSTNAME'):
+    HOSTNAME = os.environ.get('WEBDIFF_HOST') or WEBDIFF_CONFIG['host']
+    if HOSTNAME == '<hostname>':
         _hostname = platform.node()
         # platform.node will return empty string if it can't find the hostname
         if not _hostname:
