@@ -183,11 +183,8 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         d = DIFF[idx]
         try:
             _, pdiff_image = util.generate_pdiff_image(d.a_path, d.b_path)
-            dilated_image = util.generate_dilated_pdiff_image(pdiff_image)
-            self.send_response(200)
-            self.send_header('Content-Type', 'image/png')
-            self.end_headers()
-            self.wfile.write(dilated_image)
+            dilated_image_path = util.generate_dilated_pdiff_image(pdiff_image)
+            self.serve_static_file(dilated_image_path, 'image/png')
         except util.ImageMagickNotAvailableError:
             self.send_error(501, 'ImageMagick is not available')
         except util.ImageMagickError as e:
@@ -241,7 +238,6 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         extra_args = GIT_CONFIG['webdiff']['extraFileDiffArgs']
         if extra_args:
             options += extra_args.split(' ')
-        print(f'{options=}')
         diff_ops = [dataclasses.asdict(op) for op in diff.get_diff_ops(DIFF[idx], options)]
         self.send_response_with_json(200, diff_ops)
 
