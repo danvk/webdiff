@@ -17,11 +17,12 @@ Features include:
 * Step back and forth through multiple files in a single diff
 * Rich support for image diffs
 
+<!-- These are absolute URLs so that they display on pypi.org -->
 <!-- This is `git webdiff 05157bba^..05157bba`, in this repo -->
-![Screenshot of webdiff in action](/images/webdiff.png)
+![Screenshot of webdiff in action](https://raw.githubusercontent.com/danvk/webdiff/master/images/webdiff.png)
 
 <!-- This is `git webdiff c80f969^..c80f969` in the dygraphs-dpxdt repo -->
-![Screenshot of image diffs](/images/webdiff-images.png)
+![Screenshot of image diffs](https://raw.githubusercontent.com/danvk/webdiff/master/images/webdiff-images.png)
 
 ## Installation
 
