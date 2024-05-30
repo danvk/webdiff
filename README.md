@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/danvk/webdiff.svg?branch=master)](https://travis-ci.org/danvk/webdiff)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/danvk/webdiff/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/danvk/webdiff/tree/master)
 # git webdiff
 
 Two-column web-based git difftool.
