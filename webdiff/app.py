@@ -31,7 +31,7 @@ from webdiff import util
 from webdiff import argparser
 from webdiff import options
 
-VERSION = '1.0.0'
+VERSION = '1.0.1'
 
 
 def determine_path():
