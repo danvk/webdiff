@@ -23,11 +23,11 @@ classifiers = [
 ]
 
 # TODO: why is this needed?
-packages = [
-    {include = "webdiff" },
-    {include = "webdiff/static/*", to = "static" },
-    {include = "webdiff/templates/*", to = "templates" }
-]
+# packages = [
+#     {include = "webdiff" },
+#     {include = "webdiff/static/*", to = "static" },
+#     {include = "webdiff/templates/*", to = "templates" }
+# ]
 
 [tool.poetry.dependencies]
 python = "^3.10"
