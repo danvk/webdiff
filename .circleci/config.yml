@@ -29,6 +29,10 @@ jobs:
           command: |
             poetry run ruff check
             poetry run ruff format
+      - run:
+          name: Build package
+          command: |
+            poetry build
 
   test-js:
     docker:
