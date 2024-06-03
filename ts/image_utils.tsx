@@ -1,5 +1,5 @@
 import React from 'react';
-import {FilePair} from './CodeDiff';
+import {ImageFilePair} from './CodeDiff';
 import {PerceptualDiffMode} from './DiffView';
 import {isSameSizeImagePair} from './utils';
 
@@ -11,7 +11,7 @@ import {isSameSizeImagePair} from './utils';
  */
 export function makePerceptualBoxDiv(
   pdiffMode: PerceptualDiffMode,
-  filePair: FilePair,
+  filePair: ImageFilePair,
   scaleDown: number,
 ) {
   if (pdiffMode === 'off' || !isSameSizeImagePair(filePair)) {

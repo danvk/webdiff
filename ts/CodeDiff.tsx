@@ -1,23 +1,36 @@
 import React from 'react';
 import {renderDiffWithOps} from './file_diff';
+import { DiffOptions, encodeDiffOptions } from './diff-options';
+
+
+interface BaseFilePair {
+  idx: number;
+  /** file name of left side of diff */
+  a: string;
+  /** file name of right side of diff */
+  b: string;
+  type: 'add' | 'delete' | 'move' | 'change'; // XXX check "change"
+}
+
+interface TextFilePair extends BaseFilePair {
+  is_image_diff?: false;
+}
+
+// XXX this type is probably imprecise. What's a "thick" vs. "thin" diff?
+export interface ImageFilePair extends BaseFilePair {
+  is_image_diff: true;
+  are_same_pixels: boolean;
+  image_a: ImageFile;
+  image_b: ImageFile;
+  diffData?: ImageDiffData;
+}
+
+export type FilePair = TextFilePair | ImageFilePair;
 
 export interface ImageFile {
   width: number;
   height: number;
   num_bytes: number;
-}
-
-// XXX this type is probably imprecise. What's a "thick" vs. "thin" diff?
-export interface FilePair {
-  is_image_diff: boolean;
-  are_same_pixels: boolean;
-  a: string;
-  b: string;
-  type: 'add' | 'delete' | 'move' | 'change'; // XXX check "change"
-  image_a: ImageFile;
-  image_b: ImageFile;
-  idx: number;
-  diffData?: ImageDiffData;
 }
 
 export interface DiffBox {
@@ -31,48 +44,6 @@ export interface DiffBox {
 
 export interface ImageDiffData {
   diffBounds: DiffBox;
-}
-
-export type DiffAlgorithm = 'patience' | 'minimal' | 'histogram' | 'myers';
-
-export interface DiffOptions {
-  /** aka -w */
-  ignoreAllSpace: boolean;
-  /** aka -b */
-  ignoreSpaceChange: boolean;
-  /** The default diff algorithm is myers */
-  diffAlgorithm: DiffAlgorithm;
-  /** aka -U<N>. Show this many lines of context. */
-  unified: number;
-  /** Adjust rename threshold (percent of file). Default is 50. */
-  findRenames: number;
-  /** Find copies in addition to renames. Units are percents. */
-  findCopies: number;
-}
-
-function encodeDiffOptions(opts: Partial<DiffOptions>) {
-  const flags = [];
-  if (opts.ignoreAllSpace) {
-    flags.push('-w');
-  }
-  if (opts.ignoreSpaceChange) {
-    flags.push('-b');
-  }
-  if (opts.diffAlgorithm) {
-    flags.push(`--diff-algorithm=${opts.diffAlgorithm}`);
-  }
-  if (opts.unified) {
-    flags.push(`-U${opts.unified}`);
-  } else {
-    flags.push(`-U8`);  // TODO: other default options?
-  }
-  if (opts.findRenames) {
-    flags.push(`--find-renames=${opts.findRenames}%`);
-  }
-  if (opts.findCopies) {
-    flags.push(`--find-copies=${opts.findCopies}%`);
-  }
-  return flags;
 }
 
 // A "no changes" sign which only appears when applicable.

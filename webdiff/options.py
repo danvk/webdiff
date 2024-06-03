@@ -22,6 +22,9 @@ DEFAULTS = {
         'charInsert': '#cfc',
         'charDelete': '#fcc',
     },
+    'diff': {
+        'algorithm': None,  # aka 'myers'
+    }
 }
 
 

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {DiffAlgorithm, DiffOptions} from './CodeDiff';
+import { DiffAlgorithm, DiffOptions, encodeDiffOptions, decodeDiffOptions } from './diff-options';
 
 export interface Props {
   options: Partial<DiffOptions>;
@@ -60,12 +60,17 @@ export function DiffOptionsControl(props: Props) {
   const toggleIgnoreSpaceChange = () => {
     setOptions({...options, ignoreSpaceChange: !options.ignoreSpaceChange});
   };
+  const toggleFunctionContext = () => {
+    setOptions({...options, functionContext: !options.functionContext});
+  };
   const setUnifiedContext: React.ChangeEventHandler<HTMLInputElement> = e => {
     setOptions({...options, unified: e.currentTarget.valueAsNumber});
   };
   const changeDiffAlgorithm: React.ChangeEventHandler<HTMLSelectElement> = e => {
     setOptions({...options, diffAlgorithm: e.currentTarget.value as DiffAlgorithm});
   };
+
+  const diffOptsStr = encodeDiffOptions(options).join(' ');
 
   return (
     <>
@@ -111,7 +116,8 @@ export function DiffOptionsControl(props: Props) {
                   </td>
                 </tr>
                 <tr>
-                  <td style={{textAlign: 'right'}}>Context:</td>
+                  <td style={{textAlign: 'right', verticalAlign: 'top'}} rowSpan={2}>
+                  Context:</td>
                   <td>
                     <input
                       type="number"
@@ -121,6 +127,19 @@ export function DiffOptionsControl(props: Props) {
                       onChange={setUnifiedContext}
                     />{' '}
                     lines
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={!!options.functionContext}
+                      id="function-context"
+                      onChange={toggleFunctionContext}
+                    />{' '}
+                    <label htmlFor="function-context">
+                      Function Context (<code>git diff -W</code>)
+                    </label>
                   </td>
                 </tr>
                 <tr>
@@ -136,6 +155,10 @@ export function DiffOptionsControl(props: Props) {
                 </tr>
               </tbody>
             </table>
+
+            <p>
+              <code>git diff {diffOptsStr}</code>
+            </p>
           </div>
         </>
       ) : null}

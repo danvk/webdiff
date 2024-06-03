@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {DiffBox, FilePair} from './CodeDiff';
+import {DiffBox, FilePair, ImageFilePair} from './CodeDiff';
 import {PerceptualDiffMode} from './DiffView';
 import {ImageDiffMode, ImageDiffModeSelector} from './ImageDiffModeSelector';
 import {NoChanges} from './CodeDiff';
@@ -12,7 +12,7 @@ import {ImageOnionSkin, ImageSwipe} from './ImageSwipe';
 declare const HAS_IMAGE_MAGICK: boolean;
 
 export interface Props {
-  filePair: FilePair;
+  filePair: ImageFilePair;
   imageDiffMode: ImageDiffMode;
   pdiffMode: PerceptualDiffMode;
   changeImageDiffModeHandler: (mode: ImageDiffMode) => void;
@@ -20,7 +20,7 @@ export interface Props {
 }
 
 export interface ImageDiffProps {
-  filePair: FilePair;
+  filePair: ImageFilePair;
   pdiffMode: PerceptualDiffMode;
   shrinkToFit: boolean;
 }
@@ -40,7 +40,7 @@ export function ImageDiff(props: Props) {
   }
 
   const [, forceUpdate] = React.useState(0);
-  const computePerceptualDiffBox = (fp: FilePair) => {
+  const computePerceptualDiffBox = (fp: ImageFilePair) => {
     if (!isSameSizeImagePair(fp)) return;
     // TODO(danvk): restructure this, it's a mess
     (async () => {

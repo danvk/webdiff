@@ -66,22 +66,14 @@ if DEBUG:
 
 
 class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
-    def send_response_with_json(self, code, payload):
-        self.send_response(code)
-        self.send_header('Content-Type', 'application/json')
-        self.end_headers()
-        self.wfile.write(json.dumps(payload).encode('utf-8'))
-
     def do_GET(self):
         note_request_time()
-        parsed_path = urlparse(self.path)
-        parts = parsed_path.path.strip('/').split('/')
-        path = '/' + '/'.join(parts)
+        path = urlparse(self.path).path.removesuffix('/') or '/'
 
         if path == '/':
             self.handle_index(0)
-        elif len(parts) == 1 and parts[0].isdigit():
-            self.handle_index(int(parts[0]))
+        elif m := re.match(r'/(?P<idx>\d+)$', path):
+            self.handle_index(int(m['idx']))
         elif path == '/favicon.ico':
             self.handle_favicon()
         elif path == '/theme.css':
@@ -101,9 +93,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         note_request_time()
-        parsed_path = urlparse(self.path)
-        parts = parsed_path.path.strip('/').split('/')
-        path = '/' + '/'.join(parts)
+        path = urlparse(self.path).path.removesuffix('/') or '/'
 
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
@@ -192,7 +182,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         except util.ImageMagickError as e:
             self.send_error(501, f'ImageMagick error {e}')
 
-    def handle_get_contents(self, side, form_data):
+    def handle_get_contents(self, side: str, form_data: dict[str, list[str]]):
         path = form_data.get('path', [''])[0]
         if not path:
             return self.send_response_with_json(400, {'error': 'incomplete'})
@@ -218,7 +208,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         except Exception as e:
             self.send_response_with_json(500, {'error': str(e)})
 
-    def handle_diff_ops(self, idx, payload):
+    def handle_diff_ops(self, idx: int, payload):
         options = payload.get('options') or []
         extra_args = GIT_CONFIG['webdiff']['extraFileDiffArgs']
         if extra_args:
@@ -245,6 +235,12 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header('Content-Type', 'text/plain')
         self.end_headers()
         self.wfile.write(b'Shutting down...')
+
+    def send_response_with_json(self, code, payload):
+        self.send_response(code)
+        self.send_header('Content-Type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps(payload).encode('utf-8'))
 
     def serve_static_file(self, file_path, mime_type):
         self.serve_file(os.path.join(WEBDIFF_DIR, file_path), mime_type)
