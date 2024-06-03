@@ -94,7 +94,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
             self.handle_image(m['side'], m['path'])
         elif m := re.match(r'/pdiff/(?P<idx>\d+)', path):
             self.handle_pdiff(int(m['idx']))
-        elif m := re.match(r'/pdiffbox/(?P<idx>\d+)', path):
+        elif m := re.match(r'/pdiffbbox/(?P<idx>\d+)', path):
             self.handle_pdiff_bbox(int(m['idx']))
         else:
             self.send_error(404, 'File not found')
