@@ -2,23 +2,35 @@ import React from 'react';
 import {renderDiffWithOps} from './file_diff';
 import { DiffOptions, encodeDiffOptions } from './diff-options';
 
+
+interface BaseFilePair {
+  idx: number;
+  /** file name of left side of diff */
+  a: string;
+  /** file name of right side of diff */
+  b: string;
+  type: 'add' | 'delete' | 'move' | 'change'; // XXX check "change"
+}
+
+interface TextFilePair extends BaseFilePair {
+  is_image_diff?: false;
+}
+
+// XXX this type is probably imprecise. What's a "thick" vs. "thin" diff?
+export interface ImageFilePair extends BaseFilePair {
+  is_image_diff: true;
+  are_same_pixels: boolean;
+  image_a: ImageFile;
+  image_b: ImageFile;
+  diffData?: ImageDiffData;
+}
+
+export type FilePair = TextFilePair | ImageFilePair;
+
 export interface ImageFile {
   width: number;
   height: number;
   num_bytes: number;
-}
-
-// XXX this type is probably imprecise. What's a "thick" vs. "thin" diff?
-export interface FilePair {
-  is_image_diff: boolean;
-  are_same_pixels: boolean;
-  a: string;
-  b: string;
-  type: 'add' | 'delete' | 'move' | 'change'; // XXX check "change"
-  image_a: ImageFile;
-  image_b: ImageFile;
-  idx: number;
-  diffData?: ImageDiffData;
 }
 
 export interface DiffBox {
