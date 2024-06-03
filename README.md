@@ -117,17 +117,17 @@ or to launch in debug mode:
 
 To run the Python tests:
 
-    pytest
+    poetry run pytest
 
 To format the code, run:
 
-    ./scripts/black.sh
+    poetry run ruff format
     cd ts
     yarn prettier
 
 To debug `git webdiff`, run:
 
-    WEBDIFF_CONFIG=$(pwd)/testing.cfg ./webdiff/gitwebdiff.py
+    ./test-gitwebdiff.sh
 
 To iterate on the PyPI package, run:
 
@@ -135,23 +135,17 @@ To iterate on the PyPI package, run:
     pip3 uninstall webdiff
 
     # from inside the webdiff virtualenv, adjust for current version
-    python setup.py sdist
-    mkdir /tmp/webdiff-test
-    cp dist/webdiff-?.?.?.tar.gz /tmp/webdiff-test
-
-    deactivate
-    cd /tmp/webdiff-test
-    pip3 install webdiff-?.?.?.tar.gz
+    poetry build
+    pip3 install dist/webdiff-?.?.?.tar.gz
 
 To publish to pypitest:
 
-    pip install --upgrade wheel setuptools twine
-    python setup.py sdist bdist_wheel
-    twine upload -r testpypi dist/*
+    poetry build
+    ???
 
 And to the real pypi:
 
-    twine upload dist/*
+    poetry publish
 
 See [pypirc][] docs for details on setting up `~/.pypirc`.
 
