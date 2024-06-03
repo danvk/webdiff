@@ -15,6 +15,7 @@ jobs:
       - checkout
       - versions:
           name: Versions
+          command: |
             python --version
             poetry --version
       - python/install-packages:
