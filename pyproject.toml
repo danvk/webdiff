@@ -21,13 +21,8 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Topic :: Software Development :: Version Control"
 ]
-
-# TODO: why is this needed?
-# packages = [
-#     {include = "webdiff" },
-#     {include = "webdiff/static/*", to = "static" },
-#     {include = "webdiff/templates/*", to = "templates" }
-# ]
+# This is generated, so it's in .gitignore. But we need to package it.
+include = ["webdiff/static/js/file_diff.js"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
