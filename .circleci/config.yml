@@ -9,7 +9,7 @@ jobs:
     # You can specify an image from Dockerhub or use one of the convenience images from CircleCI's Developer Hub
     # A list of available CircleCI Docker convenience images are available here: https://circleci.com/developer/images/image/cimg/python
     docker:
-      - image: cimg/python:3.10.2
+      - image: cimg/python:3.11
 
     steps:
       - checkout
