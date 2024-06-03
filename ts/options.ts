@@ -1,7 +1,12 @@
+import { DiffAlgorithm } from "./diff-options";
+
 /** Type of global git_config object */
 export interface GitConfig {
   webdiff: WebdiffConfig;
   'webdiff.colors': ColorsConfig;
+  diff: {
+    algorithm?: DiffAlgorithm;
+  }
 }
 
 export interface WebdiffConfig {

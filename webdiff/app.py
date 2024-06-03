@@ -68,7 +68,7 @@ if DEBUG:
 class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         note_request_time()
-        path = urlparse(self.path).path.removesuffix('/')
+        path = urlparse(self.path).path.removesuffix('/') or '/'
 
         if path == '/':
             self.handle_index(0)
@@ -93,7 +93,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         note_request_time()
-        path = urlparse(self.path).path.removesuffix('/')
+        path = urlparse(self.path).path.removesuffix('/') or '/'
 
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)

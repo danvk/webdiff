@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {DiffAlgorithm, DiffOptions} from './CodeDiff';
+import { DiffAlgorithm, DiffOptions } from './diff-options';
 
 export interface Props {
   options: Partial<DiffOptions>;

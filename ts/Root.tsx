@@ -1,6 +1,7 @@
 import React from 'react';
 import {RouteComponentProps, useHistory} from 'react-router';
 import {FilePair} from './CodeDiff';
+import { DiffOptions } from './diff-options';
 import {DiffView, PerceptualDiffMode} from './DiffView';
 import {FileSelector} from './FileSelector';
 import {isLegitKeypress} from './file_diff';
@@ -18,6 +19,7 @@ const PDIFF_MODES: PerceptualDiffMode[] = ['off', 'bbox', 'pixels'];
 export function Root(props: Props) {
   const [pdiffMode, setPDiffMode] = React.useState<PerceptualDiffMode>('off');
   const [imageDiffMode, setImageDiffMode] = React.useState<ImageDiffMode>('side-by-side');
+  const [diffOptions, setDiffOptions] = React.useState<Partial<DiffOptions>>({});
 
   const history = useHistory();
   const selectIndex = (idx: number) => {
@@ -68,8 +70,10 @@ export function Root(props: Props) {
         thinFilePair={filePair}
         imageDiffMode={imageDiffMode}
         pdiffMode={pdiffMode}
+        diffOptions={diffOptions}
         changeImageDiffModeHandler={setImageDiffMode}
         changePDiffMode={setPDiffMode}
+        changeDiffOptions={setDiffOptions}
       />
     </div>
   );
