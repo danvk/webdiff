@@ -1,4 +1,4 @@
-import { encodeDiffOptions } from "../diff-options";
+import { decodeDiffOptions, encodeDiffOptions } from "../diff-options";
 
 describe('encodeDiffOptions', () => {
   it('should encode no flags', () => {
@@ -11,5 +11,9 @@ describe('encodeDiffOptions', () => {
     expect(encodeDiffOptions({ ignoreSpaceChange: true })).toEqual(['-b', '-U8']);
     expect(encodeDiffOptions({ unified: 16 })).toEqual(['-U16']);
     expect(encodeDiffOptions({ functionContext: true })).toEqual(['-U8', '-W']);
+  });
+
+  it('should decode flags', () => {
+    expect(decodeDiffOptions('-w')).toEqual({ ignoreAllSpace: true });
   });
 });

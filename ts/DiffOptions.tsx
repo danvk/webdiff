@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { DiffAlgorithm, DiffOptions } from './diff-options';
+import { DiffAlgorithm, DiffOptions, encodeDiffOptions, decodeDiffOptions } from './diff-options';
 
 export interface Props {
   options: Partial<DiffOptions>;
@@ -66,6 +66,8 @@ export function DiffOptionsControl(props: Props) {
   const changeDiffAlgorithm: React.ChangeEventHandler<HTMLSelectElement> = e => {
     setOptions({...options, diffAlgorithm: e.currentTarget.value as DiffAlgorithm});
   };
+
+  const diffOptsStr = encodeDiffOptions(options).join(' ');
 
   return (
     <>
@@ -136,6 +138,10 @@ export function DiffOptionsControl(props: Props) {
                 </tr>
               </tbody>
             </table>
+
+            <p>
+              <code>git diff {diffOptsStr}</code>
+            </p>
           </div>
         </>
       ) : null}

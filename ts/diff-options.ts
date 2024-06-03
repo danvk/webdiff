@@ -1,3 +1,5 @@
+import { GitConfig } from "./options";
+
 export type DiffAlgorithm = 'patience' | 'minimal' | 'histogram' | 'myers';
 
 export interface DiffOptions {
@@ -14,7 +16,7 @@ export interface DiffOptions {
   /** Adjust rename threshold (percent of file). Default is 50. */
   findRenames: number;
   /** Find copies in addition to renames. Units are percents. */
-  findCopies: number;
+  findCopies?: number;
 }
 
 export function encodeDiffOptions(opts: Partial<DiffOptions>) {
@@ -46,5 +48,32 @@ export function encodeDiffOptions(opts: Partial<DiffOptions>) {
 }
 
 export function decodeDiffOptions(flags: string): Partial<DiffOptions> {
-  return {};
+  const args = flags.split(' ');
+  const options: Partial<DiffOptions> = {};
+  for (const arg of args) {
+    if (arg == '-w' || arg == '--ignoreAllSpace') {
+      options.ignoreAllSpace = true;
+    } else if (arg == '-b' || arg == '--ignoreSpaceChange') {
+      options.ignoreSpaceChange = true;
+    } else if (arg.startsWith('--diff-algorithm=')) {
+      // This is pretty imprecise; I believe `--diff-algorithm patience` would also work.
+      const algo = arg.split('=')[1];
+      options.diffAlgorithm = algo as DiffAlgorithm;
+    } else if (arg.startsWith('-U')) {
+      options.unified = Number(arg.slice(2));
+    }
+  }
+  return options;
+}
+
+export function fillDiffOptions(options: Partial<DiffOptions>, defaults: GitConfig['diff']): DiffOptions {
+  return {
+    ignoreAllSpace: options.ignoreAllSpace ?? false,
+    ignoreSpaceChange: options.ignoreSpaceChange ?? false,
+    functionContext: options.functionContext ?? false,
+    diffAlgorithm: options.diffAlgorithm ?? defaults.algorithm ?? 'myers',
+    unified: options.unified ?? 8,
+    findRenames: options.findRenames ?? 50,
+    findCopies: options.findCopies,
+  };
 }
