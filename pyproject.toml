@@ -28,7 +28,6 @@ include = ["webdiff/static/js/file_diff.js"]
 python = "^3.10"
 binaryornot = "*"
 pillow = "*"
-requests = "*"
 PyGithub = "==1.55"
 unidiff = "==0.7.4"
 
