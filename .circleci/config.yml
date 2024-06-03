@@ -13,18 +13,18 @@ jobs:
 
     steps:
       - checkout
-      - versions:
+      - run:
           name: Versions
           command: |
             python --version
             poetry --version
       - python/install-packages:
           pkg-manager: poetry
-      - tests:
+      - run:
           name: Run tests
           command: |
             poetry run pytest
-      - lint:
+      - run:
           name: Run linter and formatter
           command: |
             poetry run ruff check
