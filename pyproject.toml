@@ -13,10 +13,21 @@ homepage = "https://github.com/danvk/webdiff/"
 repository = "https://github.com/danvk/webdiff/"
 keywords = [ "git", "difftool", "web" ]
 exclude = ["tests*"]
+classifiers = [
+    "Environment :: Console",
+    "Environment :: Web Environment",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Topic :: Software Development :: Version Control"
+]
 
-[tool.poetry.package.include]
-static = "webdiff/static/*"
-templates = "webdiff/templates/*"
+# TODO: why is this needed?
+packages = [
+    {include = "webdiff" },
+    {include = "webdiff/static/*", to = "static" },
+    {include = "webdiff/templates/*", to = "templates" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -40,11 +51,3 @@ line-length = 88
 [tool.ruff.format]
 quote-style = "single"
 docstring-code-format = true
-
-[tool.poetry.classifiers]
-Environment = ["Console", "Web Environment"]
-Framework = ["Flask"]
-DevelopmentStatus = "5 - Production/Stable"
-IntendedAudience = "Developers"
-License = "OSI Approved :: Apache Software License"
-Topic = ["Software Development", "Version Control"]
