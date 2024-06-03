@@ -62,7 +62,7 @@ class GitHubDiff(object):
 
 def fetch_pull_request(owner, repo, num):
     """Return a list of Diff objects for a pull request."""
-    sys.stderr.write(f'Loading pull request {owner}{repo}#{num} from github...\n')
+    sys.stderr.write(f'Loading pull request {owner}/{repo}#{num} from GitHub...\n')
     g = github()
     pr = g.get_user(owner).get_repo(repo).get_pull(num)
     files = pr.get_files()
