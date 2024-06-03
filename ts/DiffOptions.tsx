@@ -60,6 +60,9 @@ export function DiffOptionsControl(props: Props) {
   const toggleIgnoreSpaceChange = () => {
     setOptions({...options, ignoreSpaceChange: !options.ignoreSpaceChange});
   };
+  const toggleFunctionContext = () => {
+    setOptions({...options, functionContext: !options.functionContext});
+  };
   const setUnifiedContext: React.ChangeEventHandler<HTMLInputElement> = e => {
     setOptions({...options, unified: e.currentTarget.valueAsNumber});
   };
@@ -113,7 +116,8 @@ export function DiffOptionsControl(props: Props) {
                   </td>
                 </tr>
                 <tr>
-                  <td style={{textAlign: 'right'}}>Context:</td>
+                  <td style={{textAlign: 'right', verticalAlign: 'top'}} rowSpan={2}>
+                  Context:</td>
                   <td>
                     <input
                       type="number"
@@ -123,6 +127,19 @@ export function DiffOptionsControl(props: Props) {
                       onChange={setUnifiedContext}
                     />{' '}
                     lines
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={!!options.functionContext}
+                      id="function-context"
+                      onChange={toggleFunctionContext}
+                    />{' '}
+                    <label htmlFor="function-context">
+                      Function Context (<code>git diff -W</code>)
+                    </label>
                   </td>
                 </tr>
                 <tr>

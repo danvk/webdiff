@@ -32,8 +32,6 @@ export function encodeDiffOptions(opts: Partial<DiffOptions>) {
   }
   if (opts.unified) {
     flags.push(`-U${opts.unified}`);
-  } else {
-    flags.push(`-U8`); // TODO: other default options?
   }
   if (opts.findRenames) {
     flags.push(`--find-renames=${opts.findRenames}%`);
