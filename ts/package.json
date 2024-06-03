@@ -1,6 +1,6 @@
 {
   "name": "webdiff",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "client-side code for webdiff",
   "main": "index.js",
   "author": "Dan Vanderkam (danvdk@gmail.com)",
