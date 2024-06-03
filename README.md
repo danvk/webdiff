@@ -55,7 +55,7 @@ You can pass all the same arguments that you would to `git diff`, e.g.
 You can also use `webdiff` to view GitHub pull requests:
 
     webdiff https://github.com/owner/repo/pull/123
-    webdiff '#123'  # if you're in a git repo with a github remote
+    webdiff '#150'  # if you're in a git repo with a github remote
 
 This will download the files relevant to the Pull Request and run `webdiff`.
 
