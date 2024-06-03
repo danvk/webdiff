@@ -12,7 +12,6 @@ import mimetypes
 import os
 import re
 import platform
-import requests
 import socket
 import sys
 import threading
@@ -115,8 +114,6 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         elif m := re.match(r'/diff/(?P<idx>\d+)', path):
             payload = json.loads(post_data.decode('utf-8'))
             self.handle_diff_ops(int(m['idx']), payload)
-        elif path == '/seriouslykill':
-            self.handle_seriouslykill()
         elif path == '/kill':
             self.handle_kill()
         else:
@@ -231,21 +228,17 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         ]
         self.send_response_with_json(200, diff_ops)
 
-    def handle_seriouslykill(self):
-        self.send_response(200)
-        self.send_header('Content-Type', 'text/plain')
-        self.end_headers()
-        self.wfile.write(b'Shutting down...')
-        threading.Thread(target=self.server.shutdown).start()
-
     def handle_kill(self):
-        global LAST_REQUEST_MS
         last_ms = LAST_REQUEST_MS
 
         def shutdown():
             if LAST_REQUEST_MS <= last_ms:  # subsequent requests abort shutdown
-                requests.post('http://localhost:%d/seriouslykill' % PORT)
+                logging.debug('No subsequent requests. Goodbye!')
+                threading.Thread(target=self.server.shutdown).start()
+            else:
+                logging.debug('Received another request; canceling shutdown.')
 
+        logging.debug('Received request to shut down; waiting 500ms for subsequent requests...')
         threading.Timer(0.5, shutdown).start()
         self.send_response(200)
         self.send_header('Content-Type', 'text/plain')
