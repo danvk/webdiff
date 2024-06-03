@@ -7,6 +7,7 @@ For usage, see README.md.
 import dataclasses
 import json
 import logging
+import importlib.metadata
 import mimetypes
 import os
 import re
@@ -23,7 +24,7 @@ from urllib.parse import urlparse, parse_qs
 
 from webdiff import diff, util, argparser, options
 
-VERSION = '1.0.1'
+VERSION = importlib.metadata.version('webdiff')
 
 
 def determine_path():

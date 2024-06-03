@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  python: circleci/python@1.5.0
+  python: circleci/python@2.1.1
 
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
@@ -9,19 +9,30 @@ jobs:
     # You can specify an image from Dockerhub or use one of the convenience images from CircleCI's Developer Hub
     # A list of available CircleCI Docker convenience images are available here: https://circleci.com/developer/images/image/cimg/python
     docker:
-      - image: cimg/python:3.10.2
+      - image: cimg/python:3.11
 
     steps:
       - checkout
+      - run:
+          name: Versions
+          command: |
+            python --version
+            poetry --version
       - python/install-packages:
-          pkg-manager: pip
+          pkg-manager: poetry
       - run:
           name: Run tests
           command: |
-            export PYTHONPATH=.
-            pytest
-            ruff check
-            ruff format
+            poetry run pytest
+      - run:
+          name: Run linter and formatter
+          command: |
+            poetry run ruff check
+            poetry run ruff format
+      - run:
+          name: Build package
+          command: |
+            poetry build
 
   test-js:
     docker:
