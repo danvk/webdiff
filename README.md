@@ -99,9 +99,7 @@ Options are:
 
 ## Development
 
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
+    poetry install
     cd ts
     yarn
     # see https://github.com/webpack/webpack/issues/14532
@@ -109,7 +107,7 @@ Options are:
 
 Then from the root directory:
 
-    PYTHONPATH=. ./webdiff/app.py testdata/dygraphsjs/{left,right}
+    poetry run webdiff/app.py testdata/dygraphsjs/{left,right}
 
 or to launch in debug mode:
 
