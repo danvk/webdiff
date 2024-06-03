@@ -28,7 +28,7 @@ include = ["webdiff/static/js/file_diff.js"]
 python = "^3.10"
 binaryornot = "*"
 pillow = "*"
-PyGithub = "==1.55"
+PyGithub = "2.3.0"
 unidiff = "==0.7.4"
 
 [tool.poetry.group.dev.dependencies]
