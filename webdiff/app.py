@@ -233,8 +233,11 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 
         def shutdown():
             if LAST_REQUEST_MS <= last_ms:  # subsequent requests abort shutdown
-                # logging.debug('No subsequent requests. Goodbye!\n')
+                # See https://stackoverflow.com/a/19040484/388951
+                # and https://stackoverflow.com/q/4330111/388951
                 threading.Thread(target=self.server.shutdown, daemon=True).start()
+            else:
+                logging.debug('Received subsequent request; canceling shutdown')
 
         logging.debug('Received request to shut down; waiting 500ms for subsequent requests...')
         threading.Timer(0.5, shutdown).start()
@@ -265,10 +268,6 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 def note_request_time():
     global LAST_REQUEST_MS
     LAST_REQUEST_MS = time.time() * 1000
-
-
-# See https://stackoverflow.com/a/69812984/388951
-exiting = False
 
 
 def open_browser():
