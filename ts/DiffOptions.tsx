@@ -12,7 +12,7 @@ const gearStyle: React.CSSProperties = {
   float: 'right',
   marginTop: -10,
   zIndex: 1,
-  top: 5,
+  top: 0,
   border: 0,
   fontSize: 'large',
   background: 'transparent',
