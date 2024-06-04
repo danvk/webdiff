@@ -7,6 +7,7 @@ import {FileSelector} from './FileSelector';
 import {isLegitKeypress} from './file_diff';
 import {ImageDiffMode} from './ImageDiffModeSelector';
 import {filePairDisplayName} from './utils';
+import { DiffOptionsControl } from './DiffOptions';
 
 declare const pairs: FilePair[];
 declare const initialIdx: number;
@@ -64,6 +65,7 @@ export function Root(props: Props) {
 
   return (
     <div>
+      <DiffOptionsControl options={diffOptions} setOptions={setDiffOptions} />
       <FileSelector selectedFileIndex={idx} filePairs={pairs} fileChangeHandler={selectIndex} />
       <DiffView
         key={'diff-' + idx}
