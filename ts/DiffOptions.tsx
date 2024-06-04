@@ -8,8 +8,11 @@ export interface Props {
 }
 
 const gearStyle: React.CSSProperties = {
-  position: 'absolute',
+  position: 'sticky',
+  float: 'right',
+  marginTop: -10,
   zIndex: 1,
+  top: 5,
   border: 0,
   fontSize: 'large',
   background: 'transparent',
@@ -35,8 +38,9 @@ const pageCoverStyle: React.CSSProperties = {
 };
 
 const popupStyle: React.CSSProperties = {
-  position: 'absolute',
+  position: 'fixed',
   zIndex: 2,
+  right: 8,
   border: '1px solid #ddd',
   borderRadius: 4,
   padding: 12,

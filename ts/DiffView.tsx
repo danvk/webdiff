@@ -1,7 +1,6 @@
 import React from 'react';
 import {CodeDiff, FilePair} from './CodeDiff';
 import { DiffOptions } from './diff-options';
-import { DiffOptionsControl } from './DiffOptions';
 import {getThickDiff} from './file_diff';
 import {ImageDiff} from './ImageDiff';
 import {ImageDiffMode} from './ImageDiffModeSelector';
@@ -43,10 +42,5 @@ export function DiffView(props: Props) {
     diffEl = <CodeDiff filePair={filePair} diffOptions={diffOptions} />;
   }
 
-  return (
-    <>
-      <DiffOptionsControl options={diffOptions} setOptions={props.changeDiffOptions} />
-      {diffEl}
-    </>
-  );
+  return diffEl;
 }
