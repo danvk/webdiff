@@ -17,7 +17,14 @@ td.code {
   /* for table cells, `width` behaves more like `max-width`. */
   width: 61ch;
   white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  word-wrap: break-word;
+}
+
+table.diff td.code {
+  word-break: break-all;
+}
+table.diff.word-wrap td.code {
+  word-break: normal;
 }
 
 table.diff td {
@@ -32,12 +39,12 @@ table.diff td {
 .line-no:first-child {
   background-image:
       linear-gradient(to left, #f7f7f7, #f7f7f7 3px, transparent, transparent 6px, #f7f7f7 6px),
-      linear-gradient(#f7f7f7, #f7f7f7 1.4em, #aaa 1.4em);
+      linear-gradient(#f7f7f7, #f7f7f7 1.5em, #aaa 1.5em);
 }
 .line-no:last-child {
   background-image:
       linear-gradient(to right, #f7f7f7, #f7f7f7 3px, transparent, transparent 6px, #f7f7f7 6px),
-      linear-gradient(#f7f7f7, #f7f7f7 1.4em, #aaa 1.4em);
+      linear-gradient(#f7f7f7, #f7f7f7 1.5em, #aaa 1.5em);
 }
 
 table.diff .line-no:first-child {
@@ -51,6 +58,13 @@ table.diff .line-no:last-child {
 table.diff td:nth-child(2) {
   border-right: 1px solid #ddd;
 }
+table.diff tr.skip-row td {
+  border-left: none;
+  border-right: none;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  padding: 0.5em;
+}
 
 .line-no, .code {
   padding: 2px;
@@ -59,20 +73,31 @@ table.diff td:nth-child(2) {
 }
 .diff .skip {
   text-align: center;
-  background: #f7f7f7;
+  background: white;
+  color: #999;
+}
+.arrows-left {
+  float: left;
+}
+.arrows-right {
+  float: right;
+}
+.expand-up + .expand-down {
+  margin-left: 0.25em;
 }
 
-.diff .delete {
-  background-color: #fee;
+.hunk-header {
+  margin-left: 2em;
+  color: #777;
 }
-.diff .insert {
-  background-color: #efe;
+span.skip {
+  cursor: pointer;
 }
 
-.before.replace {
+.diff .delete, .before.replace {
   background-color: #fee;
 }
-.after.replace {
+.diff .insert, .after.replace {
   background-color: #efe;
 }
 

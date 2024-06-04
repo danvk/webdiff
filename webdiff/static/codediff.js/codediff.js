@@ -1,4 +1,5 @@
 (() => {
+
 function $parcel$export(e, n, v, s) {
   Object.defineProperty(e, n, {get: v, set: s, enumerable: true, configurable: true});
 }
@@ -58,8 +59,8 @@ function $b8027a79b3117d71$var$html_substr(html, start, count) {
             el.removeChild(oldNode);
         }
         for(var i = 0; i < elsToRemove.length; i++){
-            const el1 = elsToRemove[i];
-            if (el1 && el1.parentNode) el1.parentNode.removeChild(el1);
+            const el = elsToRemove[i];
+            if (el && el.parentNode) el.parentNode.removeChild(el);
         }
     }
     return div.innerHTML;
@@ -283,7 +284,12 @@ function $7b3893c47869bfd4$export$bc16352bf8ce7a63(opcodes, contextSize, minJump
 }
 
 
-function $b86f11f5e9077ed0$export$1f6ff06b43176f68(text) {
+/**
+ * @param text Possibly multiline text containing spans that cross
+ *     line breaks.
+ * @return An array of individual lines, each of which has
+ *     entirely balanced <span> tags.
+ */ function $b86f11f5e9077ed0$export$1f6ff06b43176f68(text) {
     const lines = difflib.stringAsLines(text);
     const spanRe = /(<span[^>]*>)|(<\/span>)/;
     const outLines = [];
@@ -321,7 +327,10 @@ function $b86f11f5e9077ed0$export$1f6ff06b43176f68(text) {
 
 
 
-function $6d1363c84edc199c$export$189ed0fd75cb2ccc(name) {
+/**
+ * Returns a valid HighlightJS language based on a file name/path.
+ * If it can't guess a language, returns null.
+ */ function $6d1363c84edc199c$export$189ed0fd75cb2ccc(name) {
     var lang = function() {
         var m = /\.([^.]+)$/.exec(name);
         if (m) {
@@ -380,39 +389,51 @@ function $d0fe6ceded5cfd85$export$9ab1e790f5c0e723(type, beforeLineNum, beforeTe
         $("<td class=line-no>").text(beforeLineNum || "").get(0),
         $makeCodeTd(beforeTextOrHtml).addClass("before").get(0),
         $makeCodeTd(afterTextOrHtml).addClass("after").get(0),
-        $("<td class=line-no>").text(afterLineNum || "").get(0), 
+        $("<td class=line-no>").text(afterLineNum || "").get(0)
     ];
     if (type == "replace") (0, $1190ad35680a3ea6$export$66fc1d006dbd50e9)(cells[1], cells[2]);
     return $("<tr>").append(cells).get(0);
 }
-function $d0fe6ceded5cfd85$export$8d7d7a7d0377361b(beforeIdx, afterIdx, numRowsSkipped) {
-    var $tr = $('<tr><td class="line-no">&hellip;</td><td colspan="2" class="skip code"><a href="#">Show ' + numRowsSkipped + " more lines</a>" + "</td>" + '<td class="line-no">&hellip;</td>' + "</tr>");
+function $d0fe6ceded5cfd85$export$8d7d7a7d0377361b(beforeIdx, afterIdx, numRowsSkipped, header, expandLines) {
+    const arrows = numRowsSkipped <= expandLines ? `<span class="skip" title="show ${numRowsSkipped} skipped lines">\u{2195}</span>` : `<span class="skip expand-up" title="show ${expandLines} more lines above">\u{21A5}</span><span class="skip expand-down"title="show ${expandLines} more lines below">\u{21A7}</span>`;
+    const showMore = `<a href="#">Show ${numRowsSkipped} more lines</a>`;
+    const headerHTML = header ? `<span class="hunk-header">${header}</span>` : "";
+    const $tr = $(`<tr class="skip-row">
+      <td colspan="4" class="skip code"><span class="arrows-left">${arrows}</span>${showMore} ${headerHTML}<span class="arrows-right">${arrows}</span></td>
+    </tr>`);
     $tr.find(".skip").data({
         beforeStartIndex: beforeIdx,
         afterStartIndex: afterIdx,
-        jumpLength: numRowsSkipped
+        jumpLength: numRowsSkipped,
+        header: header
     });
     return $tr.get(0);
 }
 
 
+const $a4b41c61879d57cc$var$DEFAULT_OPTIONS = {
+    contextSize: 3,
+    minJumpSize: 10,
+    expandLines: 10
+};
+const $a4b41c61879d57cc$var$DEFAULT_PARAMS = {
+    minJumpSize: 10,
+    language: null,
+    beforeName: "Before",
+    afterName: "After",
+    wordWrap: false,
+    expandLines: 10
+};
 class $a4b41c61879d57cc$export$d7ae8a2952d3eaf0 {
     constructor(beforeText, beforeLines, afterText, afterLines, ops, params){
-        const defaultParams = {
-            minJumpSize: 10,
-            language: null,
-            beforeName: "Before",
-            afterName: "After",
-            wordWrap: false
-        };
         this.params = {
-            ...defaultParams,
+            ...$a4b41c61879d57cc$var$DEFAULT_PARAMS,
             ...params
         };
         this.beforeLines = beforeLines;
         this.afterLines = afterLines;
         this.diffRanges = ops;
-        const { language: language  } = this.params;
+        const { language: language } = this.params;
         if (language) {
             this.beforeLinesHighlighted = $a4b41c61879d57cc$var$highlightText(beforeText ?? "", language);
             this.afterLinesHighlighted = $a4b41c61879d57cc$var$highlightText(afterText ?? "", language);
@@ -426,16 +447,26 @@ class $a4b41c61879d57cc$export$d7ae8a2952d3eaf0 {
    * Attach event listeners, notably for the "show more" links.
    */ attachHandlers_(el) {
         // TODO: gross duplication with buildView_
-        var language = this.params.language, beforeLines = language ? this.beforeLinesHighlighted : this.beforeLines, afterLines = language ? this.afterLinesHighlighted : this.afterLines;
-        $(el).on("click", ".skip a", function(e) {
+        const language = this.params.language;
+        const beforeLines = language ? this.beforeLinesHighlighted : this.beforeLines;
+        const afterLines = language ? this.afterLinesHighlighted : this.afterLines;
+        const expandLines = this.params.expandLines;
+        $(el).on("click", ".skip a, span.skip", function(e) {
             e.preventDefault();
-            var skipData = $(this).closest(".skip").data();
-            var beforeIdx = skipData.beforeStartIndex;
-            var afterIdx = skipData.afterStartIndex;
-            var jump = skipData.jumpLength;
-            var newTrs = [];
-            for(var i = 0; i < jump; i++)newTrs.push((0, $d0fe6ceded5cfd85$export$9ab1e790f5c0e723)("equal", beforeIdx + i + 1, beforeLines[beforeIdx + i], afterIdx + i + 1, afterLines[afterIdx + i], language));
-            // Replace the "skip" rows with real code.
+            const $skip = $(this).closest(".skip");
+            const skipData = $skip.data();
+            let type = $skip.hasClass("expand-down") ? "down" : $skip.hasClass("expand-up") ? "up" : "all";
+            const beforeIdx = skipData.beforeStartIndex;
+            const afterIdx = skipData.afterStartIndex;
+            const jump = skipData.jumpLength;
+            if (jump < expandLines) type = "all";
+            const newTrs = [];
+            const a = type === "up" || type === "all" ? 0 : jump - expandLines;
+            const b = type === "up" ? expandLines : jump;
+            if (type === "down") newTrs.push((0, $d0fe6ceded5cfd85$export$8d7d7a7d0377361b)(beforeIdx, afterIdx, jump - expandLines, skipData.header, expandLines));
+            for(let i = a; i < b; i++)newTrs.push((0, $d0fe6ceded5cfd85$export$9ab1e790f5c0e723)("equal", beforeIdx + i + 1, beforeLines[beforeIdx + i], afterIdx + i + 1, afterLines[afterIdx + i], language));
+            if (type === "up") newTrs.push((0, $d0fe6ceded5cfd85$export$8d7d7a7d0377361b)(beforeIdx + expandLines, afterIdx + expandLines, jump - expandLines, skipData.header, expandLines));
+            // Replace the old "skip" row with the new code and (maybe) new skip row.
             var $skipTr = $(this).closest("tr");
             $skipTr.replaceWith(newTrs);
         });
@@ -459,19 +490,26 @@ class $a4b41c61879d57cc$export$d7ae8a2952d3eaf0 {
     }
     buildView_() {
         // TODO: is this distinction necessary?
-        var language = this.params.language, beforeLines = language ? this.beforeLinesHighlighted : this.beforeLines, afterLines = language ? this.afterLinesHighlighted : this.afterLines;
-        var $table = $('<table class="diff">');
+        const language = this.params.language;
+        const beforeLines = language ? this.beforeLinesHighlighted : this.beforeLines;
+        const afterLines = language ? this.afterLinesHighlighted : this.afterLines;
+        const expandLines = this.params.expandLines;
+        const $table = $('<table class="diff">');
         $table.append($("<tr>").append($('<th class="diff-header" colspan=2>').text(this.params.beforeName), $('<th class="diff-header" colspan=2>').text(this.params.afterName)));
-        for(var i = 0; i < this.diffRanges.length; i++){
-            var range = this.diffRanges[i], type = range.type, numBeforeRows = range.before[1] - range.before[0], numAfterRows = range.after[1] - range.after[0], numRows = Math.max(numBeforeRows, numAfterRows);
-            if (type == "skip") $table.append((0, $d0fe6ceded5cfd85$export$8d7d7a7d0377361b)(range.before[0], range.after[0], numRows));
-            else for(var j = 0; j < numRows; j++){
-                var beforeIdx = j < numBeforeRows ? range.before[0] + j : null, afterIdx = j < numAfterRows ? range.after[0] + j : null;
+        for (const range of this.diffRanges){
+            const type = range.type;
+            const numBeforeRows = range.before[1] - range.before[0];
+            const numAfterRows = range.after[1] - range.after[0];
+            const numRows = Math.max(numBeforeRows, numAfterRows);
+            if (type == "skip") $table.append((0, $d0fe6ceded5cfd85$export$8d7d7a7d0377361b)(range.before[0], range.after[0], numRows, range.header ?? null, expandLines));
+            else for(let j = 0; j < numRows; j++){
+                const beforeIdx = j < numBeforeRows ? range.before[0] + j : null;
+                const afterIdx = j < numAfterRows ? range.after[0] + j : null;
                 $table.append((0, $d0fe6ceded5cfd85$export$9ab1e790f5c0e723)(type, beforeIdx != null ? 1 + beforeIdx : null, beforeIdx != null ? beforeLines[beforeIdx] : undefined, afterIdx != null ? 1 + afterIdx : null, afterIdx != null ? afterLines[afterIdx] : undefined, language));
             }
         }
         if (this.params.wordWrap) $table.addClass("word-wrap");
-        var $container = $('<div class="diff">');
+        const $container = $('<div class="diff">');
         $container.append($table);
         // Attach event handlers & apply char diffs.
         this.attachHandlers_($container);
@@ -479,9 +517,8 @@ class $a4b41c61879d57cc$export$d7ae8a2952d3eaf0 {
     }
     static buildView(beforeText, afterText, userParams) {
         const params = {
-            contextSize: 3,
-            minJumpSize: 10,
-            wordWrap: false,
+            ...$a4b41c61879d57cc$var$DEFAULT_OPTIONS,
+            ...$a4b41c61879d57cc$var$DEFAULT_PARAMS,
             ...userParams
         };
         const beforeLines = beforeText ? difflib.stringAsLines(beforeText) : [];
@@ -495,7 +532,12 @@ class $a4b41c61879d57cc$export$d7ae8a2952d3eaf0 {
     static buildViewFromOps(beforeText, afterText, ops, params) {
         const beforeLines = beforeText ? difflib.stringAsLines(beforeText) : [];
         const afterLines = afterText ? difflib.stringAsLines(afterText) : [];
-        var d = new $a4b41c61879d57cc$export$d7ae8a2952d3eaf0(beforeText, beforeLines, afterText, afterLines, ops, params);
+        const fullParams = {
+            ...$a4b41c61879d57cc$var$DEFAULT_PARAMS,
+            ...params
+        };
+        const diffRanges = $a4b41c61879d57cc$var$enforceMinJumpSize(ops, fullParams.minJumpSize);
+        var d = new $a4b41c61879d57cc$export$d7ae8a2952d3eaf0(beforeText, beforeLines, afterText, afterLines, diffRanges, params);
         return d.buildView_();
     }
 }
@@ -512,6 +554,12 @@ class $a4b41c61879d57cc$export$d7ae8a2952d3eaf0 {
     // Some of the <span>s might cross lines, which won't work for our diff
     // structure. We convert them to single-line only <spans> here.
     return (0, $b86f11f5e9077ed0$export$1f6ff06b43176f68)(html);
+}
+/** This removes small skips like "skip 1 line" that are disallowed by minJumpSize. */ function $a4b41c61879d57cc$var$enforceMinJumpSize(diffs, minJumpSize) {
+    return diffs.map((d)=>d.type === "skip" && d.before[1] - d.before[0] < minJumpSize ? {
+            ...d,
+            type: "equal"
+        } : d);
 }
 window.codediff = {
     ...$a4b41c61879d57cc$export$d7ae8a2952d3eaf0,
