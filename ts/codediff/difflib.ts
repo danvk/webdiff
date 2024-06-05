@@ -107,8 +107,8 @@ function __dictget<V>(dict: Record<PropertyKey, V>, key: PropertyKey, defaultVal
 }
 
 export class SequenceMatcher {
-    a: string[];
-    b: string[];
+    a!: string[];
+    b!: string[];
     isjunk: (txt: string) => boolean;
     matching_blocks: number[][] | null;
     opcodes: OpCode[] | null;
@@ -118,8 +118,6 @@ export class SequenceMatcher {
     isbpopular!: (key: string) => boolean;
 
     constructor (a: string[], b: string[], isjunk?: (txt: string) => boolean) {
-      this.a = a;
-      this.b = b;
       this.b2j = {};
       this.matching_blocks = null;
       this.opcodes = null;
