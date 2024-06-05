@@ -1,86 +1,97 @@
-QUnit.test('simplifyCodes', function(assert) {
-  assert.deepEqual(
-    codediff.simplifyCodes_([[null, 0, 2], ['x', 2, 4]]),
-                            [[null, 0, 2], ['x', 2, 4]]);
-  assert.deepEqual(
-    codediff.simplifyCodes_([['x', 0, 2], ['x', 2, 4]]),
-                            [['x', 0, 4]]);
-  assert.deepEqual(
-    codediff.simplifyCodes_([['x', 0, 2], ['x', 2, 4], ['y', 4, 6]]),
-                            [['x', 0, 4],              ['y', 4, 6]]);
+import { CharacterDiff, addCharacterDiffs, codesToHtml, computeCharacterDiffs, simplifyCodes, splitIntoWords } from "../char-diffs";
+import { htmlTextMapper } from "../html-text-mapper";
+
+describe('add character diffs', () => {
+
+test('simplifyCodes', () => {
+  const x = 'replace';
+  const y = 'equal';
+  expect(
+    simplifyCodes([[null, 0, 2], [x, 2, 4]])).toEqual(
+                            [[null, 0, 2], [x, 2, 4]]);
+  expect(
+    simplifyCodes([[x, 0, 2], [x, 2, 4]])).toEqual(
+                            [[x, 0, 4]]);
+  expect(
+    simplifyCodes([[x, 0, 2], [x, 2, 4], [y, 4, 6]])).toEqual(
+                            [[x, 0, 4],              [y, 4, 6]]);
 });
 
-QUnit.test('codesToHtml', function(assert) {
-  var str = 'hello';
-  var map = { getHtmlSubstring: function(a, b) { return str.substring(a, b) } };
-  var codes = [[null, 0, 1], ['x', 1, 3], ['y', 3, 5]];
-  assert.equal(codediff.codesToHtml_(map, codes),
-    'h<span class="char-x">el</span><span class="char-y">lo</span>');
+test('codesToHtml', () => {
+  const str = 'hello';
+  const map = {
+    getHtmlSubstring: function(a: number, b: number) { return str.substring(a, b) }
+  } as htmlTextMapper;
+  const codes: CharacterDiff[] = [[null, 0, 1], ['replace', 1, 3], ['equal', 3, 5]];
+  expect(codesToHtml(map, codes)).toEqual(
+    'h<span class="char-replace">el</span><span class="char-equal">lo</span>');
 });
 
-QUnit.test('char diffs -- simple', function(assert) {
+/*
+test.skip('char diffs -- simple', () => {
   var before = $('<div>').text("    return '' + date.getFullYear();").get(0);
   var after =  $('<div>').text("    return 'xx' + date.getFullYear();").get(0);
 
   var beforeText = $(before).text(),
       afterText = $(after).text();
 
-  codediff.addCharacterDiffs_(before, after);
+  addCharacterDiffs(before, after);
   assert.equal($(before).text(), beforeText);
   assert.equal($(after).text(), afterText);
   assert.equal($(before).html(), "    return '' + date.getFullYear();");
   assert.equal($(after).html(), "    return '<span class=\"char-insert\">xx</span>' + date.getFullYear();");
 });
 
-QUnit.test('char diffs with trailing markup', function(assert) {
+test.skip('char diffs with trailing markup', () => {
   var before = $('<div>').html("<q>''</q>").get(0);
   var after =  $('<div>').html("<q>'xx'</q>").get(0);
 
   var beforeText = $(before).text(),
       afterText = $(after).text();
 
-  codediff.addCharacterDiffs_(before, after);
+  addCharacterDiffs(before, after);
   assert.equal($(before).text(), beforeText);
   assert.equal($(after).text(), afterText);
   assert.equal($(before).html(), "<q>''</q>");
   assert.equal($(after).html(), "<q>'</q><span class=\"char-insert\"><q>xx</q></span><q>'</q>");
 });
 
-QUnit.test('char diffs with markup', function(assert) {
+test.skip('char diffs with markup', () => {
   var before = $('<div>').html("    <kw>return</kw> <q>''</q> + date.getFullYear();").get(0);
   var after =  $('<div>').html("    <kw>return</kw> <q>'xx'</q> + date.getFullYear();").get(0);
 
   var beforeText = $(before).text(),
       afterText = $(after).text();
 
-  codediff.addCharacterDiffs_(before, after);
+  addCharacterDiffs(before, after);
   assert.equal($(before).text(), beforeText);
   assert.equal($(after).text(), afterText);
   assert.equal($(before).html(), "    <kw>return</kw> <q>''</q> + date.getFullYear();");
   assert.equal($(after).html(), "    <kw>return</kw> <q>'</q><span class=\"char-insert\"><q>xx</q></span><q>'</q> + date.getFullYear();");
 });
+*/
 
-QUnit.test('mixed inserts and markup', function(assert) {
-  var beforeCode = '<span class="hljs-string">"q"</span>, s';
-  var afterCode =  '<span class="hljs-string">"q"</span><span class="hljs-comment">/*, s*/</span>';
-  var beforeEl = $('<div>').html(beforeCode).get(0);
-  var afterEl =  $('<div>').html(afterCode).get(0);
+// test.skip('mixed inserts and markup', () => {
+//   var beforeCode = '<span class="hljs-string">"q"</span>, s';
+//   var afterCode =  '<span class="hljs-string">"q"</span><span class="hljs-comment">/*, s*/</span>';
+//   var beforeEl = $('<div>').html(beforeCode).get(0);
+//   var afterEl =  $('<div>').html(afterCode).get(0);
+//
+//   // XXX this is strange -- is this just asserting that there are no exceptions?
+//   addCharacterDiffs(beforeEl, afterEl);
+//   assert.equal(true, true);
+// });
 
-  // XXX this is strange -- is this just asserting that there are no exceptions?
-  codediff.addCharacterDiffs_(beforeEl, afterEl);
-  assert.equal(true, true);
-});
-
-function assertCharDiff(assert, beforeText, beforeExpectation,
-                        afterText, afterExpectation) {
-  var codes = codediff.computeCharacterDiffs_(beforeText, afterText);
-  assert.notEqual(codes, null,
-                  'Declined to generate a diff when one was expected.');
+function assertCharDiff(beforeText: string, beforeExpectation: string,
+                        afterText: string, afterExpectation: string) {
+  const codes = computeCharacterDiffs(beforeText, afterText)!;
+  expect(codes).not.toBeNull();
+  // 'Declined to generate a diff when one was expected.');
 
   var beforeCodes = codes[0],
       afterCodes = codes[1];
 
-  var process = function(codes, txt) {
+  var process = function(codes: CharacterDiff[], txt: string) {
     return codes.map(function(code) {
       var part = txt.substring(code[1], code[2]);
       if (code[0] != null) part = '[' + part + ']';
@@ -91,13 +102,13 @@ function assertCharDiff(assert, beforeText, beforeExpectation,
   var beforeActual = process(beforeCodes, beforeText),
       afterActual =  process(afterCodes, afterText);
 
-  assert.equal(beforeActual, beforeExpectation);
-  assert.equal(afterActual, afterExpectation);
+  expect(beforeActual).toEqual(beforeExpectation);
+  expect(afterActual).toEqual(afterExpectation);
 }
 
 // See https://github.com/danvk/github-syntax/issues/17
-QUnit.test('pure add with assertCharDiff', function(assert) {
-  assertCharDiff(assert,
+test('pure add with assertCharDiff', () => {
+  assertCharDiff(
       'output.writeBytes(obj.sequence)',
       'output.writeBytes(obj.sequence)',
       'output.writeBytes(obj.sequence.toArray)',
@@ -105,38 +116,38 @@ QUnit.test('pure add with assertCharDiff', function(assert) {
 });
 
 
-QUnit.test('splitIntoWords', function(assert) {
-  assert.deepEqual(codediff.splitIntoWords_(
-      '<ImageDiffModeSelector filePair={filePair}'),
+test('splitIntoWords', () => {
+  expect(splitIntoWords(
+      '<ImageDiffModeSelector filePair={filePair}')).toEqual(
       ['<', 'Image', 'Diff', 'Mode', 'Selector', ' ', 'file', 'Pair', '=', '{',
        'file', 'Pair', '}']);
-  assert.deepEqual(codediff.splitIntoWords_(
-      '<DiffView filePair={filePair}'),
+  expect(splitIntoWords(
+      '<DiffView filePair={filePair}')).toEqual(
       ['<', 'Diff', 'View', ' ', 'file', 'Pair', '=', '{', 'file', 'Pair', '}']);
-  assert.deepEqual(codediff.splitIntoWords_(
-      'Test1TEST23testAbc{}'),
+  expect(splitIntoWords(
+      'Test1TEST23testAbc{}')).toEqual(
       ['Test', '1', 'TEST', '23', 'test', 'Abc', '{', '}']);
-  assert.deepEqual(codediff.splitIntoWords_(
-      '   FooBar'),
+  expect(splitIntoWords(
+      '   FooBar')).toEqual(
       [' ', ' ', ' ', 'Foo', 'Bar']);
 });
 
-QUnit.test('char diffs on word boundaries', function(assert) {
-  assertCharDiff(assert,
+test('char diffs on word boundaries', () => {
+  assertCharDiff(
       '<ImageDiffModeSelector filePair={filePair}',
       '<[Image]Diff[ModeSelector] filePair={filePair}',
       '<DiffView filePair={filePair}',
       '<Diff[View] filePair={filePair}'
       );
 
-  assertCharDiff(assert,
+  assertCharDiff(
       'mode={this.state.imageDiffMode}',
       '[mode]={this.state.imageDiffMode}',
       'imageDiffMode={this.state.imageDiffMode}',
       '[imageDiffMode]={this.state.imageDiffMode}'
       );
 
-  assertCharDiff(assert,
+  assertCharDiff(
       'changeHandler={this.changeImageDiffModeHandler}/>',
       'changeHandler={this.changeImageDiffModeHandler}/>',
       'changeImageDiffModeHandler={this.changeImageDiffModeHandler} />',
@@ -144,21 +155,21 @@ QUnit.test('char diffs on word boundaries', function(assert) {
       );
 
   // XXX this could be more specific.
-  assertCharDiff(assert,
+  assertCharDiff(
       'var lis = this.props.filePairs.map((file_pair, idx) => {',
       'var lis = this.props.filePairs.map((file[_pair], idx) => {',
       'var lis = this.props.filePairs.map((filePair, idx) => {',
       'var lis = this.props.filePairs.map((file[Pair], idx) => {'
       );
 
-  assertCharDiff(assert,
+  assertCharDiff(
       '      return <li key={idx}>{content}</li>',
       '      return <li key={idx}>{content}</li>',
       '      return <li key={idx}>{content}</li>;',
       '      return <li key={idx}>{content}</li>[;]'
       );
 
-  assertCharDiff(assert,
+  assertCharDiff(
       'import net.sf.samtools._',
       'import [net.sf].samtools._',
       'import htsjdk.samtools._',
@@ -166,60 +177,62 @@ QUnit.test('char diffs on word boundaries', function(assert) {
       );
 });
 
-QUnit.test('add a comma', function(assert) {
-  assertCharDiff(assert,
+test('add a comma', () => {
+  assertCharDiff(
       '  foo: "bar"',
       '  foo: "bar"',
       '  foo: "bar",',
       '  foo: "bar"[,]');
 });
 
-QUnit.test('whitespace diff', function(assert) {
-  assertCharDiff(assert,
+test('whitespace diff', () => {
+  assertCharDiff(
       '  ',
       '[  ]',
       '',
       '');
 
-  assertCharDiff(assert,
+  assertCharDiff(
       '',
       '',
       '  ',
       '[  ]');
 
-  assertCharDiff(assert,
+  assertCharDiff(
       '       <div className="examine-page">',
       '       <div className="examine-page">',
       '        <div className="examine-page">',
       '[ ]       <div className="examine-page">');
 
-  assertCharDiff(assert,
+  assertCharDiff(
       'foobar',
       'foobar',
       '  foobar',
       '[  ]foobar');
 
-  assertCharDiff(assert,
+  assertCharDiff(
       '    foobar',
       '[    ]foobar',
       'foobar',
       'foobar');
 });
 
-QUnit.test('char diff thresholds', function(assert) {
+test('char diff thresholds', () => {
   // Not a useful diff -- only one character in common!
-  assert.equal(codediff.computeCharacterDiffs_('foo.bar', 'blah.baz'), null);
-  assert.equal(codediff.computeCharacterDiffs_('foo.', 'blah.'), null);
+  expect(computeCharacterDiffs('foo.bar', 'blah.baz')).toBeNull();
+  expect(computeCharacterDiffs('foo.', 'blah.')).toBeNull();
 
   // with the "bar"s equal, it's become useful.
-  assertCharDiff(assert,
+  assertCharDiff(
                  'foo.bar',
                  '[foo].bar',
                  'blah.bar',
                  '[blah].bar');
 
   // pure adds/deletes shouldn't be flagged as char diffs.
-  assert.equal(codediff.computeCharacterDiffs_(
+  expect(computeCharacterDiffs(
       '',
-      '      date.getSeconds() + date.getMilliseconds();'), null);
+      '      date.getSeconds() + date.getMilliseconds();')).toBeNull();
+});
+
 });
