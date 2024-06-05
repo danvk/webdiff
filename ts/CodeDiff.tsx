@@ -104,6 +104,7 @@ export function CodeDiff(props: {filePair: FilePair, diffOptions: Partial<DiffOp
       }
     })().catch(e => {
       alert('Unable to get diff!');
+      console.error(e);
     });
   }, [filePair, diffOptions]);
 

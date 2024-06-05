@@ -102,7 +102,7 @@ index 041d7f0..507435c 100644
 def test_read_codes_skip():
     codes = read_codes(PatchSet.from_string(skip_insert_hunk))
     assert codes == [
-        Code(type='skip', before=(0, 2), after=(0, 2)),
+        Code(type='skip', before=(0, 2), after=(0, 2), header='pytest==7.1.3'),
         Code(type='equal', before=(2, 5), after=(2, 5)),
         Code(type='insert', before=(5, 5), after=(5, 6)),
         Code(type='equal', before=(5, 6), after=(6, 7)),

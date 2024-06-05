@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from itertools import groupby
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from unidiff import PatchSet
 
@@ -15,6 +15,7 @@ class Code:
     """Line range on left side; zero-based, half-open interval."""
     after: Tuple[int, int]
     """Line range on right side; zero-based, half-open interval."""
+    header: Optional[str] = None
 
 
 def read_codes(p: PatchSet) -> Union[List[Code], None]:
@@ -27,16 +28,19 @@ def read_codes(p: PatchSet) -> Union[List[Code], None]:
         return None
 
     for hunk in pf:
+        header = hunk.section_header or None
         if hunk.source_start != last_source + 1:
             out.append(
                 Code(
                     'skip',
                     (last_source, hunk.source_start - 1),
                     (last_target, hunk.target_start - 1),
+                    header,
                 )
             )
             last_source = hunk.source_start
             last_target = hunk.target_start
+            header = None
 
         for type, chunk in groupby(hunk, lambda line: line.line_type):
             lines = [*chunk]
@@ -48,24 +52,30 @@ def read_codes(p: PatchSet) -> Union[List[Code], None]:
                         'equal',
                         (first.source_line_no - 1, last.source_line_no),
                         (first.target_line_no - 1, last.target_line_no),
+                        header,
                     )
                 )
+                header = None
             elif type == '-':
                 out.append(
                     Code(
                         'delete',
                         (first.source_line_no - 1, last.source_line_no),
                         (last_target, last_target),
+                        header,
                     )
                 )
+                header = None
             elif type == '+':
                 out.append(
                     Code(
                         'insert',
                         (last_source, last_source),
                         (first.target_line_no - 1, last.target_line_no),
+                        header,
                     )
                 )
+                header = None
             last_source = last.source_line_no or last_source
             last_target = last.target_line_no or last_target
 
@@ -88,6 +98,7 @@ def add_replaces(codes: List[Code]) -> List[Code]:
                         'replace',
                         (c.before[0], nc.before[1]),
                         (c.after[0], nc.after[1]),
+                        c.header,
                     )
                 )
                 i += 2
@@ -126,6 +137,7 @@ def diff_to_codes(diff: str, after_num_lines=None) -> Union[List[Code], None]:
                     'skip',
                     (a2, a2 + end_skip),
                     (b2, b2 + end_skip),
+                    None,
                 )
             )
 
