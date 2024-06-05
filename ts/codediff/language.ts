@@ -35,9 +35,10 @@ export function guessLanguageUsingFileName(name: string) {
  * line (if present) and then falls back to HighlightJS's keyword-based
  * guessing.
  */
-export function guessLanguageUsingContents(contents: string) {
+export function guessLanguageUsingContents(contents: string): string | undefined {
   // First check for a shebang line.
   var firstLine = contents.substring(0, contents.indexOf('\n'));
+  let lang: string | undefined;
   if (firstLine.substring(0, 2) == '#!') {
     var processor = firstLine.substring(2);
     if (processor == '/bin/bash') return 'bash';
@@ -51,7 +52,7 @@ export function guessLanguageUsingContents(contents: string) {
     };
     let interpreter: keyof typeof options;
     for (interpreter in options) {
-      var lang = options[interpreter];
+      lang = options[interpreter];
       if (processor.indexOf(interpreter) >= 0) {
         return lang;
       }
@@ -60,6 +61,6 @@ export function guessLanguageUsingContents(contents: string) {
 
   // Now let HighlightJS guess.
   var guess = hljs.highlightAuto(contents);
-  var lang = guess.language;
+  lang = guess.language;
   return lang;
 }

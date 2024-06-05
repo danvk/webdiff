@@ -1,3 +1,5 @@
+import { stringAsLines } from "./difflib";
+
 /**
  * @param text Possibly multiline text containing spans that cross
  *     line breaks.
@@ -5,7 +7,7 @@
  *     entirely balanced <span> tags.
  */
 export function distributeSpans(text: string): string[] {
-  const lines = difflib.stringAsLines(text);
+  const lines = stringAsLines(text);
   const spanRe = /(<span[^>]*>)|(<\/span>)/;
 
   const outLines = [];

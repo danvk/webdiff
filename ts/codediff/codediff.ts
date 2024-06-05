@@ -1,6 +1,7 @@
 import {DiffRange, addSkips} from './codes';
 import {distributeSpans} from './dom-utils';
 import {buildRowTr, buildSkipTr} from './table-utils';
+import * as difflib from './difflib';
 
 export interface PatchOptions {
   minJumpSize: number;

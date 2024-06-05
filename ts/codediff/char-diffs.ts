@@ -1,4 +1,5 @@
 import {htmlTextMapper} from './html-text-mapper';
+import * as difflib from './difflib';
 
 type OpType = difflib.OpCode[0];
 export type CharacterDiff = [OpType | 'skip' | null, number, number];

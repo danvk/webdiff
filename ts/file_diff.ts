@@ -40,7 +40,7 @@ export function renderDiffWithOps(
     if (contentsAfter && lengthOrZero(contentsAfter) > lengthOrZero(contentsBefore)) {
       byLength = [byLength![1], byLength![0]];
     }
-    language = guessLanguageUsingContents(byLength[0]!);
+    language = guessLanguageUsingContents(byLength[0]!) ?? null;
   }
   if (language) {
     opts.language = language;

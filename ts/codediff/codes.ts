@@ -1,3 +1,5 @@
+import * as difflib from './difflib';
+
 type OpType = difflib.OpCode[0];
 
 export interface DiffRange {

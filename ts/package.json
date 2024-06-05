@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "difflib": "^0.2.4",
+    "highlight.js": "^11.9.0",
     "jquery": "^3.6",
     "lodash": "^4.17.20",
     "react": "^16.13.1",
