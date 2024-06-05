@@ -129,12 +129,11 @@ To debug `git webdiff`, run:
 
     ./test-gitwebdiff.sh
 
+## Publishing
+
 To iterate on the PyPI package, run:
 
-    # from outside the webdiff virtualenv:
     pip3 uninstall webdiff
-
-    # from inside the webdiff virtualenv, adjust for current version
     poetry build
     pip3 install dist/webdiff-?.?.?.tar.gz
 
@@ -148,6 +147,12 @@ And to the real pypi:
     poetry publish
 
 See [pypirc][] docs for details on setting up `~/.pypirc`.
+
+Publication checklist. Do these from _outside_ the webdiff directory:
+
+- Run `webdiff webdiff/testdata/.../{left,right}`
+- Run `git webdiff 52aa15f^..52aa15f` in the codediff.js repo
+- Run `webdiff https://github.com/danvk/webdiff/pull/160`
 
 ## Implementation notes
 

@@ -225,6 +225,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
             if LAST_REQUEST_MS <= last_ms:  # subsequent requests abort shutdown
                 # See https://stackoverflow.com/a/19040484/388951
                 # and https://stackoverflow.com/q/4330111/388951
+                sys.stderr.write('Shutting down...\n')
                 threading.Thread(target=self.server.shutdown, daemon=True).start()
             else:
                 logging.debug('Received subsequent request; canceling shutdown')
