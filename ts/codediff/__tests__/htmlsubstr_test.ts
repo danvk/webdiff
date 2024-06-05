@@ -1,6 +1,4 @@
-/**
- * @jest-environment jsdom
- */
+/** @jest-environment jsdom */
 import { htmlTextMapper } from "../html-text-mapper";
 
 function stripTags(txt: string): string {
