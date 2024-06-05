@@ -15,7 +15,7 @@ class Code:
     """Line range on left side; zero-based, half-open interval."""
     after: Tuple[int, int]
     """Line range on right side; zero-based, half-open interval."""
-    header: Optional[str]
+    header: Optional[str] = None
 
 
 def read_codes(p: PatchSet) -> Union[List[Code], None]:
@@ -28,7 +28,7 @@ def read_codes(p: PatchSet) -> Union[List[Code], None]:
         return None
 
     for hunk in pf:
-        header = hunk.section_header
+        header = hunk.section_header or None
         if hunk.source_start != last_source + 1:
             out.append(
                 Code(
