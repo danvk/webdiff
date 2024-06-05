@@ -1,4 +1,6 @@
 import {FilePair} from './CodeDiff';
+import { PatchOptions, buildViewFromOps } from './codediff/codediff';
+import { guessLanguageUsingContents, guessLanguageUsingFileName } from './codediff/language';
 import { GitConfig } from './options';
 
 declare const GIT_CONFIG: GitConfig;
@@ -15,17 +17,17 @@ export function renderDiffWithOps(
   diffDiv.className = 'diff';
 
   // build the diff view and add it to the current DOM
-  const opts: codediff.Options = {
+  const opts: Partial<PatchOptions> = {
     // set the display titles for each resource
     beforeName: pathBefore || '(none)',
     afterName: pathAfter || '(none)',
-    contextSize: 10,
+    // TODO: thread through minJumpSize
   };
 
   // First guess a language based on the file name.
   // Fall back to guessing based on the contents of the longer version.
   var path = pathBefore || pathAfter;
-  var language = codediff.guessLanguageUsingFileName(path);
+  var language = guessLanguageUsingFileName(path);
 
   var lengthOrZero = function (data: any[] | string | null | undefined) {
     return data ? data.length : 0;
@@ -38,14 +40,14 @@ export function renderDiffWithOps(
     if (contentsAfter && lengthOrZero(contentsAfter) > lengthOrZero(contentsBefore)) {
       byLength = [byLength![1], byLength![0]];
     }
-    language = codediff.guessLanguageUsingContents(byLength[0]!);
+    language = guessLanguageUsingContents(byLength[0]!);
   }
   if (language) {
     opts.language = language;
   }
 
   diffDiv.appendChild(
-    codediff.buildViewFromOps(contentsBefore!, contentsAfter!, ops, opts)
+    buildViewFromOps(contentsBefore!, contentsAfter!, ops, opts)
   );
 
   return diffDiv;
