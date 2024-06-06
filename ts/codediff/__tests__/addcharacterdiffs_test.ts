@@ -1,5 +1,9 @@
+/** @jest-environment jsdom */
 import { CharacterDiff, addCharacterDiffs, codesToHtml, computeCharacterDiffs, simplifyCodes, splitIntoWords } from "../char-diffs";
 import { htmlTextMapper } from "../html-text-mapper";
+import $ from 'jquery';
+
+(globalThis as any).$ = $;
 
 describe('add character diffs', () => {
 
@@ -27,21 +31,21 @@ test('codesToHtml', () => {
     'h<span class="char-replace">el</span><span class="char-equal">lo</span>');
 });
 
-/*
-test.skip('char diffs -- simple', () => {
-  var before = $('<div>').text("    return '' + date.getFullYear();").get(0);
-  var after =  $('<div>').text("    return 'xx' + date.getFullYear();").get(0);
+test('char diffs -- simple', () => {
+  var before = $('<div>').text("    return '' + date.getFullYear();").get(0)!;
+  var after =  $('<div>').text("    return 'xx' + date.getFullYear();").get(0)!;
 
   var beforeText = $(before).text(),
       afterText = $(after).text();
 
   addCharacterDiffs(before, after);
-  assert.equal($(before).text(), beforeText);
-  assert.equal($(after).text(), afterText);
-  assert.equal($(before).html(), "    return '' + date.getFullYear();");
-  assert.equal($(after).html(), "    return '<span class=\"char-insert\">xx</span>' + date.getFullYear();");
+  expect($(before).text()).toEqual(beforeText);
+  expect($(after).text()).toEqual(afterText);
+  expect($(before).html()).toEqual("    return '' + date.getFullYear();");
+  expect($(after).html()).toEqual("    return '<span class=\"char-insert\">xx</span>' + date.getFullYear();");
 });
 
+/*
 test.skip('char diffs with trailing markup', () => {
   var before = $('<div>').html("<q>''</q>").get(0);
   var after =  $('<div>').html("<q>'xx'</q>").get(0);
