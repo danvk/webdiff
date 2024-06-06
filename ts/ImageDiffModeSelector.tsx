@@ -1,7 +1,7 @@
 import React from 'react';
 /** React components related to image diffs. */
 
-import {FilePair} from './CodeDiff';
+import {FilePair} from './CodeDiffContainer';
 import {isOneSided} from './utils';
 
 export const IMAGE_DIFF_MODES = ['side-by-side', 'blink', 'onion-skin', 'swipe'] as const;

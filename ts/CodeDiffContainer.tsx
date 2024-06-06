@@ -61,7 +61,7 @@ export function NoChanges(props: {filePair: any}) {
 }
 
 // A side-by-side diff of source code.
-export function CodeDiff(props: {filePair: FilePair; diffOptions: Partial<DiffOptions>}) {
+export function CodeDiffContainer(props: {filePair: FilePair; diffOptions: Partial<DiffOptions>}) {
   const {filePair, diffOptions} = props;
   const codediffRef = React.useRef<HTMLDivElement>(null);
 

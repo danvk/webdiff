@@ -1,6 +1,6 @@
 import React from 'react';
 import {RouteComponentProps, useHistory} from 'react-router';
-import {FilePair} from './CodeDiff';
+import {FilePair} from './CodeDiffContainer';
 import {DiffOptions} from './diff-options';
 import {DiffView, PerceptualDiffMode} from './DiffView';
 import {FileSelector} from './FileSelector';

@@ -1,6 +1,6 @@
 import * as difflib from 'difflib';
 
-import {FilePair} from './CodeDiff';
+import {FilePair} from './CodeDiffContainer';
 
 /**
  * Returns either "foo.txt" or "{foo -> bar}.txt"

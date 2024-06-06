@@ -1,9 +1,9 @@
 import React from 'react';
 
-import {DiffBox, FilePair, ImageFilePair} from './CodeDiff';
+import {DiffBox, FilePair, ImageFilePair} from './CodeDiffContainer';
 import {PerceptualDiffMode} from './DiffView';
 import {ImageDiffMode, ImageDiffModeSelector} from './ImageDiffModeSelector';
-import {NoChanges} from './CodeDiff';
+import {NoChanges} from './CodeDiffContainer';
 import {isOneSided, isSameSizeImagePair} from './utils';
 import {ImageSideBySide} from './ImageSideBySide';
 import {ImageBlinker} from './ImageBlinker';

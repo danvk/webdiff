@@ -1,4 +1,4 @@
-import {FilePair} from './CodeDiff';
+import {FilePair} from './CodeDiffContainer';
 import {PatchOptions, buildViewFromOps} from './codediff/codediff';
 import {guessLanguageUsingContents, guessLanguageUsingFileName} from './codediff/language';
 import {GitConfig} from './options';
