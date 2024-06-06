@@ -52,6 +52,8 @@ jobs:
           command: |
             cd ts
             yarn run format:check
+            yarn run knip
+            yarn run tsc --noEmit
 
 workflows:
   main:
