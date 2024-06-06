@@ -63,18 +63,3 @@ export function decodeDiffOptions(flags: string): Partial<DiffOptions> {
   }
   return options;
 }
-
-export function fillDiffOptions(
-  options: Partial<DiffOptions>,
-  defaults: GitConfig['diff'],
-): DiffOptions {
-  return {
-    ignoreAllSpace: options.ignoreAllSpace ?? false,
-    ignoreSpaceChange: options.ignoreSpaceChange ?? false,
-    functionContext: options.functionContext ?? false,
-    diffAlgorithm: options.diffAlgorithm ?? defaults.algorithm ?? 'myers',
-    unified: options.unified ?? 8,
-    findRenames: options.findRenames ?? 50,
-    findCopies: options.findCopies,
-  };
-}

@@ -36,7 +36,7 @@ const DEFAULT_PARAMS: PatchOptions = {
   expandLines: 10,
 };
 
-export class differ {
+class Differ {
   params: PatchOptions;
   beforeLines: string[];
   afterLines: string[];
@@ -251,21 +251,6 @@ function enforceMinJumpSize(diffs: DiffRange[], minJumpSize: number): DiffRange[
   );
 }
 
-export function buildView(
-  beforeText: string | null,
-  afterText: string | null,
-  userParams: Partial<DiffOptions & PatchOptions>,
-) {
-  const params: DiffOptions & PatchOptions = {...DEFAULT_OPTIONS, ...DEFAULT_PARAMS, ...userParams};
-  const beforeLines = beforeText ? difflib.stringAsLines(beforeText) : [];
-  const afterLines = afterText ? difflib.stringAsLines(afterText) : [];
-  const sm = new difflib.SequenceMatcher(beforeLines, afterLines);
-  const opcodes = sm.get_opcodes();
-  const diffRanges = addSkips(opcodes, params.contextSize, params.minJumpSize);
-  var d = new differ(beforeText, beforeLines, afterText, afterLines, diffRanges, params);
-  return d.buildView_();
-}
-
 export function buildViewFromOps(
   beforeText: string,
   afterText: string,
@@ -276,6 +261,6 @@ export function buildViewFromOps(
   const afterLines = afterText ? difflib.stringAsLines(afterText) : [];
   const fullParams = {...DEFAULT_PARAMS, ...params};
   const diffRanges = enforceMinJumpSize(ops, fullParams.minJumpSize);
-  var d = new differ(beforeText, beforeLines, afterText, afterLines, diffRanges, params);
+  var d = new Differ(beforeText, beforeLines, afterText, afterLines, diffRanges, params);
   return d.buildView_();
 }
