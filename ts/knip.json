@@ -1,0 +1,15 @@
+{
+    "$schema": "https://unpkg.com/knip@5/schema.json",
+    "entry": [
+        "index.tsx"
+    ],
+    "project": [
+        "**/*.{js,ts,tsx}"
+    ],
+    "prettier": {
+        "config": [".prettierrc"]
+    },
+    "jest": {
+        "config": ["jest.config.js"]
+    }
+}
