@@ -1,4 +1,6 @@
-import {DiffRange, addSkips} from './codes';
+import React from 'react';
+
+import {DiffRange, LineRange, addSkips} from './codes';
 import {distributeSpans} from './dom-utils';
 import {buildRowTr, buildSkipTr} from './table-utils';
 import * as difflib from './difflib';
@@ -64,10 +66,6 @@ class Differ {
       this.afterLinesHighlighted = highlightText(afterText ?? '', language);
     }
     // TODO: from this point on language shouldn't need to be used.
-  }
-
-  maxLineNumber() {
-    return Math.max(this.beforeLines.length, this.afterLines.length);
   }
 
   /**
@@ -263,4 +261,144 @@ export function buildViewFromOps(
   const diffRanges = enforceMinJumpSize(ops, fullParams.minJumpSize);
   var d = new Differ(beforeText, beforeLines, afterText, afterLines, diffRanges, params);
   return d.buildView_();
+}
+
+export interface Props {
+  beforeText: string;
+  afterText: string;
+  ops: DiffRange[];
+  params: Partial<PatchOptions>;
+}
+
+export function CodeDiff(props: Props) {
+  const {beforeText, afterText, ops, params} = props;
+  const beforeLines = React.useMemo(
+    () => (beforeText ? difflib.stringAsLines(beforeText) : []),
+    [beforeText],
+  );
+  const afterLines = React.useMemo(
+    () => (afterText ? difflib.stringAsLines(afterText) : []),
+    [afterText],
+  );
+  const fullParams = React.useMemo(() => ({...DEFAULT_PARAMS, ...params}), [params]);
+  const diffRanges = React.useMemo(
+    () => enforceMinJumpSize(ops, fullParams.minJumpSize),
+    [ops, fullParams],
+  );
+  const {language} = fullParams;
+
+  const [beforeLinesHighlighted, afterLinesHighlighted] = React.useMemo(() => {
+    if (!language) return [null, null];
+    return [highlightText(beforeText ?? '', language), highlightText(afterText ?? '', language)];
+  }, [beforeLines, afterLines, language]);
+
+  return (
+    <CodeDiffView
+      beforeLines={beforeLines}
+      beforeLinesHighlighted={beforeLinesHighlighted}
+      afterLines={afterLines}
+      afterLinesHighlighted={afterLinesHighlighted}
+      params={fullParams}
+      ops={diffRanges}
+    />
+  );
+}
+
+interface CodeDiffViewProps {
+  beforeLines: readonly string[];
+  afterLines: readonly string[];
+  beforeLinesHighlighted: readonly string[] | null;
+  afterLinesHighlighted: readonly string[] | null;
+  params: PatchOptions;
+  ops: readonly DiffRange[];
+}
+
+const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
+  const {params, ops} = props;
+
+  const beforeLines = props.beforeLinesHighlighted ?? props.beforeLines;
+  const afterLines = props.afterLinesHighlighted ?? props.afterLines;
+  const {language, expandLines} = params;
+
+  const diffRows = [];
+  for (const range of ops) {
+    const type = range.type;
+    const numBeforeRows = range.before[1] - range.before[0];
+    const numAfterRows = range.after[1] - range.after[0];
+    const numRows = Math.max(numBeforeRows, numAfterRows);
+    const before = range.before[0];
+    const after = range.after[0];
+    if (type == 'skip') {
+      diffRows.push(
+        <SkipRow
+          key={`${before}-${after}`}
+          beforeStartLine={range.before[0]}
+          afterStartLine={range.after[0]}
+          numRows={numRows}
+          header={range.header ?? null}
+          expandLines={expandLines}
+        />,
+      );
+    } else {
+      for (let j = 0; j < numRows; j++) {
+        const beforeIdx = j < numBeforeRows ? before + j : null;
+        const afterIdx = j < numAfterRows ? after + j : null;
+        diffRows.push(
+          <DiffRow
+            key={`${beforeIdx}-${afterIdx}`}
+            type={type}
+            beforeLineNum={beforeIdx != null ? 1 + beforeIdx : null}
+            afterLineNum={afterIdx != null ? 1 + afterIdx : null}
+            beforeTextOrHtml={beforeIdx != null ? beforeLines[beforeIdx] : undefined}
+            afterTextOrHtml={afterIdx != null ? afterLines[afterIdx] : undefined}
+            language={language}
+          />,
+        );
+      }
+    }
+  }
+
+  const tableClassName = 'diff' + (params.wordWrap ? ' word-wrap' : '');
+  return (
+    <div className="diff">
+      <table className={tableClassName}>
+        <thead>
+          <tr>
+            <th className="diff-header" colSpan={2}>
+              {params.beforeName}
+            </th>
+            <th className="diff-header" colSpan={2}>
+              {params.afterName}
+            </th>
+          </tr>
+        </thead>
+        <tbody>{diffRows}</tbody>
+      </table>
+    </div>
+  );
+});
+
+interface SkipRowProps {
+  beforeStartLine: number;
+  afterStartLine: number;
+  numRows: number;
+  header: string | null;
+  expandLines: number;
+}
+
+function SkipRow(props: SkipRowProps) {
+  return null;
+}
+
+interface DiffRowProps {
+  type: DiffRange['type'];
+  beforeLineNum: number | null;
+  afterLineNum: number | null;
+  beforeTextOrHtml?: string;
+  afterTextOrHtml?: string;
+  language: string | null;
+}
+
+function DiffRow(props: DiffRowProps) {
+  return null;
 }
