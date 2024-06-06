@@ -23,7 +23,7 @@ export function distributeSpans(text: string): string[] {
         outLine += groups[i + 1];
         liveSpans.pop();
         i += 2;
-      } else if (g.substr(0, 5) == '<span') {
+      } else if (g.slice(0, 5) == '<span') {
         // open span
         i += 2;
         outLine += g;
