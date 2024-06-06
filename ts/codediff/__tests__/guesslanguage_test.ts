@@ -1,4 +1,4 @@
-import { guessLanguageUsingFileName } from "../language";
+import { guessLanguageUsingContents, guessLanguageUsingFileName } from "../language";
 
 import highlightjs from 'highlight.js';
 
@@ -6,9 +6,9 @@ import highlightjs from 'highlight.js';
 
 describe('guess language', () => {
 
+test('guessLanguageUsingFileName', () => {
   const guess = guessLanguageUsingFileName;
 
-test('guessLanguageUsingFileName', () => {
   expect(guess('/foo/bar/blah.html')).toEqual('html');
   expect(guess('bar.html')).toEqual('html');
   expect(guess('foo.css')).toEqual('css');
@@ -22,6 +22,7 @@ test('guessLanguageUsingFileName', () => {
 });
 
 test('guessLanguageUsingContentsShebang', () => {
+  const guess = guessLanguageUsingContents;
   expect(guess(
     '#!/usr/bin/env python\n' +
     'print 1 + 1\n')).toEqual('python');
@@ -45,6 +46,7 @@ test('guessLanguageUsingContentsShebang', () => {
 });
 
 test('guessLanguageUsingContentsTokens', () => {
+  const guess = guessLanguageUsingContents;
   expect(guess(
     'function foo() {\n' +
     '  console.log("hello");\n' +
