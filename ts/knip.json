@@ -6,6 +6,10 @@
     "project": [
         "**/*.{js,ts,tsx}"
     ],
+    "ignoreExportsUsedInFile": true,
+    "ignoreDependencies": [
+        "jest-environment-jsdom"
+    ],
     "prettier": {
         "config": [".prettierrc"]
     },

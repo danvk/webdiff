@@ -36,7 +36,7 @@ const DEFAULT_PARAMS: PatchOptions = {
   expandLines: 10,
 };
 
-export class differ {
+class Differ {
   params: PatchOptions;
   beforeLines: string[];
   afterLines: string[];
@@ -261,6 +261,6 @@ export function buildViewFromOps(
   const afterLines = afterText ? difflib.stringAsLines(afterText) : [];
   const fullParams = {...DEFAULT_PARAMS, ...params};
   const diffRanges = enforceMinJumpSize(ops, fullParams.minJumpSize);
-  var d = new differ(beforeText, beforeLines, afterText, afterLines, diffRanges, params);
+  var d = new Differ(beforeText, beforeLines, afterText, afterLines, diffRanges, params);
   return d.buildView_();
 }

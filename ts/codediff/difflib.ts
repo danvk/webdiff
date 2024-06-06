@@ -38,11 +38,11 @@ export type OpCode = [
   afterEnd: number,
 ];
 
-export function defaultJunkFunction(c: string) {
+function defaultJunkFunction(c: string) {
   return __whitespace.hasOwnProperty(c);
 }
 
-export function stripLinebreaks(str: string) {
+function stripLinebreaks(str: string) {
   return str.replace(/^[\n\r]*|[\n\r]*$/g, '');
 }
 
