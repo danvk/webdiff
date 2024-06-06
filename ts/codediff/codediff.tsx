@@ -405,31 +405,43 @@ interface DiffRowProps {
   language: string | null;
 }
 
+function escapeHtml(unsafe: string) {
+  return unsafe
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+const makeCodeTd = (
+  type: string,
+  language: string | null,
+  textOrHtml: string | null | undefined,
+) => {
+  if (textOrHtml == null) {
+    return {html: '', className: 'empty code'};
+  }
+  textOrHtml = textOrHtml.replace(/\t/g, '\u00a0\u00a0\u00a0\u00a0');
+  let className = 'code ' + type;
+  return language ? {className, html: textOrHtml} : {className, html: escapeHtml(textOrHtml)};
+};
+
 function DiffRow(props: DiffRowProps) {
   const {beforeLineNum, afterLineNum, language, type} = props;
-  const makeCodeTd = (textOrHtml: string | null | undefined) => {
-    if (textOrHtml == null) {
-      return {contents: '', className: 'empty code'};
-    }
-    textOrHtml = textOrHtml.replace(/\t/g, '\u00a0\u00a0\u00a0\u00a0');
-    let className = 'code ' + type;
-    // TODO: convert text to HTML (escape <, &, >)
-    return language ? {className, html: textOrHtml} : {className, text: textOrHtml};
-  };
-  const cells = [makeCodeTd(props.beforeTextOrHtml), makeCodeTd(props.afterTextOrHtml)];
+  const cells = [
+    makeCodeTd(type, language, props.beforeTextOrHtml),
+    makeCodeTd(type, language, props.afterTextOrHtml),
+  ];
   return (
     <tr>
       <td className="line-no">{beforeLineNum ?? ''}</td>
       <td
         className={cells[0].className}
-        {...(cells[0].html ? {dangerouslySetInnerHTML: {__html: cells[0].html}} : {})}>
-        {cells[0].text}
-      </td>
+        {...(cells[0].html ? {dangerouslySetInnerHTML: {__html: cells[0].html}} : {})}></td>
       <td
         className={cells[1].className}
-        {...(cells[1].html ? {dangerouslySetInnerHTML: {__html: cells[1].html}} : {})}>
-        {cells[1].text}
-      </td>
+        {...(cells[1].html ? {dangerouslySetInnerHTML: {__html: cells[1].html}} : {})}></td>
       <td className="line-no">{afterLineNum ?? ''}</td>
     </tr>
   );
