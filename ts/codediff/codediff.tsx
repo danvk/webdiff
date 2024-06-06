@@ -387,7 +387,13 @@ interface SkipRowProps {
 }
 
 function SkipRow(props: SkipRowProps) {
-  return null;
+  return (
+    <tr className="skip-row">
+      <td colSpan={4} className="skip code">
+        {props.numRows} lines skipped
+      </td>
+    </tr>
+  );
 }
 
 interface DiffRowProps {
@@ -400,5 +406,31 @@ interface DiffRowProps {
 }
 
 function DiffRow(props: DiffRowProps) {
-  return null;
+  const {beforeLineNum, afterLineNum, language, type} = props;
+  const makeCodeTd = (textOrHtml: string | null | undefined) => {
+    if (textOrHtml == null) {
+      return {contents: '', className: 'empty code'};
+    }
+    textOrHtml = textOrHtml.replace(/\t/g, '\u00a0\u00a0\u00a0\u00a0');
+    let className = 'code ' + type;
+    // TODO: convert text to HTML (escape <, &, >)
+    return language ? {className, html: textOrHtml} : {className, text: textOrHtml};
+  };
+  const cells = [makeCodeTd(props.beforeTextOrHtml), makeCodeTd(props.afterTextOrHtml)];
+  return (
+    <tr>
+      <td className="line-no">{beforeLineNum ?? ''}</td>
+      <td
+        className={cells[0].className}
+        {...(cells[0].html ? {dangerouslySetInnerHTML: {__html: cells[0].html}} : {})}>
+        {cells[0].text}
+      </td>
+      <td
+        className={cells[1].className}
+        {...(cells[1].html ? {dangerouslySetInnerHTML: {__html: cells[1].html}} : {})}>
+        {cells[1].text}
+      </td>
+      <td className="line-no">{afterLineNum ?? ''}</td>
+    </tr>
+  );
 }

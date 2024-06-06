@@ -6,10 +6,7 @@ export type CharacterDiff = [OpType | 'skip' | null, number, number];
 
 /**
  * Compute an intra-line diff.
- * @param {string} beforeText
- * @param {string} afterText
- * @return {?Array.<Array>} [before codes, after codes], where each element is a
- *     list of ('change type', start idx, stop idx) triples. Returns null if
+ * @return [before codes, after codes]. Returns null if
  *     character differences are not appropriate for this line pairing.
  */
 export function computeCharacterDiffs(
