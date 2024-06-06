@@ -1,13 +1,13 @@
 import React from 'react';
 import {RouteComponentProps, useHistory} from 'react-router';
 import {FilePair} from './CodeDiff';
-import { DiffOptions } from './diff-options';
+import {DiffOptions} from './diff-options';
 import {DiffView, PerceptualDiffMode} from './DiffView';
 import {FileSelector} from './FileSelector';
 import {isLegitKeypress} from './file_diff';
 import {ImageDiffMode} from './ImageDiffModeSelector';
 import {filePairDisplayName} from './utils';
-import { DiffOptionsControl } from './DiffOptions';
+import {DiffOptionsControl} from './DiffOptions';
 
 declare const pairs: FilePair[];
 declare const initialIdx: number;

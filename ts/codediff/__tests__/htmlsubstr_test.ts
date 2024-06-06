@@ -1,6 +1,6 @@
 /** @jest-environment jsdom */
 import $ from 'jquery';
-import { htmlTextMapper } from "../html-text-mapper";
+import {htmlTextMapper} from '../html-text-mapper';
 
 (globalThis as any).$ = $;
 
@@ -44,15 +44,15 @@ test('leading/trailing html, fixed right', () => {
   var map = new htmlTextMapper(text, html);
 
   expect(map.getHtmlSubstring(0, 9)).toEqual('<p>foo<span>bar</span>baz</p>');
-  expect(map.getHtmlSubstring(1, 9)).toEqual( '<p>oo<span>bar</span>baz</p>');
-  expect(map.getHtmlSubstring(2, 9)).toEqual(  '<p>o<span>bar</span>baz</p>');
-  expect(map.getHtmlSubstring(3, 9)).toEqual(   '<p><span>bar</span>baz</p>');
-  expect(map.getHtmlSubstring(4, 9)).toEqual(    '<p><span>ar</span>baz</p>');
-  expect(map.getHtmlSubstring(5, 9)).toEqual(     '<p><span>r</span>baz</p>');
-  expect(map.getHtmlSubstring(6, 9)).toEqual(                   '<p>baz</p>');
-  expect(map.getHtmlSubstring(7, 9)).toEqual(                    '<p>az</p>');
-  expect(map.getHtmlSubstring(8, 9)).toEqual(                     '<p>z</p>');
-  expect(map.getHtmlSubstring(9, 9)).toEqual(                             '');
+  expect(map.getHtmlSubstring(1, 9)).toEqual('<p>oo<span>bar</span>baz</p>');
+  expect(map.getHtmlSubstring(2, 9)).toEqual('<p>o<span>bar</span>baz</p>');
+  expect(map.getHtmlSubstring(3, 9)).toEqual('<p><span>bar</span>baz</p>');
+  expect(map.getHtmlSubstring(4, 9)).toEqual('<p><span>ar</span>baz</p>');
+  expect(map.getHtmlSubstring(5, 9)).toEqual('<p><span>r</span>baz</p>');
+  expect(map.getHtmlSubstring(6, 9)).toEqual('<p>baz</p>');
+  expect(map.getHtmlSubstring(7, 9)).toEqual('<p>az</p>');
+  expect(map.getHtmlSubstring(8, 9)).toEqual('<p>z</p>');
+  expect(map.getHtmlSubstring(9, 9)).toEqual('');
 });
 
 test('small html, all ranges', () => {

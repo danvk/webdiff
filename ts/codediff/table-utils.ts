@@ -53,14 +53,16 @@ export function buildSkipTr(
   header: string | null,
   expandLines: number,
 ): HTMLElement {
-  const arrows = numRowsSkipped <= expandLines ?
-    `<span class="skip" title="show ${numRowsSkipped} skipped lines">↕</span>` : `<span class="skip expand-up" title="show ${expandLines} more lines above">↥</span><span class="skip expand-down"title="show ${expandLines} more lines below">↧</span>`;
+  const arrows =
+    numRowsSkipped <= expandLines
+      ? `<span class="skip" title="show ${numRowsSkipped} skipped lines">↕</span>`
+      : `<span class="skip expand-up" title="show ${expandLines} more lines above">↥</span><span class="skip expand-down"title="show ${expandLines} more lines below">↧</span>`;
   const showMore = `<a href="#">Show ${numRowsSkipped} more lines</a>`;
   const headerHTML = header ? `<span class="hunk-header">${header}</span>` : '';
   const $tr = $(
     `<tr class="skip-row">
       <td colspan="4" class="skip code"><span class="arrows-left">${arrows}</span>${showMore} ${headerHTML}<span class="arrows-right">${arrows}</span></td>
-    </tr>`
+    </tr>`,
   );
   $tr.find('.skip').data({
     beforeStartIndex: beforeIdx,

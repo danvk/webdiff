@@ -1,5 +1,5 @@
 import highlightjs from 'highlight.js';
 
 global {
-    declare const hljs: typeof highlightjs;
+  declare const hljs: typeof highlightjs;
 }

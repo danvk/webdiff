@@ -1,4 +1,4 @@
-import { DiffAlgorithm } from "./diff-options";
+import {DiffAlgorithm} from './diff-options';
 
 /** Type of global git_config object */
 export interface GitConfig {
@@ -6,11 +6,11 @@ export interface GitConfig {
   'webdiff.colors': ColorsConfig;
   diff: {
     algorithm?: DiffAlgorithm;
-  }
+  };
 }
 
 export interface WebdiffConfig {
-  unified: number,
+  unified: number;
   extraDirDiffArgs: string;
   extraFileDiffArgs: string;
   openBrowser: boolean;
@@ -31,7 +31,7 @@ declare const GIT_CONFIG: GitConfig;
 
 export function injectStylesFromConfig() {
   const config = GIT_CONFIG.webdiff;
-  const colors = GIT_CONFIG["webdiff.colors"];
+  const colors = GIT_CONFIG['webdiff.colors'];
   document.write(`
   <style>
   td.code {

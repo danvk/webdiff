@@ -1,4 +1,4 @@
-import { GitConfig } from "./options";
+import {GitConfig} from './options';
 
 export type DiffAlgorithm = 'patience' | 'minimal' | 'histogram' | 'myers';
 
@@ -64,7 +64,10 @@ export function decodeDiffOptions(flags: string): Partial<DiffOptions> {
   return options;
 }
 
-export function fillDiffOptions(options: Partial<DiffOptions>, defaults: GitConfig['diff']): DiffOptions {
+export function fillDiffOptions(
+  options: Partial<DiffOptions>,
+  defaults: GitConfig['diff'],
+): DiffOptions {
   return {
     ignoreAllSpace: options.ignoreAllSpace ?? false,
     ignoreSpaceChange: options.ignoreSpaceChange ?? false,
