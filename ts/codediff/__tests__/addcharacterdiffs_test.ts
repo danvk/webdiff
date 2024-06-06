@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
+import $ from 'jquery';
 import { CharacterDiff, addCharacterDiffs, codesToHtml, computeCharacterDiffs, simplifyCodes, splitIntoWords } from "../char-diffs";
 import { htmlTextMapper } from "../html-text-mapper";
-import $ from 'jquery';
 
 (globalThis as any).$ = $;
 

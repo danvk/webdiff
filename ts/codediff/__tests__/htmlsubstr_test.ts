@@ -1,13 +1,12 @@
 /** @jest-environment jsdom */
+import $ from 'jquery';
 import { htmlTextMapper } from "../html-text-mapper";
 
-function stripTags(txt: string): string {
-  return txt.replace(/<[^>]+>/g, '');
-}
+(globalThis as any).$ = $;
 
 test('basic functionality', () => {
   var html = 'foo<span>bar</span>baz';
-  var text = stripTags(html);
+  var text = $('<div>').html(html).text();
   var map = new htmlTextMapper(text, html);
 
   expect(map.getHtmlSubstring(0, 0)).toEqual('');
@@ -24,7 +23,7 @@ test('basic functionality', () => {
 
 test('leading/trailing html', () => {
   var html = '<p>foo<span>bar</span>baz</p>';
-  var text = stripTags(html);
+  var text = $('<div>').html(html).text();
   var map = new htmlTextMapper(text, html);
 
   expect(map.getHtmlSubstring(0, 0)).toEqual('');
@@ -41,7 +40,7 @@ test('leading/trailing html', () => {
 
 test('leading/trailing html, fixed right', () => {
   var html = '<p>foo<span>bar</span>baz</p>';
-  var text = stripTags(html);
+  var text = $('<div>').html(html).text();
   var map = new htmlTextMapper(text, html);
 
   expect(map.getHtmlSubstring(0, 9)).toEqual('<p>foo<span>bar</span>baz</p>');
@@ -58,7 +57,7 @@ test('leading/trailing html, fixed right', () => {
 
 test('small html, all ranges', () => {
   var html = '<q>xx</q>';
-  var text = stripTags(html);
+  var text = $('<div>').html(html).text();
   var map = new htmlTextMapper(text, html);
 
   expect(map.getHtmlSubstring(0, 0)).toEqual('');
@@ -70,7 +69,7 @@ test('small html, all ranges', () => {
 
 test('html with entities', () => {
   var html = 'x&lt;y';
-  var text = 'x>y';
+  var text = $('<div>').html(html).text();
   var map = new htmlTextMapper(text, html);
 
   expect(map.getHtmlSubstring(0, 0)).toEqual('');
@@ -86,7 +85,7 @@ test('html with entities', () => {
 
 test('consecutive tags', () => {
   var html = '<a><b>xx</b></a>';
-  var text = stripTags(html);
+  var text = $('<div>').html(html).text();
   expect(text.length).toEqual(2);
   var map = new htmlTextMapper(text, html);
 
