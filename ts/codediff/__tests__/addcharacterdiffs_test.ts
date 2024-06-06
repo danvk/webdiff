@@ -45,46 +45,42 @@ test('char diffs -- simple', () => {
   expect($(after).html()).toEqual("    return '<span class=\"char-insert\">xx</span>' + date.getFullYear();");
 });
 
-/*
-test.skip('char diffs with trailing markup', () => {
-  var before = $('<div>').html("<q>''</q>").get(0);
-  var after =  $('<div>').html("<q>'xx'</q>").get(0);
+test('char diffs with trailing markup', () => {
+  var before = $('<div>').html("<q>''</q>").get(0)!;
+  var after =  $('<div>').html("<q>'xx'</q>").get(0)!;
 
   var beforeText = $(before).text(),
       afterText = $(after).text();
 
   addCharacterDiffs(before, after);
-  assert.equal($(before).text(), beforeText);
-  assert.equal($(after).text(), afterText);
-  assert.equal($(before).html(), "<q>''</q>");
-  assert.equal($(after).html(), "<q>'</q><span class=\"char-insert\"><q>xx</q></span><q>'</q>");
+  expect($(before).text()).toEqual(beforeText);
+  expect($(after).text()).toEqual(afterText);
+  expect($(before).html()).toEqual("<q>''</q>");
+  expect($(after).html()).toEqual("<q>'</q><span class=\"char-insert\"><q>xx</q></span><q>'</q>");
 });
 
-test.skip('char diffs with markup', () => {
-  var before = $('<div>').html("    <kw>return</kw> <q>''</q> + date.getFullYear();").get(0);
-  var after =  $('<div>').html("    <kw>return</kw> <q>'xx'</q> + date.getFullYear();").get(0);
+test('char diffs with markup', () => {
+  var before = $('<div>').html("    <kw>return</kw> <q>''</q> + date.getFullYear();").get(0)!;
+  var after =  $('<div>').html("    <kw>return</kw> <q>'xx'</q> + date.getFullYear();").get(0)!;
 
   var beforeText = $(before).text(),
       afterText = $(after).text();
 
   addCharacterDiffs(before, after);
-  assert.equal($(before).text(), beforeText);
-  assert.equal($(after).text(), afterText);
-  assert.equal($(before).html(), "    <kw>return</kw> <q>''</q> + date.getFullYear();");
-  assert.equal($(after).html(), "    <kw>return</kw> <q>'</q><span class=\"char-insert\"><q>xx</q></span><q>'</q> + date.getFullYear();");
+  expect($(before).text()).toEqual(beforeText);
+  expect($(after).text()).toEqual(afterText);
+  expect($(before).html()).toEqual("    <kw>return</kw> <q>''</q> + date.getFullYear();");
+  expect($(after).html()).toEqual("    <kw>return</kw> <q>'</q><span class=\"char-insert\"><q>xx</q></span><q>'</q> + date.getFullYear();");
 });
-*/
 
-// test.skip('mixed inserts and markup', () => {
-//   var beforeCode = '<span class="hljs-string">"q"</span>, s';
-//   var afterCode =  '<span class="hljs-string">"q"</span><span class="hljs-comment">/*, s*/</span>';
-//   var beforeEl = $('<div>').html(beforeCode).get(0);
-//   var afterEl =  $('<div>').html(afterCode).get(0);
-//
-//   // XXX this is strange -- is this just asserting that there are no exceptions?
-//   addCharacterDiffs(beforeEl, afterEl);
-//   assert.equal(true, true);
-// });
+test('mixed inserts and markup', () => {
+  var beforeCode = '<span class="hljs-string">"q"</span>, s';
+  var afterCode =  '<span class="hljs-string">"q"</span><span class="hljs-comment">/*, s*/</span>';
+  var beforeEl = $('<div>').html(beforeCode).get(0)!;
+  var afterEl =  $('<div>').html(afterCode).get(0)!;
+  // XXX this is strange -- is this just asserting that there are no exceptions?
+  addCharacterDiffs(beforeEl, afterEl);
+});
 
 function assertCharDiff(beforeText: string, beforeExpectation: string,
                         afterText: string, afterExpectation: string) {
