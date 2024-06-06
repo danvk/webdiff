@@ -8,7 +8,8 @@
     ],
     "ignoreExportsUsedInFile": true,
     "ignoreDependencies": [
-        "jest-environment-jsdom"
+        "jest-environment-jsdom",
+        "@types/jest"
     ],
     "prettier": {
         "config": [".prettierrc"]
