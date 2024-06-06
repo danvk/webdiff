@@ -36,7 +36,6 @@ const DEFAULT_PARAMS: PatchOptions = {
   expandLines: 10,
 };
 
-
 export class differ {
   params: PatchOptions;
   beforeLines: string[];
@@ -51,7 +50,7 @@ export class differ {
     afterText: string | null,
     afterLines: string[],
     ops: DiffRange[],
-    params: Partial<PatchOptions>
+    params: Partial<PatchOptions>,
   ) {
     this.params = {...DEFAULT_PARAMS, ...params};
 
@@ -84,7 +83,11 @@ export class differ {
       e.preventDefault();
       const $skip = $(this).closest('.skip');
       const skipData = $skip.data();
-      let type = $skip.hasClass('expand-down') ? 'down' : $skip.hasClass('expand-up') ? 'up' : 'all';
+      let type = $skip.hasClass('expand-down')
+        ? 'down'
+        : $skip.hasClass('expand-up')
+        ? 'up'
+        : 'all';
       const beforeIdx = skipData.beforeStartIndex;
       const afterIdx = skipData.afterStartIndex;
       const jump = skipData.jumpLength;
@@ -97,13 +100,7 @@ export class differ {
 
       if (type === 'down') {
         newTrs.push(
-          buildSkipTr(
-            beforeIdx,
-            afterIdx,
-            jump - expandLines,
-            skipData.header,
-            expandLines,
-          )
+          buildSkipTr(beforeIdx, afterIdx, jump - expandLines, skipData.header, expandLines),
         );
       }
 
@@ -128,7 +125,7 @@ export class differ {
             jump - expandLines,
             skipData.header,
             expandLines,
-          )
+          ),
         );
       }
       // Replace the old "skip" row with the new code and (maybe) new skip row.
@@ -194,7 +191,9 @@ export class differ {
       const numRows = Math.max(numBeforeRows, numAfterRows);
 
       if (type == 'skip') {
-        $table.append(buildSkipTr(range.before[0], range.after[0], numRows, range.header ?? null, expandLines));
+        $table.append(
+          buildSkipTr(range.before[0], range.after[0], numRows, range.header ?? null, expandLines),
+        );
       } else {
         for (let j = 0; j < numRows; j++) {
           const beforeIdx = j < numBeforeRows ? range.before[0] + j : null;
@@ -242,13 +241,21 @@ function highlightText(text: string, language: string): string[] | null {
 
 /** This removes small skips like "skip 1 line" that are disallowed by minJumpSize. */
 function enforceMinJumpSize(diffs: DiffRange[], minJumpSize: number): DiffRange[] {
-  return diffs.map(d => d.type === 'skip' && d.before[1] - d.before[0] < minJumpSize ? {
-    ...d,
-    type: 'equal',
-  } : d);
+  return diffs.map(d =>
+    d.type === 'skip' && d.before[1] - d.before[0] < minJumpSize
+      ? {
+          ...d,
+          type: 'equal',
+        }
+      : d,
+  );
 }
 
-export function buildView(beforeText: string | null, afterText: string | null, userParams: Partial<DiffOptions & PatchOptions>) {
+export function buildView(
+  beforeText: string | null,
+  afterText: string | null,
+  userParams: Partial<DiffOptions & PatchOptions>,
+) {
   const params: DiffOptions & PatchOptions = {...DEFAULT_OPTIONS, ...DEFAULT_PARAMS, ...userParams};
   const beforeLines = beforeText ? difflib.stringAsLines(beforeText) : [];
   const afterLines = afterText ? difflib.stringAsLines(afterText) : [];
@@ -259,7 +266,12 @@ export function buildView(beforeText: string | null, afterText: string | null, u
   return d.buildView_();
 }
 
-export function buildViewFromOps(beforeText: string, afterText: string, ops: DiffRange[], params: Partial<PatchOptions>) {
+export function buildViewFromOps(
+  beforeText: string,
+  afterText: string,
+  ops: DiffRange[],
+  params: Partial<PatchOptions>,
+) {
   const beforeLines = beforeText ? difflib.stringAsLines(beforeText) : [];
   const afterLines = afterText ? difflib.stringAsLines(afterText) : [];
   const fullParams = {...DEFAULT_PARAMS, ...params};

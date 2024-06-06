@@ -1,7 +1,7 @@
 import {FilePair} from './CodeDiff';
-import { PatchOptions, buildViewFromOps } from './codediff/codediff';
-import { guessLanguageUsingContents, guessLanguageUsingFileName } from './codediff/language';
-import { GitConfig } from './options';
+import {PatchOptions, buildViewFromOps} from './codediff/codediff';
+import {guessLanguageUsingContents, guessLanguageUsingFileName} from './codediff/language';
+import {GitConfig} from './options';
 
 declare const GIT_CONFIG: GitConfig;
 
@@ -35,7 +35,11 @@ export function renderDiffWithOps(
   const lastOp = ops[ops.length - 1];
   const numLines = Math.max(lastOp.before[1], lastOp.after[1]);
 
-  if (!language && HIGHLIGHT_BLACKLIST.indexOf(extractFilename(path)) === -1 && numLines < GIT_CONFIG.webdiff.maxLinesForSyntax) {
+  if (
+    !language &&
+    HIGHLIGHT_BLACKLIST.indexOf(extractFilename(path)) === -1 &&
+    numLines < GIT_CONFIG.webdiff.maxLinesForSyntax
+  ) {
     var byLength = [contentsBefore, contentsAfter];
     if (contentsAfter && lengthOrZero(contentsAfter) > lengthOrZero(contentsBefore)) {
       byLength = [byLength![1], byLength![0]];
@@ -46,9 +50,7 @@ export function renderDiffWithOps(
     opts.language = language;
   }
 
-  diffDiv.appendChild(
-    buildViewFromOps(contentsBefore!, contentsAfter!, ops, opts)
-  );
+  diffDiv.appendChild(buildViewFromOps(contentsBefore!, contentsAfter!, ops, opts));
 
   return diffDiv;
 }

@@ -5,7 +5,7 @@ import {FilePair} from './CodeDiff';
 import {isOneSided} from './utils';
 
 export const IMAGE_DIFF_MODES = ['side-by-side', 'blink', 'onion-skin', 'swipe'] as const;
-export type ImageDiffMode = typeof IMAGE_DIFF_MODES[number];
+export type ImageDiffMode = (typeof IMAGE_DIFF_MODES)[number];
 
 export interface Props {
   filePair: FilePair;

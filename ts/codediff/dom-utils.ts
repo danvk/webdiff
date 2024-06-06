@@ -1,4 +1,4 @@
-import { stringAsLines } from "./difflib";
+import {stringAsLines} from './difflib';
 
 /**
  * @param text Possibly multiline text containing spans that cross

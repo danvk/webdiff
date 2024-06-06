@@ -7,6 +7,8 @@
   "license": "MIT",
   "scripts": {
     "build": "NODE_OPTIONS=--openssl-legacy-provider webpack",
+    "format": "yarn prettier --write '**/*.ts{,x}'",
+    "format:check": "yarn prettier --check '**/*.ts{,x}'",
     "watch": "yarn run build --watch",
     "test": "jest"
   },

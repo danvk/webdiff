@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { DiffAlgorithm, DiffOptions, encodeDiffOptions, decodeDiffOptions } from './diff-options';
+import {DiffAlgorithm, DiffOptions, encodeDiffOptions, decodeDiffOptions} from './diff-options';
 
 export interface Props {
   options: Partial<DiffOptions>;
@@ -121,7 +121,8 @@ export function DiffOptionsControl(props: Props) {
                 </tr>
                 <tr>
                   <td style={{textAlign: 'right', verticalAlign: 'top'}} rowSpan={2}>
-                  Context:</td>
+                    Context:
+                  </td>
                   <td>
                     <input
                       type="number"
