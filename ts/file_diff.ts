@@ -1,9 +1,4 @@
 import {FilePair} from './CodeDiffContainer';
-import {PatchOptions} from './codediff/codediff';
-import {guessLanguageUsingContents, guessLanguageUsingFileName} from './codediff/language';
-import {GitConfig} from './options';
-
-declare const GIT_CONFIG: GitConfig;
 
 // XXX figure out what the difference between these is
 type ThickDiff = FilePair;
@@ -21,12 +16,6 @@ export async function getThickDiff(index: number): Promise<ThickDiff> {
   return data;
 }
 getThickDiff.cache = [] as ThickDiff[];
-
-function extractFilename(path: string) {
-  var parts = path.split('/');
-  return parts[parts.length - 1];
-}
-const HIGHLIGHT_BLACKLIST = ['TODO', 'README', 'NOTES'];
 
 // Useful for avoiding capturing keyboard shortcuts and text entry.
 export function isLegitKeypress(e: KeyboardEvent) {

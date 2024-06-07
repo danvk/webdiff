@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {DiffRange, LineRange, addSkips} from './codes';
+import {DiffRange} from './codes';
 import {closest, copyOnlyMatching, distributeSpans} from './dom-utils';
 import * as difflib from './difflib';
 import {addCharacterDiffsNoJquery} from './char-diffs';
