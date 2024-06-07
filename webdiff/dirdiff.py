@@ -44,7 +44,7 @@ def make_resolved_dir(dir: str) -> str:
 
 def gitdiff(a_dir, b_dir, webdiff_config):
     extra_args = webdiff_config['extraDirDiffArgs']
-    cmd = 'git diff --raw --no-index'
+    cmd = 'git diff --raw -z --no-index'
     if extra_args:
         cmd += ' ' + extra_args
     a_dir_nosym = a_dir
