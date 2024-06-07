@@ -196,5 +196,4 @@ def parse_raw_diff(diff: str) -> List[RawDiffLine]:
             lines.append([part])
         else:
             lines[-1].append(part)
-    print(lines)
     return [parse_raw_diff_line(line) for line in lines]
