@@ -54,3 +54,22 @@ export function closest(el: Element, selector: string): Element | null {
   }
   return null;
 }
+
+export function copyOnlyMatching(e: ClipboardEvent, selector: string) {
+  const sel = window.getSelection()!;
+  const range = sel.getRangeAt(0);
+  const doc = range.cloneContents();
+  const nodes = doc.querySelectorAll(selector);
+  let text = '';
+
+  if (nodes.length === 0) {
+    text = doc.textContent!;
+  } else {
+    [].forEach.call(nodes, function (td: Element, i) {
+      text += (i ? '\n' : '') + td.textContent;
+    });
+  }
+
+  e.clipboardData?.setData('text', text);
+  e.preventDefault();
+}

@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {DiffRange, LineRange, addSkips} from './codes';
-import {closest, distributeSpans} from './dom-utils';
+import {closest, copyOnlyMatching, distributeSpans} from './dom-utils';
 import * as difflib from './difflib';
 import {addCharacterDiffsNoJquery} from './char-diffs';
 
@@ -183,22 +183,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
   const handleCopy = (e: React.ClipboardEvent<HTMLDivElement>) => {
     if (!selectingState) return;
     const isLeft = selectingState === 'left';
-    var sel = window.getSelection()!;
-    let range = sel.getRangeAt(0);
-    let doc = range.cloneContents();
-    let nodes = doc.querySelectorAll('td.' + (isLeft ? 'before' : 'after'));
-    let text = '';
-
-    if (nodes.length === 0) {
-      text = doc.textContent!;
-    } else {
-      [].forEach.call(nodes, function (td: Element, i) {
-        text += (i ? '\n' : '') + td.textContent;
-      });
-    }
-
-    e.clipboardData.setData('text', text);
-    e.preventDefault();
+    copyOnlyMatching(e.nativeEvent, 'td.' + (isLeft ? 'before' : 'after'));
   };
 
   const divClassName = 'diff' + (selectingState ? ` selecting-${selectingState}` : '');
