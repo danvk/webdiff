@@ -185,7 +185,12 @@ function FileDiff(props: FileDiffProps) {
 
   return (
     <div className="diff">
-      <CodeDiff beforeText={contentsBefore!} afterText={contentsAfter!} ops={diffOps} opts={opts} />
+      <CodeDiff
+        beforeText={contentsBefore!}
+        afterText={contentsAfter!}
+        ops={diffOps}
+        params={opts}
+      />
     </div>
   );
 }
