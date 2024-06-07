@@ -3,7 +3,7 @@ import React from 'react';
 import {DiffRange} from './codes';
 import {closest, copyOnlyMatching, distributeSpans} from './dom-utils';
 import * as difflib from './difflib';
-import {addCharacterDiffsNoJquery} from './char-diffs';
+import {addCharacterDiffs} from './char-diffs';
 
 export interface PatchOptions {
   /** Minimum number of skipped lines to elide into a "jump" row */
@@ -338,7 +338,7 @@ function DiffRow(props: DiffRowProps) {
   ];
   let [beforeHtml, afterHtml] = [cells[0].html, cells[1].html];
   if (type === 'replace') {
-    [beforeHtml, afterHtml] = addCharacterDiffsNoJquery(
+    [beforeHtml, afterHtml] = addCharacterDiffs(
       cells[0].text,
       cells[0].html,
       cells[1].text,

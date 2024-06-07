@@ -88,7 +88,7 @@ export function computeCharacterDiffs(
   return [beforeOut, afterOut];
 }
 
-export function addCharacterDiffsNoJquery(
+export function addCharacterDiffs(
   beforeText: string,
   beforeHtml: string,
   afterText: string,

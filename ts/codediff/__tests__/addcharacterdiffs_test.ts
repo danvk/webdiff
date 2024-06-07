@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 import {
   CharacterDiff,
-  addCharacterDiffsNoJquery,
+  addCharacterDiffs,
   codesToHtml,
   computeCharacterDiffs,
   simplifyCodes,
@@ -75,7 +75,7 @@ describe('add character diffs', () => {
     const beforeHtml = textToHtml(beforeText);
     const afterHtml = textToHtml(afterText);
 
-    const [before, after] = addCharacterDiffsNoJquery(beforeText, beforeHtml, afterText, afterHtml);
+    const [before, after] = addCharacterDiffs(beforeText, beforeHtml, afterText, afterHtml);
     expect(before).toEqual("    return '' + date.getFullYear();");
     expect(after).toEqual(
       '    return \'<span class="char-insert">xx</span>\' + date.getFullYear();',
@@ -89,7 +89,7 @@ describe('add character diffs', () => {
     const beforeText = htmlToText(beforeHtml);
     const afterText = htmlToText(afterHtml);
 
-    const [before, after] = addCharacterDiffsNoJquery(beforeText, beforeHtml, afterText, afterHtml);
+    const [before, after] = addCharacterDiffs(beforeText, beforeHtml, afterText, afterHtml);
     expect(before).toEqual("<q>''</q>");
     expect(after).toEqual('<q>\'</q><span class="char-insert"><q>xx</q></span><q>\'</q>');
   });
@@ -101,7 +101,7 @@ describe('add character diffs', () => {
     const beforeText = htmlToText(beforeHtml);
     const afterText = htmlToText(afterHtml);
 
-    const [before, after] = addCharacterDiffsNoJquery(beforeText, beforeHtml, afterText, afterHtml);
+    const [before, after] = addCharacterDiffs(beforeText, beforeHtml, afterText, afterHtml);
     expect(before).toEqual("    <kw>return</kw> <q>''</q> + date.getFullYear();");
     expect(after).toEqual(
       '    <kw>return</kw> <q>\'</q><span class="char-insert"><q>xx</q></span><q>\'</q> + date.getFullYear();',
@@ -115,7 +115,7 @@ describe('add character diffs', () => {
     const beforeText = htmlToText(beforeHtml);
     const afterText = htmlToText(afterHtml);
 
-    const [before, after] = addCharacterDiffsNoJquery(beforeText, beforeHtml, afterText, afterHtml);
+    const [before, after] = addCharacterDiffs(beforeText, beforeHtml, afterText, afterHtml);
     expect(before).toMatchInlineSnapshot(`"<span class="hljs-string">"q"</span>, s"`);
     expect(after).toMatchInlineSnapshot(
       `"<span class="hljs-string">"q"</span><span class="char-insert"><span class="hljs-comment">/*</span></span><span class="hljs-comment">, s</span><span class="char-insert"><span class="hljs-comment">*/</span></span>"`,
