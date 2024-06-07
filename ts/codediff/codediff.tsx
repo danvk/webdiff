@@ -180,11 +180,29 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
       setSelectingState('right');
     }
   };
-  const handleCopy = (e: React.ClipboardEvent<HTMLDivElement>) => {};
+  const handleCopy = (e: React.ClipboardEvent<HTMLDivElement>) => {
+    if (!selectingState) return;
+    const isLeft = selectingState === 'left';
+    var sel = window.getSelection()!;
+    let range = sel.getRangeAt(0);
+    let doc = range.cloneContents();
+    let nodes = doc.querySelectorAll('td.' + (isLeft ? 'before' : 'after'));
+    let text = '';
+
+    if (nodes.length === 0) {
+      text = doc.textContent!;
+    } else {
+      [].forEach.call(nodes, function (td: Element, i) {
+        text += (i ? '\n' : '') + td.textContent;
+      });
+    }
+
+    e.clipboardData.setData('text', text);
+    e.preventDefault();
+  };
 
   const divClassName = 'diff' + (selectingState ? ` selecting-${selectingState}` : '');
   const tableClassName = 'diff' + (params.wordWrap ? ' word-wrap' : '');
-  console.log(divClassName);
   return (
     <div className={divClassName} onMouseDown={handleMouseDown} onCopy={handleCopy}>
       <table className={tableClassName}>
