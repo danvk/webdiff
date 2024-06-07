@@ -6,10 +6,7 @@ export type CharacterDiff = [OpType | 'skip' | null, number, number];
 
 /**
  * Compute an intra-line diff.
- * @param {string} beforeText
- * @param {string} afterText
- * @return {?Array.<Array>} [before codes, after codes], where each element is a
- *     list of ('change type', start idx, stop idx) triples. Returns null if
+ * @return [before codes, after codes]. Returns null if
  *     character differences are not appropriate for this line pairing.
  */
 export function computeCharacterDiffs(
@@ -91,12 +88,16 @@ export function computeCharacterDiffs(
   return [beforeOut, afterOut];
 }
 
-// Add character-by-character diffs to a row (if appropriate).
-export function addCharacterDiffs(beforeCell: HTMLElement, afterCell: HTMLElement) {
-  var beforeText = $(beforeCell).text(),
-    afterText = $(afterCell).text();
-  var codes = computeCharacterDiffs(beforeText, afterText);
-  if (codes == null) return;
+export function addCharacterDiffs(
+  beforeText: string,
+  beforeHtml: string,
+  afterText: string,
+  afterHtml: string,
+): [string, string] {
+  const codes = computeCharacterDiffs(beforeText, afterText);
+  if (codes == null) {
+    return [beforeHtml, afterHtml];
+  }
   const beforeOut = codes[0];
   const afterOut = codes[1];
 
@@ -104,13 +105,10 @@ export function addCharacterDiffs(beforeCell: HTMLElement, afterCell: HTMLElemen
   // This is made more difficult by the presence of syntax highlighting, which
   // has its own set of tags. The two can co-exists if we're careful to only
   // wrap complete (balanced) DOM trees.
-  var beforeHtml = $(beforeCell).html(),
-    afterHtml = $(afterCell).html();
   var beforeMapper = new htmlTextMapper(beforeText, beforeHtml);
   var afterMapper = new htmlTextMapper(afterText, afterHtml);
 
-  $(beforeCell).empty().html(codesToHtml(beforeMapper, beforeOut));
-  $(afterCell).empty().html(codesToHtml(afterMapper, afterOut));
+  return [codesToHtml(beforeMapper, beforeOut), codesToHtml(afterMapper, afterOut)];
 }
 
 /**

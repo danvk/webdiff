@@ -59,26 +59,6 @@ export function stringAsLines(str: string) {
   return lines;
 }
 
-// iteration-based reduce implementation
-function __reduce<T, U>(func: (acc: U, el: T) => U, list: T[], initial: U) {
-  let value: U, idx;
-  if (initial != null) {
-    value = initial;
-    idx = 0;
-  } else if (list) {
-    value = list[0] as unknown as U;
-    idx = 1;
-  } else {
-    return null;
-  }
-
-  for (; idx < list.length; idx++) {
-    value = func(value, list[idx]);
-  }
-
-  return value;
-}
-
 // comparison function for sorting lists of numeric tuples
 function __ntuplecomp(a: readonly number[], b: readonly number[]) {
   var mlen = Math.max(a.length, b.length);

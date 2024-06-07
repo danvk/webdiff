@@ -1,5 +1,5 @@
 import React from 'react';
-import {FilePair} from './CodeDiff';
+import {FilePair} from './CodeDiffContainer';
 import {filePairDisplayName} from './utils';
 
 export interface Props {

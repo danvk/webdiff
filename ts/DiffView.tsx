@@ -1,5 +1,5 @@
 import React from 'react';
-import {CodeDiff, FilePair} from './CodeDiff';
+import {CodeDiffContainer, FilePair} from './CodeDiffContainer';
 import {DiffOptions} from './diff-options';
 import {getThickDiff} from './file_diff';
 import {ImageDiff} from './ImageDiff';
@@ -18,9 +18,9 @@ export interface Props {
 }
 
 export function DiffView(props: Props) {
+  const {diffOptions, thinFilePair} = props;
   const [filePair, setFilePair] = React.useState<FilePair | null>(null);
 
-  const {diffOptions, thinFilePair} = props;
   React.useEffect(() => {
     (async () => {
       const newFilePair = await getThickDiff(thinFilePair.idx);
@@ -39,7 +39,7 @@ export function DiffView(props: Props) {
   if (filePair.is_image_diff) {
     diffEl = <ImageDiff filePair={filePair} {...props} />;
   } else {
-    diffEl = <CodeDiff filePair={filePair} diffOptions={diffOptions} />;
+    diffEl = <CodeDiffContainer filePair={filePair} diffOptions={diffOptions} />;
   }
 
   return diffEl;

@@ -2,10 +2,12 @@ import * as difflib from './difflib';
 
 type OpType = difflib.OpCode[0];
 
+export type LineRange = [start: number, limit: number];
+
 export interface DiffRange {
   type: OpType | 'skip';
-  before: [start: number, limit: number];
-  after: [start: number, limit: number];
+  before: LineRange;
+  after: LineRange;
   header?: string;
 }
 

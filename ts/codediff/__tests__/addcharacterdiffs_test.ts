@@ -1,5 +1,4 @@
 /** @jest-environment jsdom */
-import $ from 'jquery';
 import {
   CharacterDiff,
   addCharacterDiffs,
@@ -10,7 +9,17 @@ import {
 } from '../char-diffs';
 import {htmlTextMapper} from '../html-text-mapper';
 
-(globalThis as any).$ = $;
+function textToHtml(text: string) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function htmlToText(html: string) {
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  return div.textContent ?? '';
+}
 
 describe('add character diffs', () => {
   test('simplifyCodes', () => {
@@ -61,58 +70,56 @@ describe('add character diffs', () => {
   });
 
   test('char diffs -- simple', () => {
-    var before = $('<div>').text("    return '' + date.getFullYear();").get(0)!;
-    var after = $('<div>').text("    return 'xx' + date.getFullYear();").get(0)!;
+    const beforeText = "    return '' + date.getFullYear();";
+    const afterText = "    return 'xx' + date.getFullYear();";
+    const beforeHtml = textToHtml(beforeText);
+    const afterHtml = textToHtml(afterText);
 
-    var beforeText = $(before).text(),
-      afterText = $(after).text();
-
-    addCharacterDiffs(before, after);
-    expect($(before).text()).toEqual(beforeText);
-    expect($(after).text()).toEqual(afterText);
-    expect($(before).html()).toEqual("    return '' + date.getFullYear();");
-    expect($(after).html()).toEqual(
+    const [before, after] = addCharacterDiffs(beforeText, beforeHtml, afterText, afterHtml);
+    expect(before).toEqual("    return '' + date.getFullYear();");
+    expect(after).toEqual(
       '    return \'<span class="char-insert">xx</span>\' + date.getFullYear();',
     );
   });
 
   test('char diffs with trailing markup', () => {
-    var before = $('<div>').html("<q>''</q>").get(0)!;
-    var after = $('<div>').html("<q>'xx'</q>").get(0)!;
+    const beforeHtml = "<q>''</q>";
+    const afterHtml = "<q>'xx'</q>";
 
-    var beforeText = $(before).text(),
-      afterText = $(after).text();
+    const beforeText = htmlToText(beforeHtml);
+    const afterText = htmlToText(afterHtml);
 
-    addCharacterDiffs(before, after);
-    expect($(before).text()).toEqual(beforeText);
-    expect($(after).text()).toEqual(afterText);
-    expect($(before).html()).toEqual("<q>''</q>");
-    expect($(after).html()).toEqual('<q>\'</q><span class="char-insert"><q>xx</q></span><q>\'</q>');
+    const [before, after] = addCharacterDiffs(beforeText, beforeHtml, afterText, afterHtml);
+    expect(before).toEqual("<q>''</q>");
+    expect(after).toEqual('<q>\'</q><span class="char-insert"><q>xx</q></span><q>\'</q>');
   });
 
   test('char diffs with markup', () => {
-    var before = $('<div>').html("    <kw>return</kw> <q>''</q> + date.getFullYear();").get(0)!;
-    var after = $('<div>').html("    <kw>return</kw> <q>'xx'</q> + date.getFullYear();").get(0)!;
+    const beforeHtml = "    <kw>return</kw> <q>''</q> + date.getFullYear();";
+    const afterHtml = "    <kw>return</kw> <q>'xx'</q> + date.getFullYear();";
 
-    var beforeText = $(before).text(),
-      afterText = $(after).text();
+    const beforeText = htmlToText(beforeHtml);
+    const afterText = htmlToText(afterHtml);
 
-    addCharacterDiffs(before, after);
-    expect($(before).text()).toEqual(beforeText);
-    expect($(after).text()).toEqual(afterText);
-    expect($(before).html()).toEqual("    <kw>return</kw> <q>''</q> + date.getFullYear();");
-    expect($(after).html()).toEqual(
+    const [before, after] = addCharacterDiffs(beforeText, beforeHtml, afterText, afterHtml);
+    expect(before).toEqual("    <kw>return</kw> <q>''</q> + date.getFullYear();");
+    expect(after).toEqual(
       '    <kw>return</kw> <q>\'</q><span class="char-insert"><q>xx</q></span><q>\'</q> + date.getFullYear();',
     );
   });
 
   test('mixed inserts and markup', () => {
-    var beforeCode = '<span class="hljs-string">"q"</span>, s';
-    var afterCode = '<span class="hljs-string">"q"</span><span class="hljs-comment">/*, s*/</span>';
-    var beforeEl = $('<div>').html(beforeCode).get(0)!;
-    var afterEl = $('<div>').html(afterCode).get(0)!;
-    // XXX this is strange -- is this just asserting that there are no exceptions?
-    addCharacterDiffs(beforeEl, afterEl);
+    var beforeHtml = '<span class="hljs-string">"q"</span>, s';
+    var afterHtml = '<span class="hljs-string">"q"</span><span class="hljs-comment">/*, s*/</span>';
+
+    const beforeText = htmlToText(beforeHtml);
+    const afterText = htmlToText(afterHtml);
+
+    const [before, after] = addCharacterDiffs(beforeText, beforeHtml, afterText, afterHtml);
+    expect(before).toMatchInlineSnapshot(`"<span class="hljs-string">"q"</span>, s"`);
+    expect(after).toMatchInlineSnapshot(
+      `"<span class="hljs-string">"q"</span><span class="char-insert"><span class="hljs-comment">/*</span></span><span class="hljs-comment">, s</span><span class="char-insert"><span class="hljs-comment">*/</span></span>"`,
+    );
   });
 
   function assertCharDiff(

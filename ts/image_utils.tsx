@@ -1,5 +1,5 @@
 import React from 'react';
-import {ImageFilePair} from './CodeDiff';
+import {ImageFilePair} from './CodeDiffContainer';
 import {PerceptualDiffMode} from './DiffView';
 import {isSameSizeImagePair} from './utils';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import {ImageFile} from './CodeDiff';
+import {ImageFile} from './CodeDiffContainer';
 
 export interface Props {
   image: ImageFile;

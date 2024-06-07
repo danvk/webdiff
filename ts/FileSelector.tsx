@@ -1,5 +1,5 @@
 import React from 'react';
-import {FilePair} from './CodeDiff';
+import {FilePair} from './CodeDiffContainer';
 import {FileDropdown} from './FileDropdown';
 import {FileList} from './FileList';
 import {FileModeSelector} from './FileModeSelector';

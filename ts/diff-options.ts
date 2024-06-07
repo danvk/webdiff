@@ -1,5 +1,3 @@
-import {GitConfig} from './options';
-
 export type DiffAlgorithm = 'patience' | 'minimal' | 'histogram' | 'myers';
 
 export interface DiffOptions {
