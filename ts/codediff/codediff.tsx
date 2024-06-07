@@ -266,7 +266,10 @@ export interface SkipRowProps extends SkipRange {
 function SkipRow(props: SkipRowProps) {
   const {expandLines, header, onShowMore, ...range} = props;
   const {numRows} = range;
-  const showAll = () => onShowMore(range, numRows);
+  const showAll = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onShowMore(range, numRows);
+  };
   const arrows =
     numRows <= expandLines ? (
       <span className="skip" title={`show ${numRows} skipped lines`} onClick={showAll}>
