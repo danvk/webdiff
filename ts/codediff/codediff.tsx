@@ -314,10 +314,9 @@ interface CodeDiffViewProps {
 }
 
 const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
-  const {params, ops} = props;
+  const {params, ops, afterLines, afterLinesHighlighted, beforeLines, beforeLinesHighlighted} =
+    props;
 
-  const beforeLines = props.beforeLinesHighlighted ?? props.beforeLines;
-  const afterLines = props.afterLinesHighlighted ?? props.afterLines;
   const {language, expandLines} = params;
 
   const diffRows = [];
@@ -343,14 +342,24 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
       for (let j = 0; j < numRows; j++) {
         const beforeIdx = j < numBeforeRows ? before + j : null;
         const afterIdx = j < numAfterRows ? after + j : null;
+        const beforeText = beforeIdx !== null ? beforeLines[beforeIdx] : undefined;
+        const beforeHTML =
+          beforeIdx !== null && beforeLinesHighlighted
+            ? beforeLinesHighlighted[beforeIdx]
+            : undefined;
+        const afterText = afterIdx !== null ? afterLines[afterIdx] : undefined;
+        const afterHTML =
+          afterIdx !== null && afterLinesHighlighted ? afterLinesHighlighted[afterIdx] : undefined;
         diffRows.push(
           <DiffRow
             key={`${beforeIdx}-${afterIdx}`}
             type={type}
             beforeLineNum={beforeIdx != null ? 1 + beforeIdx : null}
             afterLineNum={afterIdx != null ? 1 + afterIdx : null}
-            beforeTextOrHtml={beforeIdx != null ? beforeLines[beforeIdx] : undefined}
-            afterTextOrHtml={afterIdx != null ? afterLines[afterIdx] : undefined}
+            beforeText={beforeText}
+            beforeHTML={beforeHTML}
+            afterText={afterText}
+            afterHTML={afterHTML}
             language={language}
           />,
         );
@@ -400,8 +409,10 @@ interface DiffRowProps {
   type: DiffRange['type'];
   beforeLineNum: number | null;
   afterLineNum: number | null;
-  beforeTextOrHtml?: string;
-  afterTextOrHtml?: string;
+  beforeText: string | undefined;
+  beforeHTML?: string;
+  afterText: string | undefined;
+  afterHTML?: string;
   language: string | null;
 }
 
@@ -414,24 +425,21 @@ function escapeHtml(unsafe: string) {
     .replaceAll("'", '&#039;');
 }
 
-const makeCodeTd = (
-  type: string,
-  language: string | null,
-  textOrHtml: string | null | undefined,
-) => {
-  if (textOrHtml == null) {
-    return {html: '', className: 'empty code'};
+const makeCodeTd = (type: string, text: string | undefined, html: string | undefined) => {
+  if (text === undefined || html === undefined) {
+    return {text: '', html: '', className: 'empty code'};
   }
-  textOrHtml = textOrHtml.replace(/\t/g, '\u00a0\u00a0\u00a0\u00a0');
-  let className = 'code ' + type;
-  return language ? {className, html: textOrHtml} : {className, html: escapeHtml(textOrHtml)};
+  text = text.replaceAll('\t', '\u00a0\u00a0\u00a0\u00a0');
+  html = html.replaceAll('\t', '\u00a0\u00a0\u00a0\u00a0');
+  const className = 'code ' + type;
+  return text !== undefined ? {className, html, text} : {className, text, html: escapeHtml(text)};
 };
 
 function DiffRow(props: DiffRowProps) {
   const {beforeLineNum, afterLineNum, language, type} = props;
   const cells = [
-    makeCodeTd(type, language, props.beforeTextOrHtml),
-    makeCodeTd(type, language, props.afterTextOrHtml),
+    makeCodeTd(type, props.beforeText, props.beforeHTML),
+    makeCodeTd(type, props.afterText, props.afterHTML),
   ];
   return (
     <tr>

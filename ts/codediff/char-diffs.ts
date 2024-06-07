@@ -110,6 +110,29 @@ export function addCharacterDiffs(beforeCell: HTMLElement, afterCell: HTMLElemen
   $(afterCell).empty().html(codesToHtml(afterMapper, afterOut));
 }
 
+export function addCharacterDiffsNoJquery(
+  beforeText: string,
+  beforeHtml: string,
+  afterText: string,
+  afterHtml: string,
+): [string, string] {
+  const codes = computeCharacterDiffs(beforeText, afterText);
+  if (codes == null) {
+    return [beforeHtml, afterHtml];
+  }
+  const beforeOut = codes[0];
+  const afterOut = codes[1];
+
+  // Splice in "insert", "delete" and "replace" tags.
+  // This is made more difficult by the presence of syntax highlighting, which
+  // has its own set of tags. The two can co-exists if we're careful to only
+  // wrap complete (balanced) DOM trees.
+  var beforeMapper = new htmlTextMapper(beforeText, beforeHtml);
+  var afterMapper = new htmlTextMapper(afterText, afterHtml);
+
+  return [codesToHtml(beforeMapper, beforeOut), codesToHtml(afterMapper, afterOut)];
+}
+
 /**
  * @param {string} line The line to be split
  * @return {Array.<string>} Component words in the line. An invariant is that
