@@ -116,10 +116,51 @@ interface CodeDiffViewProps {
 }
 
 const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
-  const {params, ops, afterLines, afterLinesHighlighted, beforeLines, beforeLinesHighlighted} =
-    props;
-
+  const {
+    params,
+    ops: initOps,
+    afterLines,
+    afterLinesHighlighted,
+    beforeLines,
+    beforeLinesHighlighted,
+  } = props;
   const {expandLines} = params;
+  // Clicking a "show more lines" link can change the diffops
+  const [ops, setOps] = React.useState(initOps);
+  const handleShowMore = (existing: SkipRange, num: number) => {
+    setOps(oldOps =>
+      oldOps.flatMap(op => {
+        if (op.before[0] !== existing.beforeStartLine) {
+          return [op];
+        }
+        if (num === existing.numRows) {
+          // change the skip to an equal
+          return [{...op, type: 'equal'}];
+        }
+
+        const {before, after} = op;
+        if (num > 0) {
+          return [
+            {...op, before: [before[0], before[1] - num], after: [after[0], after[1] - num]},
+            {
+              type: 'equal',
+              before: [before[1] - num, before[1]],
+              after: [after[1] - num, after[1]],
+            },
+          ];
+        } else {
+          return [
+            {
+              type: 'equal',
+              before: [before[0], before[0] + num],
+              after: [after[0], after[0] + num],
+            },
+            {...op, before: [before[0] + num, before[1]], after: [after[0] + num, after[1]]},
+          ];
+        }
+      }),
+    );
+  };
 
   const diffRows = [];
   for (const range of ops) {
@@ -138,6 +179,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
           numRows={numRows}
           header={range.header ?? null}
           expandLines={expandLines}
+          onShowMore={handleShowMore}
         />,
       );
     } else {
@@ -207,19 +249,56 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
   );
 });
 
-interface SkipRowProps {
+interface SkipRange {
   beforeStartLine: number;
   afterStartLine: number;
   numRows: number;
+}
+
+export interface SkipRowProps extends SkipRange {
   header: string | null;
   expandLines: number;
+  /** positive num = expand down, negative num = expand up */
+  onShowMore: (existing: SkipRange, num: number) => void;
 }
 
 function SkipRow(props: SkipRowProps) {
+  const {expandLines, header, onShowMore, ...range} = props;
+  const {numRows} = range;
+  const showAll = () => onShowMore(range, numRows);
+  const arrows =
+    numRows <= expandLines ? (
+      <span className="skip" title={`show ${numRows} skipped lines`} onClick={showAll}>
+        ↕
+      </span>
+    ) : (
+      <>
+        <span
+          className="skip expand-up"
+          title={`show ${expandLines} more lines above`}
+          onClick={() => onShowMore(range, -expandLines)}>
+          ↥
+        </span>
+        <span
+          className="skip expand-down"
+          title={`show ${expandLines} more lines below`}
+          onClick={() => onShowMore(range, expandLines)}>
+          ↧
+        </span>
+      </>
+    );
+  const showMore = (
+    <a href="#" onClick={showAll}>
+      Show {numRows} more lines
+    </a>
+  );
+  const headerHTML = header ? <span className="hunk-header">${header}</span> : '';
   return (
     <tr className="skip-row">
       <td colSpan={4} className="skip code">
-        {props.numRows} lines skipped
+        <span className="arrows-left">{arrows}</span>
+        {showMore} {headerHTML}
+        <span className="arrows-right">{arrows}</span>
       </td>
     </tr>
   );
