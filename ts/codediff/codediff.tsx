@@ -318,7 +318,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
   const {params, ops, afterLines, afterLinesHighlighted, beforeLines, beforeLinesHighlighted} =
     props;
 
-  const {language, expandLines} = params;
+  const {expandLines} = params;
 
   const diffRows = [];
   for (const range of ops) {
@@ -361,7 +361,6 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
             beforeHTML={beforeHTML}
             afterText={afterText}
             afterHTML={afterHTML}
-            language={language}
           />,
         );
       }
@@ -453,8 +452,12 @@ function DiffRow(props: DiffRowProps) {
   return (
     <tr>
       <td className="line-no">{beforeLineNum ?? ''}</td>
-      <td className={cells[0].className} dangerouslySetInnerHTML={{__html: beforeHtml}}></td>
-      <td className={cells[1].className} dangerouslySetInnerHTML={{__html: afterHtml}}></td>
+      <td
+        className={cells[0].className + ' before'}
+        dangerouslySetInnerHTML={{__html: beforeHtml}}></td>
+      <td
+        className={cells[1].className + ' after'}
+        dangerouslySetInnerHTML={{__html: afterHtml}}></td>
       <td className="line-no">{afterLineNum ?? ''}</td>
     </tr>
   );
