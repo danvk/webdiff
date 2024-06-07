@@ -45,6 +45,7 @@ class LocalFileDiff:
 
     @staticmethod
     def from_diff_raw_line(line: RawDiffLine, a_dir: str, b_dir: str):
+        print(line)
         status = line.status
         # A, C (copy), D, M, R, T (change in type), U (unmerged), X (bug)
         if status == 'A':
@@ -54,4 +55,8 @@ class LocalFileDiff:
         if line.dst_path:
             return LocalFileDiff(a_dir, line.path, b_dir, line.dst_path, is_move=True)
         dst_path = os.path.join(b_dir, os.path.relpath(line.path, a_dir))
+        print(line.path)
+        print(a_dir)
+        print(b_dir)
+        print(dst_path)
         return LocalFileDiff(a_dir, line.path, b_dir, dst_path, is_move=False)

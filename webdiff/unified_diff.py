@@ -188,4 +188,4 @@ def parse_raw_diff_line(line: str) -> RawDiffLine:
 
 
 def parse_raw_diff(diff: str) -> List[RawDiffLine]:
-    return [parse_raw_diff_line(line) for line in diff.split('\n') if line]
+    return [parse_raw_diff_line(line) for line in diff.splitlines() if line]
