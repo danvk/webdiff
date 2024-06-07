@@ -4,6 +4,7 @@ import {DiffRange, LineRange, addSkips} from './codes';
 import {distributeSpans} from './dom-utils';
 import {buildRowTr, buildSkipTr} from './table-utils';
 import * as difflib from './difflib';
+import {addCharacterDiffsNoJquery} from './char-diffs';
 
 export interface PatchOptions {
   minJumpSize: number;
@@ -413,7 +414,6 @@ interface DiffRowProps {
   beforeHTML?: string;
   afterText: string | undefined;
   afterHTML?: string;
-  language: string | null;
 }
 
 function escapeHtml(unsafe: string) {
@@ -436,20 +436,25 @@ const makeCodeTd = (type: string, text: string | undefined, html: string | undef
 };
 
 function DiffRow(props: DiffRowProps) {
-  const {beforeLineNum, afterLineNum, language, type} = props;
+  const {beforeLineNum, afterLineNum, type} = props;
   const cells = [
     makeCodeTd(type, props.beforeText, props.beforeHTML),
     makeCodeTd(type, props.afterText, props.afterHTML),
   ];
+  let [beforeHtml, afterHtml] = [cells[0].html, cells[1].html];
+  if (type === 'replace') {
+    [beforeHtml, afterHtml] = addCharacterDiffsNoJquery(
+      cells[0].text,
+      cells[0].html,
+      cells[1].text,
+      cells[1].html,
+    );
+  }
   return (
     <tr>
       <td className="line-no">{beforeLineNum ?? ''}</td>
-      <td
-        className={cells[0].className}
-        {...(cells[0].html ? {dangerouslySetInnerHTML: {__html: cells[0].html}} : {})}></td>
-      <td
-        className={cells[1].className}
-        {...(cells[1].html ? {dangerouslySetInnerHTML: {__html: cells[1].html}} : {})}></td>
+      <td className={cells[0].className} dangerouslySetInnerHTML={{__html: beforeHtml}}></td>
+      <td className={cells[1].className} dangerouslySetInnerHTML={{__html: afterHtml}}></td>
       <td className="line-no">{afterLineNum ?? ''}</td>
     </tr>
   );
