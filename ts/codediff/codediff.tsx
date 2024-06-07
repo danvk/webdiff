@@ -149,6 +149,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
             },
           ];
         } else {
+          num = -num;
           return [
             {
               type: 'equal',
