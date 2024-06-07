@@ -1,4 +1,4 @@
-import {addCharacterDiffs} from './char-diffs';
+// import {addCharacterDiffs} from './char-diffs';
 
 /**
  * Create a single row in the table. Adds character diffs if required.
@@ -36,7 +36,7 @@ export function buildRowTr(
       .get(0)!,
   ];
   if (type == 'replace') {
-    addCharacterDiffs(cells[1], cells[2]);
+    // addCharacterDiffs(cells[1], cells[2]);
   }
 
   return $('<tr>').append(cells).get(0)!;

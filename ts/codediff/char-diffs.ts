@@ -88,28 +88,6 @@ export function computeCharacterDiffs(
   return [beforeOut, afterOut];
 }
 
-// Add character-by-character diffs to a row (if appropriate).
-export function addCharacterDiffs(beforeCell: HTMLElement, afterCell: HTMLElement) {
-  var beforeText = $(beforeCell).text(),
-    afterText = $(afterCell).text();
-  var codes = computeCharacterDiffs(beforeText, afterText);
-  if (codes == null) return;
-  const beforeOut = codes[0];
-  const afterOut = codes[1];
-
-  // Splice in "insert", "delete" and "replace" tags.
-  // This is made more difficult by the presence of syntax highlighting, which
-  // has its own set of tags. The two can co-exists if we're careful to only
-  // wrap complete (balanced) DOM trees.
-  var beforeHtml = $(beforeCell).html(),
-    afterHtml = $(afterCell).html();
-  var beforeMapper = new htmlTextMapper(beforeText, beforeHtml);
-  var afterMapper = new htmlTextMapper(afterText, afterHtml);
-
-  $(beforeCell).empty().html(codesToHtml(beforeMapper, beforeOut));
-  $(afterCell).empty().html(codesToHtml(afterMapper, afterOut));
-}
-
 export function addCharacterDiffsNoJquery(
   beforeText: string,
   beforeHtml: string,
