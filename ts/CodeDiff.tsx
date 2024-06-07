@@ -1,7 +1,6 @@
 import React from 'react';
 import {renderDiffWithOps} from './file_diff';
-import { DiffOptions, encodeDiffOptions } from './diff-options';
-
+import {DiffOptions, encodeDiffOptions} from './diff-options';
 
 interface BaseFilePair {
   idx: number;
@@ -62,7 +61,7 @@ export function NoChanges(props: {filePair: any}) {
 }
 
 // A side-by-side diff of source code.
-export function CodeDiff(props: {filePair: FilePair, diffOptions: Partial<DiffOptions>}) {
+export function CodeDiff(props: {filePair: FilePair; diffOptions: Partial<DiffOptions>}) {
   const {filePair, diffOptions} = props;
   const codediffRef = React.useRef<HTMLDivElement>(null);
 
@@ -84,10 +83,10 @@ export function CodeDiff(props: {filePair: FilePair, diffOptions: Partial<DiffOp
       const response = await fetch(`/diff/${filePair.idx}`, {
         method: 'POST',
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json'
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({options: encodeDiffOptions(diffOptions ?? {})})
+        body: JSON.stringify({options: encodeDiffOptions(diffOptions ?? {})}),
       });
       return response.json();
     };
@@ -95,7 +94,11 @@ export function CodeDiff(props: {filePair: FilePair, diffOptions: Partial<DiffOp
     const {a, b} = filePair;
     // Do XHRs for the contents of both sides in parallel and fill in the diff.
     (async () => {
-      const [before, after, diffOps] = await Promise.all([getOrNull('a', a), getOrNull('b', b), getDiff()]);
+      const [before, after, diffOps] = await Promise.all([
+        getOrNull('a', a),
+        getOrNull('b', b),
+        getDiff(),
+      ]);
       // Call out to codediff.js to construct the side-by-side diff.
       const codediffEl = codediffRef.current;
       if (codediffEl) {

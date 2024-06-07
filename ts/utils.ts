@@ -56,9 +56,3 @@ export function isSameSizeImagePair(filePair: FilePair) {
     imB = filePair.image_b;
   return imA.width == imB.width && imA.height == imB.height;
 }
-
-export function makeImage(dataURI: string) {
-  var img = new Image();
-  img.src = dataURI;
-  return img;
-}

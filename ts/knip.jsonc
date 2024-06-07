@@ -1,0 +1,20 @@
+{
+    "$schema": "https://unpkg.com/knip@5/schema.json",
+    "entry": [
+        "index.tsx"
+    ],
+    "project": [
+        "**/*.{js,ts,tsx}"
+    ],
+    "ignoreExportsUsedInFile": true,
+    "ignoreDependencies": [
+        "jest-environment-jsdom",
+        "@types/jest"
+    ],
+    "prettier": {
+        "config": [".prettierrc"]
+    },
+    "jest": {
+        "config": ["jest.config.js"]
+    }
+}

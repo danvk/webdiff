@@ -1,6 +1,6 @@
 import React from 'react';
 import {CodeDiff, FilePair} from './CodeDiff';
-import { DiffOptions } from './diff-options';
+import {DiffOptions} from './diff-options';
 import {getThickDiff} from './file_diff';
 import {ImageDiff} from './ImageDiff';
 import {ImageDiffMode} from './ImageDiffModeSelector';

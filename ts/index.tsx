@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
-import { injectStylesFromConfig } from './options';
+import {injectStylesFromConfig} from './options';
 import {Root} from './Root';
 
 const App = () => (

@@ -48,6 +48,12 @@ jobs:
           command: |
             cd ts
             NODE_OPTIONS=--openssl-legacy-provider yarn webpack
+      - run:
+          command: |
+            cd ts
+            yarn run format:check
+            yarn run knip
+            yarn run tsc --noEmit
 
 workflows:
   main:
