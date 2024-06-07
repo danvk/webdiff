@@ -18,9 +18,9 @@ export interface Props {
 }
 
 export function DiffView(props: Props) {
+  const {diffOptions, thinFilePair} = props;
   const [filePair, setFilePair] = React.useState<FilePair | null>(null);
 
-  const {diffOptions, thinFilePair} = props;
   React.useEffect(() => {
     (async () => {
       const newFilePair = await getThickDiff(thinFilePair.idx);

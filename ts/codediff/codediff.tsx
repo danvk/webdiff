@@ -127,6 +127,11 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
   const {expandLines} = params;
   // Clicking a "show more lines" link can change the diffops
   const [ops, setOps] = React.useState(initOps);
+  React.useEffect(() => {
+    // e.g. if the user changes the git diff flags and we get new ops.
+    // this will blow away all "show more lines" actions
+    setOps(initOps);
+  }, [initOps]);
   const handleShowMore = (existing: SkipRange, num: number) => {
     setOps(oldOps =>
       oldOps.flatMap(op => {
