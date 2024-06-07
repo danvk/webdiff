@@ -1,7 +1,7 @@
 import React from 'react';
 
 import {DiffRange, LineRange, addSkips} from './codes';
-import {distributeSpans} from './dom-utils';
+import {closest, distributeSpans} from './dom-utils';
 import * as difflib from './difflib';
 import {addCharacterDiffsNoJquery} from './char-diffs';
 
@@ -64,22 +64,6 @@ function enforceMinJumpSize(diffs: DiffRange[], minJumpSize: number): DiffRange[
       : d,
   );
 }
-
-/*
-export function buildViewFromOps(
-  beforeText: string,
-  afterText: string,
-  ops: DiffRange[],
-  params: Partial<PatchOptions>,
-) {
-  const beforeLines = beforeText ? difflib.stringAsLines(beforeText) : [];
-  const afterLines = afterText ? difflib.stringAsLines(afterText) : [];
-  const fullParams = {...DEFAULT_PARAMS, ...params};
-  const diffRanges = enforceMinJumpSize(ops, fullParams.minJumpSize);
-  var d = new Differ(beforeText, beforeLines, afterText, afterLines, diffRanges, params);
-  return d.buildView_();
-}
-*/
 
 export interface Props {
   beforeText: string;
@@ -186,13 +170,23 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
 
   const [selectingState, setSelectingState] = React.useState<'left' | 'right' | null>(null);
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    console.log(e.currentTarget);
+    const td = closest(e.target as Element, 'td');
+    if (!td) {
+      return;
+    }
+    if (td.classList.contains('before')) {
+      setSelectingState('left');
+    } else if (td.classList.contains('after')) {
+      setSelectingState('right');
+    }
   };
   const handleCopy = (e: React.ClipboardEvent<HTMLDivElement>) => {};
 
+  const divClassName = 'diff' + (selectingState ? ` selecting-${selectingState}` : '');
   const tableClassName = 'diff' + (params.wordWrap ? ' word-wrap' : '');
+  console.log(divClassName);
   return (
-    <div className="diff" onMouseDown={handleMouseDown} onCopy={handleCopy}>
+    <div className={divClassName} onMouseDown={handleMouseDown} onCopy={handleCopy}>
       <table className={tableClassName}>
         <thead>
           <tr>

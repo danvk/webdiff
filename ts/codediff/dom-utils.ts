@@ -42,3 +42,15 @@ export function distributeSpans(text: string): string[] {
   if (liveSpans.length) throw 'Unbalanced <span>s in ' + text;
   return outLines;
 }
+
+/** Equivalent of jQuery's $.closest */
+export function closest(el: Element, selector: string): Element | null {
+  let e: Element | null = el;
+  while (e) {
+    if (e.matches(selector)) {
+      return e;
+    }
+    e = e.parentElement;
+  }
+  return null;
+}
