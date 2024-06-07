@@ -162,8 +162,7 @@ class RawDiffLine:
     """Only set when status=C or R."""
 
 
-def parse_raw_diff_line(line: str) -> RawDiffLine:
-    parts = line.split('\t')
+def parse_raw_diff_line(parts: list[str]) -> RawDiffLine:
     meta = parts[0]
     path = parts[1]
     dst_path = parts[2] if len(parts) > 2 else None
@@ -188,4 +187,13 @@ def parse_raw_diff_line(line: str) -> RawDiffLine:
 
 
 def parse_raw_diff(diff: str) -> List[RawDiffLine]:
-    return [parse_raw_diff_line(line) for line in diff.split('\n') if line]
+    # each diff line can be two or three parts. The parts and lines are both null-delimited.
+    # The "lines" start with ":".
+    parts = diff.strip('\0').split('\0')
+    lines = []
+    for part in parts:
+        if part.startswith(':'):
+            lines.append([part])
+        else:
+            lines[-1].append(part)
+    return [parse_raw_diff_line(line) for line in lines]

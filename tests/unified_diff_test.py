@@ -148,7 +148,7 @@ def test_add_replaces():
 
 
 def test_parse_raw_diff_many():
-    # git diff --no-index --raw testdata/manyfiles/{left,right}
+    # git diff --no-index --raw -z testdata/manyfiles/{left,right}
     diff = open('testdata/unified/manyfiles.txt').read()
     mod644 = ['100644', '100644', '0000000', '0000000']
     assert parse_raw_diff(diff) == [
@@ -174,7 +174,7 @@ def test_parse_raw_diff_many():
 
 
 def test_parse_raw_diff_rename():
-    # git diff --no-index --raw testdata/rename+change/{left,right}
+    # git diff --no-index --raw -z testdata/rename+change/{left,right}
     diff = open('testdata/unified/rename+change.txt').read()
     assert parse_raw_diff(diff) == [
         RawDiffLine(
