@@ -1,5 +1,4 @@
 import React from 'react';
-import {renderDiffWithOps} from './file_diff';
 import {DiffOptions, encodeDiffOptions} from './diff-options';
 import {CodeDiff, PatchOptions} from './codediff/codediff';
 import {guessLanguageUsingContents, guessLanguageUsingFileName} from './codediff/language';
