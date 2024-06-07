@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {DiffBox, FilePair, ImageFilePair} from './CodeDiffContainer';
+import {DiffBox, ImageFilePair} from './CodeDiffContainer';
 import {PerceptualDiffMode} from './DiffView';
 import {ImageDiffMode, ImageDiffModeSelector} from './ImageDiffModeSelector';
 import {NoChanges} from './CodeDiffContainer';

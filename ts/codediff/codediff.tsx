@@ -6,28 +6,15 @@ import * as difflib from './difflib';
 import {addCharacterDiffsNoJquery} from './char-diffs';
 
 export interface PatchOptions {
+  /** Minimum number of skipped lines to elide into a "jump" row */
   minJumpSize: number;
+  /** Number of additional lines to show when you click an expand arrow. */
   expandLines: number;
   language: string | null;
   beforeName: string;
   afterName: string;
   wordWrap: boolean;
 }
-
-export interface DiffOptions {
-  /** Number of equal lines of context to show around changed lines */
-  contextSize: number;
-  /** Minimum number of skipped lines to elide into a "jump" row */
-  minJumpSize: number;
-  /** Number of additional lines to show when you click an expand arrow. */
-  expandLines: number;
-}
-
-const DEFAULT_OPTIONS: DiffOptions = {
-  contextSize: 3,
-  minJumpSize: 10,
-  expandLines: 10,
-};
 
 const DEFAULT_PARAMS: PatchOptions = {
   minJumpSize: 10,
