@@ -8,12 +8,20 @@ import hooksPlugin from 'eslint-plugin-react-hooks';
 export default tseslint.config(
   eslint.configs.recommended,
   // See https://typescript-eslint.io/users/configs
-  ...tseslint.configs.strict,
-  ...tseslint.configs.stylistic,
+  ...tseslint.configs.strictTypeChecked,
+  ...tseslint.configs.stylisticTypeChecked,
   {
     plugins: {
       'react-hooks': hooksPlugin,
     },
     rules: hooksPlugin.configs.recommended.rules,
+  },
+  {
+    languageOptions: {
+      parserOptions: {
+        project: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
   },
 );
