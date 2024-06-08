@@ -3,7 +3,7 @@ import {OpCode} from '../difflib';
 
 test('generates same diff ranges as jsdifflib', () => {
   // These are the opcodes for test.html
-  var opcodes: OpCode[] = [
+  const opcodes: OpCode[] = [
     ['equal', 0, 9, 0, 9],
     ['replace', 9, 11, 9, 11],
     ['equal', 11, 14, 11, 14],

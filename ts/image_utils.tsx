@@ -17,7 +17,7 @@ export function makePerceptualBoxDiv(
   if (pdiffMode === 'off' || !isSameSizeImagePair(filePair)) {
     return null;
   } else if (pdiffMode === 'bbox') {
-    var padding = 5; // try not to obscure anything inside the box
+    const padding = 5; // try not to obscure anything inside the box
     if (filePair.diffData && filePair.diffData.diffBounds) {
       const bbox = filePair.diffData.diffBounds;
       const {top, left, right, bottom, width, height} = bbox;

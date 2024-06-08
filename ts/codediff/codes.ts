@@ -20,12 +20,12 @@ export function addSkips(
   contextSize: number,
   minJumpSize: number,
 ): DiffRange[] {
-  var ranges: DiffRange[] = [];
+  const ranges: DiffRange[] = [];
 
   for (let i = 0; i < opcodes.length; i++) {
     const opcode = opcodes[i];
     const [change, beforeIdx, beforeEnd, afterIdx, afterEnd] = opcode;
-    var range: DiffRange = {
+    const range: DiffRange = {
       type: change,
       before: [beforeIdx, beforeEnd],
       after: [afterIdx, afterEnd],

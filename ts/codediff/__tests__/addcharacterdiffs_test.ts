@@ -109,8 +109,8 @@ describe('add character diffs', () => {
   });
 
   test('mixed inserts and markup', () => {
-    var beforeHtml = '<span class="hljs-string">"q"</span>, s';
-    var afterHtml = '<span class="hljs-string">"q"</span><span class="hljs-comment">/*, s*/</span>';
+    const beforeHtml = '<span class="hljs-string">"q"</span>, s';
+    const afterHtml = '<span class="hljs-string">"q"</span><span class="hljs-comment">/*, s*/</span>';
 
     const beforeText = htmlToText(beforeHtml);
     const afterText = htmlToText(afterHtml);
@@ -132,20 +132,20 @@ describe('add character diffs', () => {
     expect(codes).not.toBeNull();
     // 'Declined to generate a diff when one was expected.');
 
-    var beforeCodes = codes[0],
+    const beforeCodes = codes[0],
       afterCodes = codes[1];
 
-    var process = function (codes: CharacterDiff[], txt: string) {
+    const process = function (codes: CharacterDiff[], txt: string) {
       return codes
         .map(function (code) {
-          var part = txt.substring(code[1], code[2]);
+          let part = txt.substring(code[1], code[2]);
           if (code[0] != null) part = '[' + part + ']';
           return part;
         })
         .join('');
     };
 
-    var beforeActual = process(beforeCodes, beforeText),
+    const beforeActual = process(beforeCodes, beforeText),
       afterActual = process(afterCodes, afterText);
 
     expect(beforeActual).toEqual(beforeExpectation);

@@ -47,12 +47,12 @@ function stripLinebreaks(str: string) {
 }
 
 export function stringAsLines(str: string) {
-  var lfpos = str.indexOf('\n');
-  var crpos = str.indexOf('\r');
-  var linebreak = (lfpos > -1 && crpos > -1) || crpos < 0 ? '\n' : '\r';
+  const lfpos = str.indexOf('\n');
+  const crpos = str.indexOf('\r');
+  const linebreak = (lfpos > -1 && crpos > -1) || crpos < 0 ? '\n' : '\r';
 
-  var lines = str.split(linebreak);
-  for (var i = 0; i < lines.length; i++) {
+  const lines = str.split(linebreak);
+  for (let i = 0; i < lines.length; i++) {
     lines[i] = stripLinebreaks(lines[i]);
   }
 
@@ -61,8 +61,8 @@ export function stringAsLines(str: string) {
 
 // comparison function for sorting lists of numeric tuples
 function __ntuplecomp(a: readonly number[], b: readonly number[]) {
-  var mlen = Math.max(a.length, b.length);
-  for (var i = 0; i < mlen; i++) {
+  const mlen = Math.max(a.length, b.length);
+  for (let i = 0; i < mlen; i++) {
     if (a[i] < b[i]) return -1;
     if (a[i] > b[i]) return 1;
   }
@@ -128,14 +128,14 @@ export class SequenceMatcher {
   }
 
   __chain_b() {
-    var b = this.b;
-    var n = b.length;
-    let b2j = this.b2j;
-    var populardict: Record<string, number> = {};
-    for (var i = 0; i < b.length; i++) {
+    const b = this.b;
+    const n = b.length;
+    const b2j = this.b2j;
+    const populardict: Record<string, number> = {};
+    for (let i = 0; i < b.length; i++) {
       var elt = b[i];
       if (b2j.hasOwnProperty(elt)) {
-        var indices = b2j[elt];
+        const indices = b2j[elt];
         if (n >= 200 && indices.length * 100 > n) {
           populardict[elt] = 1;
           delete b2j[elt];
@@ -153,8 +153,8 @@ export class SequenceMatcher {
       }
     }
 
-    var isjunk = this.isjunk;
-    var junkdict: Record<string, number> = {};
+    const isjunk = this.isjunk;
+    const junkdict: Record<string, number> = {};
     if (isjunk) {
       for (var elt in populardict) {
         if (populardict.hasOwnProperty(elt) && isjunk(elt)) {
@@ -175,22 +175,22 @@ export class SequenceMatcher {
   }
 
   find_longest_match(alo: number, ahi: number, blo: number, bhi: number) {
-    var a = this.a;
-    var b = this.b;
-    var b2j = this.b2j;
-    var isbjunk = this.isbjunk;
-    var besti = alo;
-    var bestj = blo;
-    var bestsize = 0;
-    var j = null;
-    var k: number;
+    const a = this.a;
+    const b = this.b;
+    const b2j = this.b2j;
+    const isbjunk = this.isbjunk;
+    let besti = alo;
+    let bestj = blo;
+    let bestsize = 0;
+    let j = null;
+    let k: number;
 
-    var j2len: Record<number, number> = {};
-    var nothing: never[] = [];
-    for (var i = alo; i < ahi; i++) {
-      var newj2len: Record<number, number> = {};
-      var jdict = __dictget(b2j, a[i], nothing);
-      for (var jkey in jdict) {
+    let j2len: Record<number, number> = {};
+    const nothing: never[] = [];
+    for (let i = alo; i < ahi; i++) {
+      const newj2len: Record<number, number> = {};
+      const jdict = __dictget(b2j, a[i], nothing);
+      for (const jkey in jdict) {
         if (jdict.hasOwnProperty(jkey)) {
           j = jdict[jkey];
           if (j < blo) continue;
@@ -241,12 +241,12 @@ export class SequenceMatcher {
 
   get_matching_blocks() {
     if (this.matching_blocks != null) return this.matching_blocks;
-    var la = this.a.length;
-    var lb = this.b.length;
+    const la = this.a.length;
+    const lb = this.b.length;
 
-    var queue = [[0, la, 0, lb]];
-    var matching_blocks = [];
-    var alo, ahi, blo, bhi, qi, i, j, k, x;
+    const queue = [[0, la, 0, lb]];
+    const matching_blocks = [];
+    let alo, ahi, blo, bhi, qi, i, j, k, x;
     while (queue.length) {
       qi = queue.pop()!;
       alo = qi[0];
@@ -267,14 +267,14 @@ export class SequenceMatcher {
 
     matching_blocks.sort(__ntuplecomp);
 
-    var i1 = 0,
+    let i1 = 0,
       j1 = 0,
       k1 = 0;
-    var i2, j2, k2;
-    var non_adjacent = [];
-    for (var idx in matching_blocks) {
+    let i2, j2, k2;
+    const non_adjacent = [];
+    for (const idx in matching_blocks) {
       if (matching_blocks.hasOwnProperty(idx)) {
-        let block = matching_blocks[idx];
+        const block = matching_blocks[idx];
         i2 = block[0];
         j2 = block[1];
         k2 = block[2];
@@ -298,13 +298,13 @@ export class SequenceMatcher {
 
   get_opcodes() {
     if (this.opcodes != null) return this.opcodes;
-    var i = 0;
-    var j = 0;
-    var answer: OpCode[] = [];
+    let i = 0;
+    let j = 0;
+    const answer: OpCode[] = [];
     this.opcodes = answer;
-    var block, ai, bj, size;
-    var blocks = this.get_matching_blocks();
-    for (var idx in blocks) {
+    let block, ai, bj, size;
+    const blocks = this.get_matching_blocks();
+    for (const idx in blocks) {
       if (blocks.hasOwnProperty(idx)) {
         block = blocks[idx];
         ai = block[0];
@@ -332,9 +332,9 @@ export class SequenceMatcher {
   // this is a generator function in the python lib, which of course is not supported in javascript
   // the reimplementation builds up the grouped opcodes into a list in their entirety and returns that.
   get_grouped_opcodes(n = 3) {
-    var codes = this.get_opcodes();
+    let codes = this.get_opcodes();
     if (!codes) codes = [['equal', 0, 1, 0, 1]];
-    var code, tag, i1, i2, j1, j2;
+    let code, tag, i1, i2, j1, j2;
     if (codes[0][0] == 'equal') {
       code = codes[0];
       tag = code[0];
@@ -354,10 +354,10 @@ export class SequenceMatcher {
       codes[codes.length - 1] = [tag, i1, Math.min(i2, i1 + n), j1, Math.min(j2, j1 + n)];
     }
 
-    var nn = n + n;
-    var group = [];
-    var groups = [];
-    for (var idx in codes) {
+    const nn = n + n;
+    let group = [];
+    const groups = [];
+    for (const idx in codes) {
       if (codes.hasOwnProperty(idx)) {
         code = codes[idx];
         tag = code[0];
@@ -402,10 +402,10 @@ export class SequenceMatcher {
     }
     fullbcount = this.fullbcount;
 
-    var avail: Record<string, number> = {};
-    var availhas = __isindict(avail);
-    var matches = 0;
-    var numb = 0;
+    const avail: Record<string, number> = {};
+    const availhas = __isindict(avail);
+    let matches = 0;
+    let numb = 0;
     for (var i = 0; i < this.a.length; i++) {
       const elt = this.a[i];
       if (availhas(elt)) {

@@ -141,7 +141,7 @@ interface FileDiffProps {
 }
 
 function extractFilename(path: string) {
-  var parts = path.split('/');
+  const parts = path.split('/');
   return parts[parts.length - 1];
 }
 const HIGHLIGHT_BLACKLIST = ['TODO', 'README', 'NOTES'];
@@ -173,7 +173,7 @@ function FileDiff(props: FileDiffProps) {
     HIGHLIGHT_BLACKLIST.indexOf(extractFilename(path)) === -1 &&
     numLines < GIT_CONFIG.webdiff.maxLinesForSyntax
   ) {
-    var byLength = [contentsBefore, contentsAfter];
+    let byLength = [contentsBefore, contentsAfter];
     if (contentsAfter && lengthOrZero(contentsAfter) > lengthOrZero(contentsBefore)) {
       byLength = [byLength![1], byLength![0]];
     }

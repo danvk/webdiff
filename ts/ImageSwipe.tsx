@@ -39,7 +39,7 @@ export function ImageSwipe(props: ImageSwipeProps) {
     imB.height *= scaleDown;
     containerWidth = Math.max(imA.width, imB.width);
   }
-  var diffBoxDiv = makePerceptualBoxDiv(props.pdiffMode, pair, scaleDown);
+  const diffBoxDiv = makePerceptualBoxDiv(props.pdiffMode, pair, scaleDown);
   const urlA = '/a/image/' + pair.a;
   const urlB = '/b/image/' + pair.b;
   const styleA: React.CSSProperties = {
