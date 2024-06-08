@@ -28,32 +28,31 @@ export function computeCharacterDiffs(
 
   // Suppress char-by-char diffs if there's less than 50% character overlap.
   // The one exception is pure whitespace diffs, which should always be shown.
-  // TODO: this is pretty inefficient. No need to build up the strings!
   const minEqualFrac = 0.5;
   let equalCount = 0;
   let charCount = 0;
-  let beforeDiff = '';
-  let afterDiff = '';
+  let beforeAllWhitespace = true;
+  let afterAllWhitespace = true;
   for (const diff of diffs) {
     const len = strArrayLen(diff.value);
     if (diff.added) {
-      afterDiff += diff.value.join('');
+      afterAllWhitespace &&= diff.value.every(allWhitespace);
       charCount += len;
     } else if (diff.removed) {
-      beforeDiff += diff.value.join('');
+      beforeAllWhitespace &&= diff.value.every(allWhitespace);
       charCount += len;
     } else {
       // equal
       equalCount += 2 * len;
       charCount += 2 * len;
-      beforeDiff += diff.value.join('');
-      afterDiff += diff.value.join('');
+      if (beforeAllWhitespace || afterAllWhitespace) {
+        const allSpace = diff.value.every(allWhitespace);
+        beforeAllWhitespace &&= allSpace;
+        afterAllWhitespace &&= allSpace;
+      }
     }
   }
-  if (
-    equalCount < minEqualFrac * charCount &&
-    !(allWhitespace(beforeDiff) && allWhitespace(afterDiff))
-  ) {
+  if (equalCount < minEqualFrac * charCount && !(beforeAllWhitespace && afterAllWhitespace)) {
     return null;
   }
 
