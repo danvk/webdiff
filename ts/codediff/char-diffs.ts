@@ -1,8 +1,7 @@
+import {OpType} from './codes';
 import {htmlTextMapper} from './html-text-mapper';
-import {OpCode} from './difflib';
 import * as Diff from 'diff';
 
-type OpType = OpCode[0];
 export type CharacterDiff = [OpType | 'skip' | null, number, number];
 
 function strArrayLen(x: string[]) {

@@ -1,11 +1,3 @@
-export type OpCode = [
-  type: 'replace' | 'delete' | 'insert' | 'equal',
-  beforeIdx: number,
-  beforeEnd: number,
-  afterIdx: number,
-  afterEnd: number,
-];
-
 function stripLinebreaks(str: string) {
   return str.replace(/^[\n\r]*|[\n\r]*$/g, '');
 }

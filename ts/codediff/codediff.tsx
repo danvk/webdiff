@@ -3,7 +3,7 @@ import React from 'react';
 import {DiffRange} from './codes';
 import {closest, copyOnlyMatching, distributeSpans} from './dom-utils';
 import {addCharacterDiffs} from './char-diffs';
-import {stringAsLines} from './difflib';
+import {stringAsLines} from './string-utils';
 
 export interface PatchOptions {
   /** Minimum number of skipped lines to elide into a "jump" row */

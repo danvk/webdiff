@@ -1,6 +1,11 @@
-import {OpCode} from './difflib';
-
-type OpType = OpCode[0];
+export type OpType = 'replace' | 'delete' | 'insert' | 'equal';
+export type OpCode = [
+  type: OpType,
+  beforeIdx: number,
+  beforeEnd: number,
+  afterIdx: number,
+  afterEnd: number,
+];
 
 export type LineRange = [start: number, limit: number];
 

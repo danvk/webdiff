@@ -1,5 +1,4 @@
-import {addSkips} from '../codes';
-import {OpCode} from '../difflib';
+import {addSkips, OpCode} from '../codes';
 
 test('generates same diff ranges as jsdifflib', () => {
   // These are the opcodes for test.html
