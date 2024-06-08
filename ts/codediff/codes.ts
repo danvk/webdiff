@@ -1,6 +1,6 @@
-import * as difflib from './difflib';
+import {OpCode} from './difflib';
 
-type OpType = difflib.OpCode[0];
+type OpType = OpCode[0];
 
 export type LineRange = [start: number, limit: number];
 
@@ -15,11 +15,7 @@ export interface DiffRange {
  * Input is a list of opcodes, as output by difflib.
  * Output is a list of diff ranges which corresponds precisely to the view, including skips.
  */
-export function addSkips(
-  opcodes: difflib.OpCode[],
-  contextSize: number,
-  minJumpSize: number,
-): DiffRange[] {
+export function addSkips(opcodes: OpCode[], contextSize: number, minJumpSize: number): DiffRange[] {
   const ranges: DiffRange[] = [];
 
   for (let i = 0; i < opcodes.length; i++) {

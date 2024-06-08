@@ -1,7 +1,8 @@
 import {htmlTextMapper} from './html-text-mapper';
-import * as difflib from './difflib';
+import {OpCode} from './difflib';
+import * as Diff from 'diff';
 
-type OpType = difflib.OpCode[0];
+type OpType = OpCode[0];
 export type CharacterDiff = [OpType | 'skip' | null, number, number];
 
 /**
@@ -13,46 +14,31 @@ export function computeCharacterDiffs(
   beforeText: string,
   afterText: string,
 ): [CharacterDiff[], CharacterDiff[]] | null {
-  const beforeWords = splitIntoWords(beforeText),
-    afterWords = splitIntoWords(afterText);
-
-  // TODO: precompute two arrays; this does too much work.
-  const wordToIdx = function (isBefore: boolean, idx: number) {
-    const words = isBefore ? beforeWords : afterWords;
-    let charIdx = 0;
-    for (let i = 0; i < idx; i++) {
-      charIdx += words[i].length;
-    }
-    return charIdx;
-  };
-
-  const sm = new difflib.SequenceMatcher(beforeWords, afterWords);
-  const opcodes = sm.get_opcodes();
+  const diffs = Diff.diffWords(beforeText, afterText);
 
   // Suppress char-by-char diffs if there's less than 50% character overlap.
   // The one exception is pure whitespace diffs, which should always be shown.
   const minEqualFrac = 0.5;
   let equalCount = 0,
     charCount = 0;
-  let beforeDiff = '',
-    afterDiff = '';
-  opcodes.forEach(function (opcode) {
-    const change = opcode[0];
-    const beforeIdx = wordToIdx(true, opcode[1]);
-    const beforeEnd = wordToIdx(true, opcode[2]);
-    const afterIdx = wordToIdx(false, opcode[3]);
-    const afterEnd = wordToIdx(false, opcode[4]);
-    const beforeLen = beforeEnd - beforeIdx;
-    const afterLen = afterEnd - afterIdx;
-    const count = beforeLen + afterLen;
-    if (change == 'equal') {
-      equalCount += count;
+  let beforeDiff = '';
+  let afterDiff = '';
+  for (const diff of diffs) {
+    const len = diff.value.length;
+    if (diff.added) {
+      afterDiff += diff.value;
+      charCount += len;
+    } else if (diff.removed) {
+      beforeDiff += diff.value;
+      charCount += len;
     } else {
-      beforeDiff += beforeText.substring(beforeIdx, beforeEnd);
-      afterDiff += afterText.substring(afterIdx, afterEnd);
+      // equal
+      equalCount += 2 * len;
+      charCount += 2 * len;
+      beforeDiff += diff.value;
+      afterDiff += diff.value;
     }
-    charCount += count;
-  });
+  }
   if (
     equalCount < minEqualFrac * charCount &&
     !(beforeDiff.match(/^\s*$/) && afterDiff.match(/^\s*$/))
@@ -60,28 +46,25 @@ export function computeCharacterDiffs(
     return null;
   }
 
-  let beforeOut: CharacterDiff[] = [],
-    afterOut: CharacterDiff[] = []; // (span class, start, end) triples
-  opcodes.forEach(function (opcode) {
-    const change = opcode[0];
-    const beforeIdx = wordToIdx(true, opcode[1]);
-    const beforeEnd = wordToIdx(true, opcode[2]);
-    const afterIdx = wordToIdx(false, opcode[3]);
-    const afterEnd = wordToIdx(false, opcode[4]);
-    if (change == 'equal') {
-      beforeOut.push([null, beforeIdx, beforeEnd]);
-      afterOut.push([null, afterIdx, afterEnd]);
-    } else if (change == 'delete') {
-      beforeOut.push(['delete', beforeIdx, beforeEnd]);
-    } else if (change == 'insert') {
-      afterOut.push(['insert', afterIdx, afterEnd]);
-    } else if (change == 'replace') {
-      beforeOut.push(['delete', beforeIdx, beforeEnd]);
-      afterOut.push(['insert', afterIdx, afterEnd]);
+  let beforeOut: CharacterDiff[] = [];
+  let afterOut: CharacterDiff[] = []; // (span class, start, end) triples
+  let beforeIdx = 0;
+  let afterIdx = 0;
+  for (const diff of diffs) {
+    const len = diff.value.length;
+    if (diff.added) {
+      afterOut.push(['insert', afterIdx, afterIdx + len]);
+      afterIdx += len;
+    } else if (diff.removed) {
+      beforeOut.push(['delete', beforeIdx, beforeIdx + len]);
+      beforeIdx += len;
     } else {
-      throw 'Invalid opcode: ' + opcode[0];
+      beforeOut.push([null, beforeIdx, beforeIdx + len]);
+      afterOut.push([null, afterIdx, afterIdx + len]);
+      beforeIdx += len;
+      afterIdx += len;
     }
-  });
+  }
   beforeOut = simplifyCodes(beforeOut);
   afterOut = simplifyCodes(afterOut);
 

@@ -2,8 +2,8 @@ import React from 'react';
 
 import {DiffRange} from './codes';
 import {closest, copyOnlyMatching, distributeSpans} from './dom-utils';
-import * as difflib from './difflib';
 import {addCharacterDiffs} from './char-diffs';
+import {stringAsLines} from './difflib';
 
 export interface PatchOptions {
   /** Minimum number of skipped lines to elide into a "jump" row */
@@ -62,13 +62,10 @@ export interface Props {
 export function CodeDiff(props: Props) {
   const {beforeText, afterText, ops, params} = props;
   const beforeLines = React.useMemo(
-    () => (beforeText ? difflib.stringAsLines(beforeText) : []),
+    () => (beforeText ? stringAsLines(beforeText) : []),
     [beforeText],
   );
-  const afterLines = React.useMemo(
-    () => (afterText ? difflib.stringAsLines(afterText) : []),
-    [afterText],
-  );
+  const afterLines = React.useMemo(() => (afterText ? stringAsLines(afterText) : []), [afterText]);
   const fullParams = React.useMemo(() => ({...DEFAULT_PARAMS, ...params}), [params]);
   const diffRanges = React.useMemo(
     () => enforceMinJumpSize(ops, fullParams.minJumpSize),

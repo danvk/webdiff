@@ -110,7 +110,8 @@ describe('add character diffs', () => {
 
   test('mixed inserts and markup', () => {
     const beforeHtml = '<span class="hljs-string">"q"</span>, s';
-    const afterHtml = '<span class="hljs-string">"q"</span><span class="hljs-comment">/*, s*/</span>';
+    const afterHtml =
+      '<span class="hljs-string">"q"</span><span class="hljs-comment">/*, s*/</span>';
 
     const beforeText = htmlToText(beforeHtml);
     const afterText = htmlToText(afterHtml);
