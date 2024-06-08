@@ -56,13 +56,17 @@ export function closest(el: Element, selector: string): Element | null {
 }
 
 export function copyOnlyMatching(e: ClipboardEvent, selector: string) {
-  const sel = window.getSelection()!;
+  const sel = window.getSelection();
+  if (!sel) {
+    throw new Error('called copyOnlyMatching without selection');
+  }
   const range = sel.getRangeAt(0);
   const doc = range.cloneContents();
   const nodes = doc.querySelectorAll(selector);
   let text = '';
 
   if (nodes.length === 0) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     text = doc.textContent!;
   } else {
     [].forEach.call(nodes, function (td: Element, i) {

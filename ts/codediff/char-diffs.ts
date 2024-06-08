@@ -171,11 +171,10 @@ export function simplifyCodes(codes: CharacterDiff[]): CharacterDiff[] {
 // This wraps html[start..end] in appropriate <span>..</span>s.
 export function codesToHtml(mapper: htmlTextMapper, codes: CharacterDiff[]) {
   let html = '';
-  for (let i = 0; i < codes.length; i++) {
-    const code = codes[i],
-      type = code[0],
-      start = code[1],
-      limit = code[2];
+  for (const code of codes) {
+    const type = code[0];
+    const start = code[1];
+    const limit = code[2];
     const thisHtml = mapper.getHtmlSubstring(start, limit);
     if (type == null) {
       html += thisHtml;

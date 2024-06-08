@@ -69,8 +69,7 @@ function html_substr(html: string, start: number, count: number) {
       el.removeChild(oldNode);
     }
 
-    for (let i = 0; i < elsToRemove.length; i++) {
-      const el = elsToRemove[i];
+    for (const el of elsToRemove) {
       if (el && el.parentNode) {
         el.parentNode.removeChild(el);
       }

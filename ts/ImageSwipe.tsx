@@ -20,7 +20,9 @@ export function ImageSwipe(props: ImageSwipeProps) {
   const [rangePosition, setRangePosition] = React.useState<number | null>(null);
   const sliderRef = React.createRef<HTMLInputElement>();
   const onSlide = () => {
-    setRangePosition(Number(sliderRef.current!.value));
+    if (sliderRef.current) {
+      setRangePosition(Number(sliderRef.current.value));
+    }
   };
 
   const pair = props.filePair;

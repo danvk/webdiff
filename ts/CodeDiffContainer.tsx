@@ -178,9 +178,9 @@ function FileDiff(props: FileDiffProps) {
   ) {
     let byLength = [contentsBefore, contentsAfter];
     if (contentsAfter && lengthOrZero(contentsAfter) > lengthOrZero(contentsBefore)) {
-      byLength = [byLength![1], byLength![0]];
+      byLength = [byLength[1], byLength[0]];
     }
-    language = guessLanguageUsingContents(byLength[0]!) ?? null;
+    language = byLength[0] ? guessLanguageUsingContents(byLength[0]) ?? null : null;
   }
   if (language) {
     opts.language = language;

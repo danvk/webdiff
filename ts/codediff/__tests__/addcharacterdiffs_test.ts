@@ -173,8 +173,11 @@ describe('add character diffs', () => {
     afterText: string,
     afterExpectation: string,
   ) {
-    const codes = computeCharacterDiffs(beforeText, afterText)!;
-    expect(codes).not.toBeNull();
+    const codes = computeCharacterDiffs(beforeText, afterText);
+    if (codes === null) {
+      expect(codes).not.toBeNull();
+      throw new Error();
+    }
     // 'Declined to generate a diff when one was expected.');
 
     const beforeCodes = codes[0],
