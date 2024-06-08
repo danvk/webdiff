@@ -37,11 +37,11 @@ export function Root(props: Props) {
   React.useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
       if (!isLegitKeypress(e)) return;
-      if (e.code == 'KeyJ') {
+      if (e.code == 'KeyK') {
         if (idx > 0) {
           selectIndex(idx - 1);
         }
-      } else if (e.code == 'KeyK') {
+      } else if (e.code == 'KeyJ') {
         if (idx < pairs.length - 1) {
           selectIndex(idx + 1);
         }
