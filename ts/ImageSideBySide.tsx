@@ -4,7 +4,7 @@ import {ImageDiffProps} from './ImageDiff';
 
 // Two images placed side-by-side.
 export function ImageSideBySide(props: ImageDiffProps) {
-  var maxWidth = props.shrinkToFit ? (window.innerWidth - 30) / 2 : null;
+  const maxWidth = props.shrinkToFit ? (window.innerWidth - 30) / 2 : null;
   return (
     <table id="imagediff">
       <tbody>

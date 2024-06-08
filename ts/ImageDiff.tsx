@@ -34,7 +34,7 @@ export function ImageDiff(props: Props) {
   };
 
   let mode = props.imageDiffMode;
-  let pair = props.filePair;
+  const pair = props.filePair;
   if (isOneSided(pair)) {
     mode = 'side-by-side'; // Only one that makes sense for one-sided diffs.
   }
@@ -80,15 +80,15 @@ export function ImageDiff(props: Props) {
     'onion-skin': ImageOnionSkin,
     swipe: ImageSwipe,
   }[mode];
-  var image = React.createElement(component, {
+  const image = React.createElement(component, {
     filePair: pair,
     shrinkToFit,
     pdiffMode: props.pdiffMode,
   });
-  var diffBoxEnabled = isSameSizeImagePair(pair);
-  var boxClasses = diffBoxEnabled ? '' : 'diff-box-disabled';
-  var boxStyles = {display: HAS_IMAGE_MAGICK ? '' : 'none'};
-  var imageMagickCallout = !HAS_IMAGE_MAGICK ? (
+  const diffBoxEnabled = isSameSizeImagePair(pair);
+  const boxClasses = diffBoxEnabled ? '' : 'diff-box-disabled';
+  const boxStyles = {display: HAS_IMAGE_MAGICK ? '' : 'none'};
+  const imageMagickCallout = !HAS_IMAGE_MAGICK ? (
     <span className="magick">
       Install <a href="http://www.imagemagick.org/script/binary-releases.php">ImageMagick</a> to see
       perceptual diffs

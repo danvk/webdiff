@@ -3,10 +3,10 @@
  * If it can't guess a language, returns null.
  */
 export function guessLanguageUsingFileName(name: string) {
-  var lang = (function () {
-    var m = /\.([^.]+)$/.exec(name);
+  const lang = (function () {
+    let m = /\.([^.]+)$/.exec(name);
     if (m) {
-      var ext = m[1];
+      const ext = m[1];
       if (ext == 'py') return 'python';
       if (ext == 'sh') return 'bash';
       if (ext == 'md') return 'markdown';
@@ -15,7 +15,7 @@ export function guessLanguageUsingFileName(name: string) {
     }
 
     // Highlighting based purely on file name, e.g. "Makefile".
-    m = /(?:.*\/)?([^\/]*)$/.exec(name);
+    m = /(?:.*\/)?([^/]*)$/.exec(name);
     if (m && m[1] == 'Makefile') {
       return 'makefile';
     }
@@ -37,10 +37,10 @@ export function guessLanguageUsingFileName(name: string) {
  */
 export function guessLanguageUsingContents(contents: string): string | undefined {
   // First check for a shebang line.
-  var firstLine = contents.substring(0, contents.indexOf('\n'));
+  const firstLine = contents.substring(0, contents.indexOf('\n'));
   let lang: string | undefined;
   if (firstLine.substring(0, 2) == '#!') {
-    var processor = firstLine.substring(2);
+    const processor = firstLine.substring(2);
     if (processor == '/bin/bash') return 'bash';
     if (processor == '/bin/sh') return 'bash';
 
@@ -60,7 +60,7 @@ export function guessLanguageUsingContents(contents: string): string | undefined
   }
 
   // Now let HighlightJS guess.
-  var guess = hljs.highlightAuto(contents);
+  const guess = hljs.highlightAuto(contents);
   lang = guess.language;
   return lang;
 }

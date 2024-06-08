@@ -9,7 +9,7 @@ export class htmlTextMapper {
   // Get the substring of HTML corresponding to text.substr(start, len).
   // Leading markup is included with index 0, trailing with the last char.
   getHtmlSubstring(start: number, limit: number) {
-    var count = limit - start;
+    const count = limit - start;
     return html_substr(this.html_, start, count);
   }
 }
@@ -20,15 +20,15 @@ export class htmlTextMapper {
 // http://stackoverflow.com/questions/6003271/substring-text-with-html-tags-in-javascript?rq=1
 // http://stackoverflow.com/questions/16856928/substring-text-with-javascript-including-html-tags
 function html_substr(html: string, start: number, count: number) {
-  var div = document.createElement('div');
+  const div = document.createElement('div');
   div.innerHTML = html;
-  var consumed = 0;
+  let consumed = 0;
 
   walk(div, track);
 
   function track(el: Text) {
     if (count > 0) {
-      var len = el.data.length;
+      let len = el.data.length;
       if (start <= len) {
         el.data = el.substringData(start, len);
         start = 0;
@@ -48,9 +48,9 @@ function html_substr(html: string, start: number, count: number) {
   }
 
   function walk(el: Node, fn: (node: Text) => void) {
-    var node = el.firstChild,
+    let node = el.firstChild,
       oldNode;
-    var elsToRemove = [];
+    const elsToRemove = [];
     do {
       if (node?.nodeType === 3) {
         fn(node as Text);
@@ -69,7 +69,7 @@ function html_substr(html: string, start: number, count: number) {
       el.removeChild(oldNode);
     }
 
-    for (var i = 0; i < elsToRemove.length; i++) {
+    for (let i = 0; i < elsToRemove.length; i++) {
       const el = elsToRemove[i];
       if (el && el.parentNode) {
         el.parentNode.removeChild(el);

@@ -1,3 +1,5 @@
+/* eslint-disable  */
+
 const path = require('path');
 
 const mode = process.env.NODE_ENV || 'production';

@@ -36,7 +36,7 @@ jobs:
 
   test-js:
     docker:
-      - image: cimg/node:18.8.0
+      - image: cimg/node:20.14
     steps:
       - checkout
       - run: node --version
@@ -54,6 +54,7 @@ jobs:
             yarn run format:check
             yarn run knip
             yarn run tsc --noEmit
+            yarn run lint
 
 workflows:
   main:

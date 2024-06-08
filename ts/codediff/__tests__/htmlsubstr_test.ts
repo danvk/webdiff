@@ -8,9 +8,9 @@ function htmlToText(html: string) {
 }
 
 test('basic functionality', () => {
-  var html = 'foo<span>bar</span>baz';
-  var text = htmlToText(html);
-  var map = new htmlTextMapper(text, html);
+  const html = 'foo<span>bar</span>baz';
+  const text = htmlToText(html);
+  const map = new htmlTextMapper(text, html);
 
   expect(map.getHtmlSubstring(0, 0)).toEqual('');
   expect(map.getHtmlSubstring(0, 1)).toEqual('f');
@@ -25,9 +25,9 @@ test('basic functionality', () => {
 });
 
 test('leading/trailing html', () => {
-  var html = '<p>foo<span>bar</span>baz</p>';
-  var text = htmlToText(html);
-  var map = new htmlTextMapper(text, html);
+  const html = '<p>foo<span>bar</span>baz</p>';
+  const text = htmlToText(html);
+  const map = new htmlTextMapper(text, html);
 
   expect(map.getHtmlSubstring(0, 0)).toEqual('');
   expect(map.getHtmlSubstring(0, 1)).toEqual('<p>f</p>');
@@ -42,9 +42,9 @@ test('leading/trailing html', () => {
 });
 
 test('leading/trailing html, fixed right', () => {
-  var html = '<p>foo<span>bar</span>baz</p>';
-  var text = htmlToText(html);
-  var map = new htmlTextMapper(text, html);
+  const html = '<p>foo<span>bar</span>baz</p>';
+  const text = htmlToText(html);
+  const map = new htmlTextMapper(text, html);
 
   expect(map.getHtmlSubstring(0, 9)).toEqual('<p>foo<span>bar</span>baz</p>');
   expect(map.getHtmlSubstring(1, 9)).toEqual('<p>oo<span>bar</span>baz</p>');
@@ -59,9 +59,9 @@ test('leading/trailing html, fixed right', () => {
 });
 
 test('small html, all ranges', () => {
-  var html = '<q>xx</q>';
-  var text = htmlToText(html);
-  var map = new htmlTextMapper(text, html);
+  const html = '<q>xx</q>';
+  const text = htmlToText(html);
+  const map = new htmlTextMapper(text, html);
 
   expect(map.getHtmlSubstring(0, 0)).toEqual('');
   expect(map.getHtmlSubstring(0, 1)).toEqual('<q>x</q>');
@@ -71,9 +71,9 @@ test('small html, all ranges', () => {
 });
 
 test('html with entities', () => {
-  var html = 'x&lt;y';
-  var text = htmlToText(html);
-  var map = new htmlTextMapper(text, html);
+  const html = 'x&lt;y';
+  const text = htmlToText(html);
+  const map = new htmlTextMapper(text, html);
 
   expect(map.getHtmlSubstring(0, 0)).toEqual('');
   expect(map.getHtmlSubstring(0, 1)).toEqual('x');
@@ -87,10 +87,10 @@ test('html with entities', () => {
 });
 
 test('consecutive tags', () => {
-  var html = '<a><b>xx</b></a>';
-  var text = htmlToText(html);
+  const html = '<a><b>xx</b></a>';
+  const text = htmlToText(html);
   expect(text.length).toEqual(2);
-  var map = new htmlTextMapper(text, html);
+  const map = new htmlTextMapper(text, html);
 
   expect(map.getHtmlSubstring(0, 0)).toEqual('');
   expect(map.getHtmlSubstring(0, 1)).toEqual('<a><b>x</b></a>');

@@ -1,5 +1,4 @@
-import * as difflib from 'difflib';
-
+import * as Diff from 'diff';
 import {FilePair} from './CodeDiffContainer';
 
 /**
@@ -14,30 +13,35 @@ export function filePairDisplayName(filePair: FilePair) {
   // Factor out shared components (folder names, basename, extension) in the
   // old and new names. This might be overkill, but we have a differ, so why
   // not?
-  var split_re = /([.\/])/; // split to folders and extension
-  var split = (path: string) => path.split(split_re).filter(x => x);
-  var partsA = split(filePair.a);
-  var partsB = split(filePair.b);
+  const split_re = /([./])/; // split to folders and extension
+  const split = (path: string) => path.split(split_re).filter(x => x);
+  const partsA = split(filePair.a);
+  const partsB = split(filePair.b);
 
-  var opcodes = new difflib.SequenceMatcher(null, partsA, partsB).getOpcodes();
-  var out = '';
+  const diffs = Diff.diffArrays(partsA, partsB);
+  let out = '';
 
-  opcodes.forEach(opcode => {
-    var [type, aIndex, aLimit, bIndex, bLimit] = opcode;
-    var a = partsA.slice(aIndex, aLimit).join('');
-    var b = partsB.slice(bIndex, bLimit).join('');
-    if (type == 'equal') {
-      out += a;
-    } else if (type == 'insert') {
-      out += '{ → ' + b + '}';
-    } else if (type == 'delete') {
-      out += '{' + a + ' → }';
-    } else if (type == 'replace') {
-      out += '{' + a + ' → ' + b + '}';
+  for (let i = 0; i < diffs.length; i++) {
+    const diff = diffs[i];
+    const v = diff.value.join('');
+    if (diff.removed) {
+      if (i < diffs.length - 1 && diffs[i + 1].added) {
+        // replace
+        i += 1;
+        const v2 = diffs[i].value.join('');
+        out += '{' + v + ' → ' + v2 + '}';
+      } else {
+        // remove
+        out += '{' + v + ' → }';
+      }
+    } else if (diff.added) {
+      // add
+      out += '{ → ' + v + '}';
     } else {
-      throw 'Unknown opcode ' + type;
+      // equal
+      out += v;
     }
-  });
+  }
 
   return out;
 }
@@ -52,7 +56,7 @@ export function isSameSizeImagePair(filePair: FilePair) {
   if (!filePair.is_image_diff) return false;
   if (isOneSided(filePair)) return false;
   if (!filePair.a || !filePair.b) return false;
-  var imA = filePair.image_a,
+  const imA = filePair.image_a,
     imB = filePair.image_b;
   return imA.width == imB.width && imA.height == imB.height;
 }

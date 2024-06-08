@@ -1,8 +1,16 @@
+import {OpType} from './codes';
 import {htmlTextMapper} from './html-text-mapper';
-import * as difflib from './difflib';
+import * as Diff from 'diff';
 
-type OpType = difflib.OpCode[0];
 export type CharacterDiff = [OpType | 'skip' | null, number, number];
+
+function strArrayLen(x: string[]) {
+  return x.reduce((a, b) => a + b.length, 0);
+}
+
+function allWhitespace(x: string) {
+  return !!x.match(/^\s*$/);
+}
 
 /**
  * Compute an intra-line diff.
@@ -13,75 +21,59 @@ export function computeCharacterDiffs(
   beforeText: string,
   afterText: string,
 ): [CharacterDiff[], CharacterDiff[]] | null {
-  var beforeWords = splitIntoWords(beforeText),
-    afterWords = splitIntoWords(afterText);
-
-  // TODO: precompute two arrays; this does too much work.
-  var wordToIdx = function (isBefore: boolean, idx: number) {
-    var words = isBefore ? beforeWords : afterWords;
-    var charIdx = 0;
-    for (var i = 0; i < idx; i++) {
-      charIdx += words[i].length;
-    }
-    return charIdx;
-  };
-
-  var sm = new difflib.SequenceMatcher(beforeWords, afterWords);
-  var opcodes = sm.get_opcodes();
+  const beforeWords = splitIntoWords(beforeText);
+  const afterWords = splitIntoWords(afterText);
+  const diffs = Diff.diffArrays(beforeWords, afterWords);
 
   // Suppress char-by-char diffs if there's less than 50% character overlap.
   // The one exception is pure whitespace diffs, which should always be shown.
-  var minEqualFrac = 0.5;
-  var equalCount = 0,
-    charCount = 0;
-  var beforeDiff = '',
-    afterDiff = '';
-  opcodes.forEach(function (opcode) {
-    var change = opcode[0];
-    var beforeIdx = wordToIdx(true, opcode[1]);
-    var beforeEnd = wordToIdx(true, opcode[2]);
-    var afterIdx = wordToIdx(false, opcode[3]);
-    var afterEnd = wordToIdx(false, opcode[4]);
-    var beforeLen = beforeEnd - beforeIdx;
-    var afterLen = afterEnd - afterIdx;
-    var count = beforeLen + afterLen;
-    if (change == 'equal') {
-      equalCount += count;
+  const minEqualFrac = 0.5;
+  let equalCount = 0;
+  let charCount = 0;
+  let beforeAllWhitespace = true;
+  let afterAllWhitespace = true;
+  for (const diff of diffs) {
+    const len = strArrayLen(diff.value);
+    if (diff.added) {
+      afterAllWhitespace &&= diff.value.every(allWhitespace);
+      charCount += len;
+    } else if (diff.removed) {
+      beforeAllWhitespace &&= diff.value.every(allWhitespace);
+      charCount += len;
     } else {
-      beforeDiff += beforeText.substring(beforeIdx, beforeEnd);
-      afterDiff += afterText.substring(afterIdx, afterEnd);
+      // equal
+      equalCount += 2 * len;
+      charCount += 2 * len;
+      if (beforeAllWhitespace || afterAllWhitespace) {
+        const allSpace = diff.value.every(allWhitespace);
+        beforeAllWhitespace &&= allSpace;
+        afterAllWhitespace &&= allSpace;
+      }
     }
-    charCount += count;
-  });
-  if (
-    equalCount < minEqualFrac * charCount &&
-    !(beforeDiff.match(/^\s*$/) && afterDiff.match(/^\s*$/))
-  ) {
+  }
+  if (equalCount < minEqualFrac * charCount && !(beforeAllWhitespace && afterAllWhitespace)) {
     return null;
   }
 
-  var beforeOut: CharacterDiff[] = [],
-    afterOut: CharacterDiff[] = []; // (span class, start, end) triples
-  opcodes.forEach(function (opcode) {
-    var change = opcode[0];
-    var beforeIdx = wordToIdx(true, opcode[1]);
-    var beforeEnd = wordToIdx(true, opcode[2]);
-    var afterIdx = wordToIdx(false, opcode[3]);
-    var afterEnd = wordToIdx(false, opcode[4]);
-    if (change == 'equal') {
-      beforeOut.push([null, beforeIdx, beforeEnd]);
-      afterOut.push([null, afterIdx, afterEnd]);
-    } else if (change == 'delete') {
-      beforeOut.push(['delete', beforeIdx, beforeEnd]);
-    } else if (change == 'insert') {
-      afterOut.push(['insert', afterIdx, afterEnd]);
-    } else if (change == 'replace') {
-      beforeOut.push(['delete', beforeIdx, beforeEnd]);
-      afterOut.push(['insert', afterIdx, afterEnd]);
+  let beforeOut: CharacterDiff[] = [];
+  let afterOut: CharacterDiff[] = []; // (span class, start, end) triples
+  let beforeIdx = 0;
+  let afterIdx = 0;
+  for (const diff of diffs) {
+    const len = strArrayLen(diff.value);
+    if (diff.added) {
+      afterOut.push(['insert', afterIdx, afterIdx + len]);
+      afterIdx += len;
+    } else if (diff.removed) {
+      beforeOut.push(['delete', beforeIdx, beforeIdx + len]);
+      beforeIdx += len;
     } else {
-      throw 'Invalid opcode: ' + opcode[0];
+      beforeOut.push([null, beforeIdx, beforeIdx + len]);
+      afterOut.push([null, afterIdx, afterIdx + len]);
+      beforeIdx += len;
+      afterIdx += len;
     }
-  });
+  }
   beforeOut = simplifyCodes(beforeOut);
   afterOut = simplifyCodes(afterOut);
 
@@ -105,8 +97,8 @@ export function addCharacterDiffs(
   // This is made more difficult by the presence of syntax highlighting, which
   // has its own set of tags. The two can co-exists if we're careful to only
   // wrap complete (balanced) DOM trees.
-  var beforeMapper = new htmlTextMapper(beforeText, beforeHtml);
-  var afterMapper = new htmlTextMapper(afterText, afterHtml);
+  const beforeMapper = new htmlTextMapper(beforeText, beforeHtml);
+  const afterMapper = new htmlTextMapper(afterText, afterHtml);
 
   return [codesToHtml(beforeMapper, beforeOut), codesToHtml(afterMapper, afterOut)];
 }
@@ -117,12 +109,12 @@ export function addCharacterDiffs(
  *     splitIntoWords_(line).join('') == line.
  */
 export function splitIntoWords(line: string): string[] {
-  var LC = 0,
+  const LC = 0,
     UC = 2,
     NUM = 3,
     WS = 4,
     SYM = 5;
-  var charType = function (c: string) {
+  const charType = function (c: string) {
     if (c.match(/[a-z]/)) return LC;
     if (c.match(/[A-Z]/)) return UC;
     if (c.match(/[0-9]/)) return NUM;
@@ -131,11 +123,11 @@ export function splitIntoWords(line: string): string[] {
   };
 
   // Single words can be [A-Z][a-z]+, [A-Z]+, [a-z]+, [0-9]+ or \s+.
-  var words = [];
-  var lastType = -1;
-  for (var i = 0; i < line.length; i++) {
-    var c = line.charAt(i);
-    var ct = charType(c);
+  const words = [];
+  let lastType = -1;
+  for (let i = 0; i < line.length; i++) {
+    const c = line.charAt(i);
+    const ct = charType(c);
     if (
       (ct == lastType && ct != SYM && ct != WS) ||
       (ct == LC && lastType == UC && words[words.length - 1].length == 1)
@@ -151,37 +143,40 @@ export function splitIntoWords(line: string): string[] {
 
 // codes are (span class, start, end) triples.
 // This merges consecutive runs with the same class, which simplifies the HTML.
+// This can happen as a result of splitting the diff into before and after sequences, for example:
+// before: abc     def
+// after:  abc[123]def
+// The "before" codes will have two consecutive "equal" spans due to the addition.
 export function simplifyCodes(codes: CharacterDiff[]): CharacterDiff[] {
-  var newCodes = [];
-  for (var i = 0; i < codes.length; i++) {
-    var code = codes[i];
+  const newCodes = [];
+  for (let i = 0; i < codes.length; i++) {
+    const code = codes[i];
     if (i == 0) {
       newCodes.push(code);
       continue;
     }
 
-    var lastIndex = newCodes.length - 1;
-    var lastCodeClass = newCodes[lastIndex][0];
+    const lastIndex = newCodes.length - 1;
+    const lastCodeClass = newCodes[lastIndex][0];
     if (lastCodeClass == code[0]) {
       newCodes[lastIndex][2] = code[2]; // extend last run.
     } else {
       newCodes.push(code);
     }
   }
-
   return newCodes;
 }
 
 // codes are (span class, start, end) triples.
 // This wraps html[start..end] in appropriate <span>..</span>s.
 export function codesToHtml(mapper: htmlTextMapper, codes: CharacterDiff[]) {
-  var html = '';
-  for (var i = 0; i < codes.length; i++) {
-    var code = codes[i],
+  let html = '';
+  for (let i = 0; i < codes.length; i++) {
+    const code = codes[i],
       type = code[0],
       start = code[1],
       limit = code[2];
-    var thisHtml = mapper.getHtmlSubstring(start, limit);
+    const thisHtml = mapper.getHtmlSubstring(start, limit);
     if (type == null) {
       html += thisHtml;
     } else {

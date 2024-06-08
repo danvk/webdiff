@@ -14,7 +14,7 @@ export function AnnotatedImage(props: Props) {
     return <span>None</span>;
   }
 
-  var im = props.filePair[side === 'a' ? 'image_a' : 'image_b'];
+  const im = props.filePair[side === 'a' ? 'image_a' : 'image_b'];
   return (
     <div className={'image-' + side}>
       <SingleImage {...props} />
