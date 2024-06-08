@@ -144,6 +144,10 @@ export function splitIntoWords(line: string): string[] {
 
 // codes are (span class, start, end) triples.
 // This merges consecutive runs with the same class, which simplifies the HTML.
+// This can happen as a result of splitting the diff into before and after sequences, for example:
+// before: abc     def
+// after:  abc[123]def
+// The "before" codes will have two consecutive "equal" spans due to the addition.
 export function simplifyCodes(codes: CharacterDiff[]): CharacterDiff[] {
   const newCodes = [];
   for (let i = 0; i < codes.length; i++) {
@@ -161,7 +165,6 @@ export function simplifyCodes(codes: CharacterDiff[]): CharacterDiff[] {
       newCodes.push(code);
     }
   }
-
   return newCodes;
 }
 
