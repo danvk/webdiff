@@ -54,6 +54,7 @@ jobs:
             yarn run format:check
             yarn run knip
             yarn run tsc --noEmit
+            yarn run lint
 
 workflows:
   main:
