@@ -62,6 +62,19 @@ export function NoChanges(props: {filePair: any}) {
   return null;
 }
 
+// Either side can be empty (i.e. an add or a delete), in which case
+// getOrNull resolves to null
+async function getOrNull(side: string, path: string) {
+  if (!path) return null;
+  const data = new URLSearchParams();
+  data.set('path', path);
+  const response = await fetch(`/${side}/get_contents`, {
+    method: 'post',
+    body: data,
+  });
+  return response.text();
+}
+
 // A side-by-side diff of source code.
 export function CodeDiffContainer(props: {filePair: FilePair; diffOptions: Partial<DiffOptions>}) {
   const {filePair, diffOptions} = props;
@@ -71,19 +84,6 @@ export function CodeDiffContainer(props: {filePair: FilePair; diffOptions: Parti
   >();
 
   React.useEffect(() => {
-    // Either side can be empty (i.e. an add or a delete), in which case
-    // getOrNull resolves to null
-    var getOrNull = async (side: string, path: string) => {
-      if (!path) return null;
-      const data = new URLSearchParams();
-      data.set('path', path);
-      const response = await fetch(`/${side}/get_contents`, {
-        method: 'post',
-        body: data,
-      });
-      return response.text();
-    };
-
     const getDiff = async () => {
       const response = await fetch(`/diff/${filePair.idx}`, {
         method: 'POST',
@@ -98,6 +98,7 @@ export function CodeDiffContainer(props: {filePair: FilePair; diffOptions: Parti
 
     const {a, b} = filePair;
     // Do XHRs for the contents of both sides in parallel and fill in the diff.
+    // TODO: split these into three useEffects to avoid over-fetching when diff options change.
     (async () => {
       const [before, after, diffOps] = await Promise.all([
         getOrNull('a', a),

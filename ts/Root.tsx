@@ -33,27 +33,23 @@ export function Root(props: Props) {
     document.title = 'Diff: ' + filePairDisplayName(filePair) + ' (' + filePair.type + ')';
   }, [filePair]);
 
+  // TODO: switch to useKey() or some such
   React.useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
       if (!isLegitKeypress(e)) return;
-      if (e.keyCode == 75) {
-        // j
+      if (e.code == 'KeyK') {
         if (idx > 0) {
           selectIndex(idx - 1);
         }
-      } else if (e.keyCode == 74) {
-        // k
+      } else if (e.code == 'KeyJ') {
         if (idx < pairs.length - 1) {
           selectIndex(idx + 1);
         }
-      } else if (e.keyCode == 83) {
-        // s
+      } else if (e.code == 'KeyS') {
         setImageDiffMode('side-by-side');
-      } else if (e.keyCode == 66) {
-        // b
+      } else if (e.code == 'KeyB') {
         setImageDiffMode('blink');
-      } else if (e.keyCode == 80) {
-        // p
+      } else if (e.code == 'KeyP') {
         setPDiffMode(PDIFF_MODES[(PDIFF_MODES.indexOf(pdiffMode) + 1) % 3]);
       }
     };

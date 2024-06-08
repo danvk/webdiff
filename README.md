@@ -4,8 +4,8 @@ Two-column web-based git difftool.
 
 <p align="center">
   <a href="https://pypi.org/project/webdiff/" target="_blank"><img alt="PyPI - Version" src="https://img.shields.io/pypi/v/webdiff" /></a>
-  <a href="https://dl.circleci.com/status-badge/redirect/gh/danvk/webdiff/tree/master" target="_blank"><img alt="CircleCI 📝" src="https://dl.circleci.com/status-badge/img/gh/danvk/webdiff/tree/master.svg?style=svg" /></a>
-  <a href="https://github.com/danvk/webdiff/blob/master/LICENSE" target="_blank"><img alt="License: Apache2 📝" src="https://img.shields.io/github/license/danvk/webdiff" /></a>
+  <a href="https://dl.circleci.com/status-badge/redirect/gh/danvk/webdiff/tree/main" target="_blank"><img alt="CircleCI 📝" src="https://dl.circleci.com/status-badge/img/gh/danvk/webdiff/tree/main.svg?style=svg" /></a>
+  <a href="https://github.com/danvk/webdiff/blob/main/LICENSE" target="_blank"><img alt="License: Apache2 📝" src="https://img.shields.io/github/license/danvk/webdiff" /></a>
   <a href="https://github.com/sponsors/danvk" target="_blank"><img alt="Sponsor: On GitHub 💸" src="https://img.shields.io/badge/sponsor-on_github_💸-21bb42.svg" /></a>
 </p>
 
@@ -19,10 +19,10 @@ Features include:
 
 <!-- These are absolute URLs so that they display on pypi.org -->
 <!-- This is `git webdiff 05157bba^..05157bba`, in this repo -->
-![Screenshot of webdiff in action](https://raw.githubusercontent.com/danvk/webdiff/master/images/webdiff.png)
+![Screenshot of webdiff in action](https://raw.githubusercontent.com/danvk/webdiff/main/images/webdiff.png)
 
 <!-- This is `git webdiff c80f969^..c80f969` in the dygraphs-dpxdt repo -->
-![Screenshot of image diffs](https://raw.githubusercontent.com/danvk/webdiff/master/images/webdiff-images.png)
+![Screenshot of image diffs](https://raw.githubusercontent.com/danvk/webdiff/main/images/webdiff-images.png)
 
 ## Installation
 
