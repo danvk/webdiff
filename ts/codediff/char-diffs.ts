@@ -5,6 +5,10 @@ import * as Diff from 'diff';
 type OpType = OpCode[0];
 export type CharacterDiff = [OpType | 'skip' | null, number, number];
 
+function strArrayLen(x: string[]) {
+  return x.reduce((a, b) => a + b.length, 0);
+}
+
 /**
  * Compute an intra-line diff.
  * @return [before codes, after codes]. Returns null if
@@ -14,29 +18,35 @@ export function computeCharacterDiffs(
   beforeText: string,
   afterText: string,
 ): [CharacterDiff[], CharacterDiff[]] | null {
-  const diffs = Diff.diffWords(beforeText, afterText);
+  const beforeWords = splitIntoWords(beforeText);
+  const afterWords = splitIntoWords(afterText);
+  console.log(beforeWords);
+  console.log(afterWords);
+  const diffs = Diff.diffArrays(beforeWords, afterWords);
+  console.log(diffs);
 
   // Suppress char-by-char diffs if there's less than 50% character overlap.
   // The one exception is pure whitespace diffs, which should always be shown.
+  // TODO: this is pretty inefficient. No need to build up the strings!
   const minEqualFrac = 0.5;
-  let equalCount = 0,
-    charCount = 0;
+  let equalCount = 0;
+  let charCount = 0;
   let beforeDiff = '';
   let afterDiff = '';
   for (const diff of diffs) {
-    const len = diff.value.length;
+    const len = strArrayLen(diff.value);
     if (diff.added) {
-      afterDiff += diff.value;
+      afterDiff += diff.value.join('');
       charCount += len;
     } else if (diff.removed) {
-      beforeDiff += diff.value;
+      beforeDiff += diff.value.join('');
       charCount += len;
     } else {
       // equal
       equalCount += 2 * len;
       charCount += 2 * len;
-      beforeDiff += diff.value;
-      afterDiff += diff.value;
+      beforeDiff += diff.value.join('');
+      afterDiff += diff.value.join('');
     }
   }
   if (
@@ -51,7 +61,7 @@ export function computeCharacterDiffs(
   let beforeIdx = 0;
   let afterIdx = 0;
   for (const diff of diffs) {
-    const len = diff.value.length;
+    const len = strArrayLen(diff.value);
     if (diff.added) {
       afterOut.push(['insert', afterIdx, afterIdx + len]);
       afterIdx += len;

@@ -244,7 +244,7 @@ describe('add character diffs', () => {
 
     assertCharDiff(
       'import net.sf.samtools._',
-      'import [net.sf].samtools._',
+      'import [net].[sf.]samtools._',
       'import htsjdk.samtools._',
       'import [htsjdk].samtools._',
     );
