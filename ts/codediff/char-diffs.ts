@@ -9,6 +9,10 @@ function strArrayLen(x: string[]) {
   return x.reduce((a, b) => a + b.length, 0);
 }
 
+function allWhitespace(x: string) {
+  return !!x.match(/^\s*$/);
+}
+
 /**
  * Compute an intra-line diff.
  * @return [before codes, after codes]. Returns null if
@@ -20,10 +24,7 @@ export function computeCharacterDiffs(
 ): [CharacterDiff[], CharacterDiff[]] | null {
   const beforeWords = splitIntoWords(beforeText);
   const afterWords = splitIntoWords(afterText);
-  console.log(beforeWords);
-  console.log(afterWords);
   const diffs = Diff.diffArrays(beforeWords, afterWords);
-  console.log(diffs);
 
   // Suppress char-by-char diffs if there's less than 50% character overlap.
   // The one exception is pure whitespace diffs, which should always be shown.
@@ -51,7 +52,7 @@ export function computeCharacterDiffs(
   }
   if (
     equalCount < minEqualFrac * charCount &&
-    !(beforeDiff.match(/^\s*$/) && afterDiff.match(/^\s*$/))
+    !(allWhitespace(beforeDiff) && allWhitespace(afterDiff))
   ) {
     return null;
   }
