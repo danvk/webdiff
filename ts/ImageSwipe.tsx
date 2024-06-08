@@ -73,12 +73,12 @@ export function ImageSwipe(props: ImageSwipeProps) {
   }
 
   // Add an opaque grid under each image to expose transparency.
-  [styleA, styleB].forEach(function (o) {
-    (o as any)['backgroundImage'] += ', url(/static/img/trans_bg.gif)';
+  for (const o of [styleA, styleB]) {
+    o.backgroundImage += ', url(/static/img/trans_bg.gif)';
     if (_.has(o, 'backgroundSize')) {
-      (o as any)['backgroundSize'] += ', auto auto';
+      o.backgroundSize += ', auto auto';
     }
-  });
+  }
 
   return (
     <div>

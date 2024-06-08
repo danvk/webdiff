@@ -3,6 +3,7 @@ import {DiffOptions, encodeDiffOptions} from './diff-options';
 import {CodeDiff, PatchOptions} from './codediff/codediff';
 import {guessLanguageUsingContents, guessLanguageUsingFileName} from './codediff/language';
 import {GitConfig} from './options';
+import {DiffRange} from './codediff/codes';
 
 interface BaseFilePair {
   idx: number;
@@ -11,6 +12,8 @@ interface BaseFilePair {
   /** file name of right side of diff */
   b: string;
   type: 'add' | 'delete' | 'move' | 'change'; // XXX check "change"
+  /** Are there any changes to the file? Only set for "thick" diffs. */
+  no_changes?: boolean;
 }
 
 interface TextFilePair extends BaseFilePair {
@@ -48,7 +51,7 @@ export interface ImageDiffData {
 }
 
 // A "no changes" sign which only appears when applicable.
-export function NoChanges(props: {filePair: any}) {
+export function NoChanges(props: {filePair: FilePair}) {
   const {filePair} = props;
   if (filePair.no_changes) {
     return <div className="no-changes">(File content is identical)</div>;
@@ -80,7 +83,7 @@ export function CodeDiffContainer(props: {filePair: FilePair; diffOptions: Parti
   const {filePair, diffOptions} = props;
   const codediffRef = React.useRef<HTMLDivElement>(null);
   const [contents, setContents] = React.useState<
-    {before: string | null; after: string | null; diffOps: any} | undefined
+    {before: string | null; after: string | null; diffOps: DiffRange[]} | undefined
   >();
 
   React.useEffect(() => {
@@ -137,7 +140,7 @@ interface FileDiffProps {
   pathAfter: string;
   contentsBefore: string | null;
   contentsAfter: string | null;
-  diffOps: any[];
+  diffOps: DiffRange[];
 }
 
 function extractFilename(path: string) {
@@ -162,7 +165,7 @@ function FileDiff(props: FileDiffProps) {
   const path = pathBefore || pathAfter;
   let language = guessLanguageUsingFileName(path);
 
-  const lengthOrZero = function (data: any[] | string | null | undefined) {
+  const lengthOrZero = function (data: unknown[] | string | null | undefined) {
     return data ? data.length : 0;
   };
   const lastOp = diffOps[diffOps.length - 1];
