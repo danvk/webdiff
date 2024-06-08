@@ -263,7 +263,7 @@ describe('add character diffs', () => {
       '       <div className="examine-page">',
       '       <div className="examine-page">',
       '        <div className="examine-page">',
-      '[ ]       <div className="examine-page">',
+      '       [ ]<div className="examine-page">',
     );
 
     assertCharDiff('foobar', 'foobar', '  foobar', '[  ]foobar');
