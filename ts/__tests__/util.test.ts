@@ -18,7 +18,7 @@ test('util.filePairDisplayName', () => {
   expect(rename('dir/file.json', 'dir/renamed.json')).toEqual('dir/{file → renamed}.json');
   expect(rename('file.json', 'dir/file.json')).toEqual('{ → dir/}file.json');
   expect(rename('/foo/bar/file.json', '/foo/baz/file.json')).toEqual('/foo/{bar → baz}/file.json');
-  expect(rename('/foo/bar/file.json', '/foo/file.json')).toEqual('/foo{/bar → }/file.json');
+  expect(rename('/foo/bar/file.json', '/foo/file.json')).toEqual('/foo/{bar/ → }file.json');
 
   // this one is controversial, maybe better not to factor out anything?
   expect(rename('/foo/bar/file.json', '/fox/bar/file.js')).toEqual(

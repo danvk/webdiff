@@ -16,7 +16,7 @@ test('generates same diff ranges as jsdifflib', () => {
     ['equal', 32, 43, 30, 41],
   ];
 
-  var ranges = addSkips(opcodes, 3, 0);
+  let ranges = addSkips(opcodes, 3, 0);
   expect(ranges).toEqual([
     {type: 'skip', before: [0, 6], after: [0, 6]},
     {type: 'equal', before: [6, 9], after: [6, 9]},
@@ -35,7 +35,7 @@ test('generates same diff ranges as jsdifflib', () => {
     {type: 'skip', before: [35, 43], after: [33, 41]},
   ]);
 
-  var ranges = addSkips(opcodes, 3, 5); // minJumpSize = 5
+  ranges = addSkips(opcodes, 3, 5); // minJumpSize = 5
   expect(ranges).toEqual([
     {type: 'skip', before: [0, 6], after: [0, 6]},
     {type: 'equal', before: [6, 9], after: [6, 9]},
@@ -52,7 +52,7 @@ test('generates same diff ranges as jsdifflib', () => {
     {type: 'skip', before: [35, 43], after: [33, 41]},
   ]);
 
-  var ranges = addSkips(opcodes, 3, 10); // minJumpSize = 10
+  ranges = addSkips(opcodes, 3, 10); // minJumpSize = 10
   expect(ranges).toEqual([
     {type: 'equal', before: [0, 9], after: [0, 9]}, // was skip
     {type: 'replace', before: [9, 11], after: [9, 11]},
