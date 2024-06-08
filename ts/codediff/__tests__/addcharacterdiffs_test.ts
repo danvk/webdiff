@@ -21,7 +21,7 @@ function htmlToText(html: string) {
   return div.textContent ?? '';
 }
 
-describe('add character diffs', () => {
+describe('utility code', () => {
   test('simplifyCodes', () => {
     const x = 'replace';
     const y = 'equal';
@@ -69,6 +69,50 @@ describe('add character diffs', () => {
     );
   });
 
+  test('splitIntoWords', () => {
+    expect(splitIntoWords('<ImageDiffModeSelector filePair={filePair}')).toEqual([
+      '<',
+      'Image',
+      'Diff',
+      'Mode',
+      'Selector',
+      ' ',
+      'file',
+      'Pair',
+      '=',
+      '{',
+      'file',
+      'Pair',
+      '}',
+    ]);
+    expect(splitIntoWords('<DiffView filePair={filePair}')).toEqual([
+      '<',
+      'Diff',
+      'View',
+      ' ',
+      'file',
+      'Pair',
+      '=',
+      '{',
+      'file',
+      'Pair',
+      '}',
+    ]);
+    expect(splitIntoWords('Test1TEST23testAbc{}')).toEqual([
+      'Test',
+      '1',
+      'TEST',
+      '23',
+      'test',
+      'Abc',
+      '{',
+      '}',
+    ]);
+    expect(splitIntoWords('   FooBar')).toEqual([' ', ' ', ' ', 'Foo', 'Bar']);
+  });
+});
+
+describe('add character diffs', () => {
   test('char diffs -- simple', () => {
     const beforeText = "    return '' + date.getFullYear();";
     const afterText = "    return 'xx' + date.getFullYear();";
@@ -161,48 +205,6 @@ describe('add character diffs', () => {
       'output.writeBytes(obj.sequence.toArray)',
       'output.writeBytes(obj.sequence[.toArray])',
     );
-  });
-
-  test('splitIntoWords', () => {
-    expect(splitIntoWords('<ImageDiffModeSelector filePair={filePair}')).toEqual([
-      '<',
-      'Image',
-      'Diff',
-      'Mode',
-      'Selector',
-      ' ',
-      'file',
-      'Pair',
-      '=',
-      '{',
-      'file',
-      'Pair',
-      '}',
-    ]);
-    expect(splitIntoWords('<DiffView filePair={filePair}')).toEqual([
-      '<',
-      'Diff',
-      'View',
-      ' ',
-      'file',
-      'Pair',
-      '=',
-      '{',
-      'file',
-      'Pair',
-      '}',
-    ]);
-    expect(splitIntoWords('Test1TEST23testAbc{}')).toEqual([
-      'Test',
-      '1',
-      'TEST',
-      '23',
-      'test',
-      'Abc',
-      '{',
-      '}',
-    ]);
-    expect(splitIntoWords('   FooBar')).toEqual([' ', ' ', ' ', 'Foo', 'Bar']);
   });
 
   test('char diffs on word boundaries', () => {
