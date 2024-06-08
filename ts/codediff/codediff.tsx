@@ -76,7 +76,7 @@ export function CodeDiff(props: Props) {
   const [beforeLinesHighlighted, afterLinesHighlighted] = React.useMemo(() => {
     if (!language) return [null, null];
     return [highlightText(beforeText ?? '', language), highlightText(afterText ?? '', language)];
-  }, [beforeLines, afterLines, language]);
+  }, [language, beforeText, afterText]);
 
   return (
     <CodeDiffView
