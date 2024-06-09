@@ -13,14 +13,15 @@ export function distributeSpans(text: string): string[] {
   const outLines = [];
   const liveSpans = [];
   for (const line of lines) {
-    const groups = line.split(spanRe);
+    const groups: (string | undefined)[] = line.split(spanRe);
     let i = 0;
     let outLine = liveSpans.join('');
     while (i < groups.length) {
       const g = groups[i];
       if (g === undefined) {
         // close span
-        outLine += groups[i + 1];
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        outLine += groups[i + 1]!;
         liveSpans.pop();
         i += 2;
       } else if (g.startsWith('<span')) {
