@@ -42,8 +42,12 @@ export function ImageBlinker(props: ImageDiffProps) {
 
   React.useEffect(() => {
     if (autoBlink) {
-      const interval = setInterval(() => setIdx(idx => 1 - idx), 500 /* ms */);
-      return () => clearInterval(interval);
+      const interval = setInterval(() => {
+        setIdx(idx => 1 - idx);
+      }, 500 /* ms */);
+      return () => {
+        clearInterval(interval);
+      };
     }
   }, [autoBlink, setIdx]);
 

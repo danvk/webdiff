@@ -1,7 +1,7 @@
 import React from 'react';
 import {ImageFilePair} from './CodeDiffContainer';
 import {PerceptualDiffMode} from './DiffView';
-import {isSameSizeImagePair} from './utils';
+import {assertUnreachable, isSameSizeImagePair} from './utils';
 
 // XXX should this just be a component?
 
@@ -18,20 +18,21 @@ export function makePerceptualBoxDiv(
     return null;
   } else if (pdiffMode === 'bbox') {
     const padding = 5; // try not to obscure anything inside the box
-    if (filePair.diffData && filePair.diffData.diffBounds) {
+    if (filePair.diffData?.diffBounds) {
       const bbox = filePair.diffData.diffBounds;
       const {top, left, right, bottom, width, height} = bbox;
       if (width === 0 || height === 0) return null;
       const styles = {
-        top: Math.floor(scaleDown * (top - padding)) + 'px',
-        left: Math.floor(scaleDown * (left - padding)) + 'px',
-        width: Math.ceil(scaleDown * (right - left + 2 * padding)) + 'px',
-        height: Math.ceil(scaleDown * (bottom - top + 2 * padding)) + 'px',
+        top: Math.floor(scaleDown * (top - padding)),
+        left: Math.floor(scaleDown * (left - padding)),
+        width: Math.ceil(scaleDown * (right - left + 2 * padding)),
+        height: Math.ceil(scaleDown * (bottom - top + 2 * padding)),
       };
       return <div className="perceptual-diff bbox" style={styles} />;
     } else {
       return null;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   } else if (pdiffMode === 'pixels') {
     const styles = {top: 0, left: 0};
     const width = filePair.image_a.width * scaleDown;
@@ -47,4 +48,5 @@ export function makePerceptualBoxDiv(
       />
     );
   }
+  assertUnreachable(pdiffMode);
 }

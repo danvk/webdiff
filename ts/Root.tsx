@@ -23,9 +23,12 @@ export function Root(props: Props) {
   const [diffOptions, setDiffOptions] = React.useState<Partial<DiffOptions>>({});
 
   const history = useHistory();
-  const selectIndex = (idx: number) => {
-    history.push(`/${idx}`);
-  };
+  const selectIndex = React.useCallback(
+    (idx: number) => {
+      history.push(`/${idx}`);
+    },
+    [history],
+  );
 
   const idx = Number(props.match.params.index ?? initialIdx);
   const filePair = pairs[idx];
@@ -57,14 +60,14 @@ export function Root(props: Props) {
     return () => {
       document.removeEventListener('keydown', handleKeydown);
     };
-  }, [idx, pairs, selectIndex, setImageDiffMode, setPDiffMode]);
+  }, [idx, pdiffMode, selectIndex, setImageDiffMode, setPDiffMode]);
 
   return (
     <div>
       <DiffOptionsControl options={diffOptions} setOptions={setDiffOptions} />
       <FileSelector selectedFileIndex={idx} filePairs={pairs} fileChangeHandler={selectIndex} />
       <DiffView
-        key={'diff-' + idx}
+        key={`diff-${idx}`}
         thinFilePair={filePair}
         imageDiffMode={imageDiffMode}
         pdiffMode={pdiffMode}

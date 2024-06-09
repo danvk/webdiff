@@ -55,9 +55,7 @@ describe('utility code', () => {
   test('codesToHtml', () => {
     const str = 'hello';
     const map = {
-      getHtmlSubstring: function (a: number, b: number) {
-        return str.substring(a, b);
-      },
+      getHtmlSubstring: (a: number, b: number) => str.slice(a, b),
     } as htmlTextMapper;
     const codes: CharacterDiff[] = [
       [null, 0, 1],
@@ -173,12 +171,14 @@ describe('add character diffs', () => {
     afterText: string,
     afterExpectation: string,
   ) {
-    const codes = computeCharacterDiffs(beforeText, afterText)!;
-    expect(codes).not.toBeNull();
+    const codes = computeCharacterDiffs(beforeText, afterText);
+    if (codes === null) {
+      expect(codes).not.toBeNull();
+      throw new Error();
+    }
     // 'Declined to generate a diff when one was expected.');
 
-    const beforeCodes = codes[0],
-      afterCodes = codes[1];
+    const [beforeCodes, afterCodes] = codes;
 
     const process = function (codes: CharacterDiff[], txt: string) {
       return codes

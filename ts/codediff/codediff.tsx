@@ -30,8 +30,6 @@ const DEFAULT_PARAMS: PatchOptions = {
  *     tags will be balanced within each line.
  */
 function highlightText(text: string, language: string): string[] | null {
-  if (text === null) return [];
-
   // TODO(danvk): look into suppressing highlighting if .relevance is low.
   const html = hljs.highlight(text, {language, ignoreIllegals: true}).value;
 
@@ -53,8 +51,8 @@ function enforceMinJumpSize(diffs: DiffRange[], minJumpSize: number): DiffRange[
 }
 
 export interface Props {
-  beforeText: string;
-  afterText: string;
+  beforeText: string | null;
+  afterText: string | null;
   ops: DiffRange[];
   params: Partial<PatchOptions>;
 }
@@ -76,7 +74,7 @@ export function CodeDiff(props: Props) {
   const [beforeLinesHighlighted, afterLinesHighlighted] = React.useMemo(() => {
     if (!language) return [null, null];
     return [highlightText(beforeText ?? '', language), highlightText(afterText ?? '', language)];
-  }, [beforeLines, afterLines, language]);
+  }, [language, beforeText, afterText]);
 
   return (
     <CodeDiffView
@@ -154,18 +152,19 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
 
   const diffRows = [];
   for (const range of ops) {
-    const type = range.type;
-    const numBeforeRows = range.before[1] - range.before[0];
-    const numAfterRows = range.after[1] - range.after[0];
+    const {type} = range;
+    const {before, after} = range;
+    const numBeforeRows = before[1] - before[0];
+    const numAfterRows = after[1] - after[0];
     const numRows = Math.max(numBeforeRows, numAfterRows);
-    const before = range.before[0];
-    const after = range.after[0];
+    const beforeStartLine = before[0];
+    const afterStartLine = after[0];
     if (type == 'skip') {
       diffRows.push(
         <SkipRow
-          key={`${before}-${after}`}
-          beforeStartLine={range.before[0]}
-          afterStartLine={range.after[0]}
+          key={`${beforeStartLine}-${afterStartLine}`}
+          beforeStartLine={beforeStartLine}
+          afterStartLine={afterStartLine}
           numRows={numRows}
           header={range.header ?? null}
           expandLines={expandLines}
@@ -174,8 +173,8 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
       );
     } else {
       for (let j = 0; j < numRows; j++) {
-        const beforeIdx = j < numBeforeRows ? before + j : null;
-        const afterIdx = j < numAfterRows ? after + j : null;
+        const beforeIdx = j < numBeforeRows ? beforeStartLine + j : null;
+        const afterIdx = j < numAfterRows ? afterStartLine + j : null;
         const beforeText = beforeIdx !== null ? beforeLines[beforeIdx] : undefined;
         const beforeHTML =
           beforeIdx !== null && beforeLinesHighlighted
@@ -201,7 +200,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
   }
 
   const [selectingState, setSelectingState] = React.useState<'left' | 'right' | null>(null);
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     const td = closest(e.target as Element, 'td');
     if (!td) {
       return;
@@ -269,13 +268,17 @@ function SkipRow(props: SkipRowProps) {
         <span
           className="skip expand-up"
           title={`show ${expandLines} more lines above`}
-          onClick={() => onShowMore(range, -expandLines)}>
+          onClick={() => {
+            onShowMore(range, -expandLines);
+          }}>
           ↥
         </span>
         <span
           className="skip expand-down"
           title={`show ${expandLines} more lines below`}
-          onClick={() => onShowMore(range, expandLines)}>
+          onClick={() => {
+            onShowMore(range, expandLines);
+          }}>
           ↧
         </span>
       </>
@@ -318,13 +321,16 @@ function escapeHtml(unsafe: string) {
 }
 
 const makeCodeTd = (type: string, text: string | undefined, html: string | undefined) => {
-  if (text === undefined || html === undefined) {
+  if (text === undefined) {
     return {text: '', html: '', className: 'empty code'};
+  }
+  if (html === undefined) {
+    html = escapeHtml(text);
   }
   text = text.replaceAll('\t', '\u00a0\u00a0\u00a0\u00a0');
   html = html.replaceAll('\t', '\u00a0\u00a0\u00a0\u00a0');
   const className = 'code ' + type;
-  return text !== undefined ? {className, html, text} : {className, text, html: escapeHtml(text)};
+  return {className, html, text};
 };
 
 function DiffRow(props: DiffRowProps) {

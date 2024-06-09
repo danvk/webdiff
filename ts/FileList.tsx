@@ -19,7 +19,11 @@ export function FileList(props: Props) {
     const displayName = filePairDisplayName(filePair);
     const content =
       idx !== selectedIndex ? (
-        <a onClick={() => fileChangeHandler(idx)} href="#">
+        <a
+          onClick={() => {
+            fileChangeHandler(idx);
+          }}
+          href="#">
           {displayName}
         </a>
       ) : (

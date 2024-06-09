@@ -94,9 +94,9 @@ export function CodeDiffContainer(props: {filePair: FilePair; diffOptions: Parti
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({options: encodeDiffOptions(diffOptions ?? {})}),
+        body: JSON.stringify({options: encodeDiffOptions(diffOptions)}),
       });
-      return response.json();
+      return response.json() as Promise<DiffRange[]>;
     };
 
     const {a, b} = filePair;
@@ -109,7 +109,7 @@ export function CodeDiffContainer(props: {filePair: FilePair; diffOptions: Parti
         getDiff(),
       ]);
       setContents({before, after, diffOps});
-    })().catch(e => {
+    })().catch((e: unknown) => {
       alert('Unable to get diff!');
       console.error(e);
     });
@@ -150,6 +150,10 @@ function extractFilename(path: string) {
 const HIGHLIGHT_BLACKLIST = ['TODO', 'README', 'NOTES'];
 declare const GIT_CONFIG: GitConfig;
 
+function lengthOrZero(data: unknown[] | string | null | undefined) {
+  return data?.length ?? 0;
+}
+
 function FileDiff(props: FileDiffProps) {
   const {pathBefore, pathAfter, contentsBefore, contentsAfter, diffOps} = props;
   // build the diff view and add it to the current DOM
@@ -165,22 +169,19 @@ function FileDiff(props: FileDiffProps) {
   const path = pathBefore || pathAfter;
   let language = guessLanguageUsingFileName(path);
 
-  const lengthOrZero = function (data: unknown[] | string | null | undefined) {
-    return data ? data.length : 0;
-  };
   const lastOp = diffOps[diffOps.length - 1];
   const numLines = Math.max(lastOp.before[1], lastOp.after[1]);
 
   if (
     !language &&
-    HIGHLIGHT_BLACKLIST.indexOf(extractFilename(path)) === -1 &&
+    !HIGHLIGHT_BLACKLIST.includes(extractFilename(path)) &&
     numLines < GIT_CONFIG.webdiff.maxLinesForSyntax
   ) {
     let byLength = [contentsBefore, contentsAfter];
     if (contentsAfter && lengthOrZero(contentsAfter) > lengthOrZero(contentsBefore)) {
-      byLength = [byLength![1], byLength![0]];
+      byLength = [byLength[1], byLength[0]];
     }
-    language = guessLanguageUsingContents(byLength[0]!) ?? null;
+    language = byLength[0] ? guessLanguageUsingContents(byLength[0]) ?? null : null;
   }
   if (language) {
     opts.language = language;
@@ -188,12 +189,7 @@ function FileDiff(props: FileDiffProps) {
 
   return (
     <div className="diff">
-      <CodeDiff
-        beforeText={contentsBefore!}
-        afterText={contentsAfter!}
-        ops={diffOps}
-        params={opts}
-      />
+      <CodeDiff beforeText={contentsBefore} afterText={contentsAfter} ops={diffOps} params={opts} />
     </div>
   );
 }

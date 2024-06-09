@@ -90,8 +90,7 @@ export function addCharacterDiffs(
   if (codes == null) {
     return [beforeHtml, afterHtml];
   }
-  const beforeOut = codes[0];
-  const afterOut = codes[1];
+  const [beforeOut, afterOut] = codes;
 
   // Splice in "insert", "delete" and "replace" tags.
   // This is made more difficult by the presence of syntax highlighting, which
@@ -171,11 +170,7 @@ export function simplifyCodes(codes: CharacterDiff[]): CharacterDiff[] {
 // This wraps html[start..end] in appropriate <span>..</span>s.
 export function codesToHtml(mapper: htmlTextMapper, codes: CharacterDiff[]) {
   let html = '';
-  for (let i = 0; i < codes.length; i++) {
-    const code = codes[i],
-      type = code[0],
-      start = code[1],
-      limit = code[2];
+  for (const [type, start, limit] of codes) {
     const thisHtml = mapper.getHtmlSubstring(start, limit);
     if (type == null) {
       html += thisHtml;

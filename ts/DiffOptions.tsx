@@ -57,7 +57,9 @@ export function DiffOptionsControl(props: Props) {
   const {options, setOptions} = props;
   const [isPopupVisible, setIsPopupVisible] = React.useState(false);
 
-  const togglePopup = () => setIsPopupVisible(oldVal => !oldVal);
+  const togglePopup = () => {
+    setIsPopupVisible(oldVal => !oldVal);
+  };
   const toggleIgnoreAllSpace = () => {
     setOptions({...options, ignoreAllSpace: !options.ignoreAllSpace});
   };

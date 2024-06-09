@@ -60,3 +60,7 @@ export function isSameSizeImagePair(filePair: FilePair) {
     imB = filePair.image_b;
   return imA.width == imB.width && imA.height == imB.height;
 }
+
+export function assertUnreachable(x: never): never {
+  throw new Error(x);
+}

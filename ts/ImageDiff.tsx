@@ -33,10 +33,11 @@ export function ImageDiff(props: Props) {
     setShrinkToFit(e.target.checked);
   };
 
-  let mode = props.imageDiffMode;
+  const {changePDiffMode, pdiffMode} = props;
+  let {imageDiffMode} = props;
   const pair = props.filePair;
   if (isOneSided(pair)) {
-    mode = 'side-by-side'; // Only one that makes sense for one-sided diffs.
+    imageDiffMode = 'side-by-side'; // Only one that makes sense for one-sided diffs.
   }
 
   const [, forceUpdate] = React.useState(0);
@@ -49,17 +50,17 @@ export function ImageDiff(props: Props) {
       const {diffData} = fp;
       // XXX are there other fields?
       fp.diffData = {
-        ...(diffData || {}),
+        ...diffData,
         diffBounds: bbox,
       };
       console.log('forcing update');
       forceUpdate(n => n + 1); // tell react about this change
-    })().catch(error => {
+    })().catch((error: unknown) => {
       console.error(error);
     });
   };
 
-  if (props.pdiffMode === 'bbox' && !pair.diffData) {
+  if (pdiffMode === 'bbox' && !pair.diffData) {
     // XXX this might shoot off unnecessary XHRs--use a Promise!
     computePerceptualDiffBox(pair);
   }
@@ -79,11 +80,11 @@ export function ImageDiff(props: Props) {
     blink: ImageBlinker,
     'onion-skin': ImageOnionSkin,
     swipe: ImageSwipe,
-  }[mode];
+  }[imageDiffMode];
   const image = React.createElement(component, {
     filePair: pair,
     shrinkToFit,
-    pdiffMode: props.pdiffMode,
+    pdiffMode,
   });
   const diffBoxEnabled = isSameSizeImagePair(pair);
   const boxClasses = diffBoxEnabled ? '' : 'diff-box-disabled';
@@ -114,9 +115,11 @@ export function ImageDiff(props: Props) {
               type="radio"
               name="pdiff-mode"
               id="pdiff-off"
-              checked={props.pdiffMode === 'off'}
+              checked={pdiffMode === 'off'}
               disabled={!diffBoxEnabled}
-              onChange={() => props.changePDiffMode('off')}
+              onChange={() => {
+                changePDiffMode('off');
+              }}
             />
             <label htmlFor="pdiff-off"> None</label>
             &nbsp;
@@ -124,9 +127,11 @@ export function ImageDiff(props: Props) {
               type="radio"
               name="pdiff-mode"
               id="pdiff-bbox"
-              checked={props.pdiffMode === 'bbox'}
+              checked={pdiffMode === 'bbox'}
               disabled={!diffBoxEnabled}
-              onChange={() => props.changePDiffMode('bbox')}
+              onChange={() => {
+                changePDiffMode('bbox');
+              }}
             />
             <label htmlFor="pdiff-bbox"> Box</label>
             &nbsp;
@@ -134,16 +139,18 @@ export function ImageDiff(props: Props) {
               type="radio"
               name="pdiff-mode"
               id="pdiff-pixels"
-              checked={props.pdiffMode === 'pixels'}
+              checked={pdiffMode === 'pixels'}
               disabled={!diffBoxEnabled}
-              onChange={() => props.changePDiffMode('pixels')}
+              onChange={() => {
+                changePDiffMode('pixels');
+              }}
             />
             <label htmlFor="pdiff-pixels"> Differing Pixels</label>
           </span>
           {imageMagickCallout}
         </span>
       </div>
-      <div className={'image-diff ' + mode}>
+      <div className={'image-diff ' + imageDiffMode}>
         <NoChanges filePair={props.filePair} />
         {image}
       </div>
