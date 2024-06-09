@@ -30,8 +30,6 @@ const DEFAULT_PARAMS: PatchOptions = {
  *     tags will be balanced within each line.
  */
 function highlightText(text: string, language: string): string[] | null {
-  if (text === null) return [];
-
   // TODO(danvk): look into suppressing highlighting if .relevance is low.
   const html = hljs.highlight(text, {language, ignoreIllegals: true}).value;
 
@@ -53,8 +51,8 @@ function enforceMinJumpSize(diffs: DiffRange[], minJumpSize: number): DiffRange[
 }
 
 export interface Props {
-  beforeText: string;
-  afterText: string;
+  beforeText: string | null;
+  afterText: string | null;
   ops: DiffRange[];
   params: Partial<PatchOptions>;
 }

@@ -150,6 +150,10 @@ function extractFilename(path: string) {
 const HIGHLIGHT_BLACKLIST = ['TODO', 'README', 'NOTES'];
 declare const GIT_CONFIG: GitConfig;
 
+function lengthOrZero(data: unknown[] | string | null | undefined) {
+  return data?.length ?? 0;
+}
+
 function FileDiff(props: FileDiffProps) {
   const {pathBefore, pathAfter, contentsBefore, contentsAfter, diffOps} = props;
   // build the diff view and add it to the current DOM
@@ -165,9 +169,6 @@ function FileDiff(props: FileDiffProps) {
   const path = pathBefore || pathAfter;
   let language = guessLanguageUsingFileName(path);
 
-  const lengthOrZero = function (data: unknown[] | string | null | undefined) {
-    return data ? data.length : 0;
-  };
   const lastOp = diffOps[diffOps.length - 1];
   const numLines = Math.max(lastOp.before[1], lastOp.after[1]);
 
@@ -188,12 +189,7 @@ function FileDiff(props: FileDiffProps) {
 
   return (
     <div className="diff">
-      <CodeDiff
-        beforeText={contentsBefore!}
-        afterText={contentsAfter!}
-        ops={diffOps}
-        params={opts}
-      />
+      <CodeDiff beforeText={contentsBefore} afterText={contentsAfter} ops={diffOps} params={opts} />
     </div>
   );
 }
