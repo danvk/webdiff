@@ -55,9 +55,7 @@ describe('utility code', () => {
   test('codesToHtml', () => {
     const str = 'hello';
     const map = {
-      getHtmlSubstring: function (a: number, b: number) {
-        return str.substring(a, b);
-      },
+      getHtmlSubstring: (a: number, b: number) => str.slice(a, b),
     } as htmlTextMapper;
     const codes: CharacterDiff[] = [
       [null, 0, 1],

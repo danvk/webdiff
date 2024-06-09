@@ -84,7 +84,7 @@ export function ImageDiff(props: Props) {
   const image = React.createElement(component, {
     filePair: pair,
     shrinkToFit,
-    pdiffMode: pdiffMode,
+    pdiffMode,
   });
   const diffBoxEnabled = isSameSizeImagePair(pair);
   const boxClasses = diffBoxEnabled ? '' : 'diff-box-disabled';

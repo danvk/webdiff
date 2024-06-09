@@ -34,6 +34,9 @@ export default tseslint.config(
           allowNumber: true,
         },
       ],
+      // Let tsc handle these
+      '@typescript-eslint/no-unused-vars': 'off',
+      'object-shorthand': ['error', 'always'],
     },
   },
 );
