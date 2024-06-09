@@ -17,7 +17,11 @@ export function FileDropdown(props: Props) {
       return <i>none</i>;
     } else {
       return (
-        <a href="#" onClick={() => fileChangeHandler(idx)}>
+        <a
+          href="#"
+          onClick={() => {
+            fileChangeHandler(idx);
+          }}>
           {filePairDisplayName(filePairs[idx])}
         </a>
       );
@@ -37,7 +41,11 @@ export function FileDropdown(props: Props) {
     <div className="file-dropdown">
       Prev (k): {prevLink}
       <br />
-      <select value={selectedIndex} onChange={e => fileChangeHandler(Number(e.target.value))}>
+      <select
+        value={selectedIndex}
+        onChange={e => {
+          fileChangeHandler(Number(e.target.value));
+        }}>
         {options}
       </select>
       <br />

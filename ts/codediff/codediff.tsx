@@ -201,7 +201,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
   }
 
   const [selectingState, setSelectingState] = React.useState<'left' | 'right' | null>(null);
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     const td = closest(e.target as Element, 'td');
     if (!td) {
       return;
@@ -269,13 +269,17 @@ function SkipRow(props: SkipRowProps) {
         <span
           className="skip expand-up"
           title={`show ${expandLines} more lines above`}
-          onClick={() => onShowMore(range, -expandLines)}>
+          onClick={() => {
+            onShowMore(range, -expandLines);
+          }}>
           ↥
         </span>
         <span
           className="skip expand-down"
           title={`show ${expandLines} more lines below`}
-          onClick={() => onShowMore(range, expandLines)}>
+          onClick={() => {
+            onShowMore(range, expandLines);
+          }}>
           ↧
         </span>
       </>
@@ -318,13 +322,16 @@ function escapeHtml(unsafe: string) {
 }
 
 const makeCodeTd = (type: string, text: string | undefined, html: string | undefined) => {
-  if (text === undefined || html === undefined) {
+  if (text === undefined) {
     return {text: '', html: '', className: 'empty code'};
+  }
+  if (html === undefined) {
+    html = escapeHtml(text);
   }
   text = text.replaceAll('\t', '\u00a0\u00a0\u00a0\u00a0');
   html = html.replaceAll('\t', '\u00a0\u00a0\u00a0\u00a0');
   const className = 'code ' + type;
-  return text !== undefined ? {className, html, text} : {className, text, html: escapeHtml(text)};
+  return {className, html, text};
 };
 
 function DiffRow(props: DiffRowProps) {

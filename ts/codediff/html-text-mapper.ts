@@ -48,13 +48,13 @@ function html_substr(html: string, start: number, count: number) {
   }
 
   function walk(el: Node, fn: (node: Text) => void) {
-    let node = el.firstChild,
-      oldNode;
+    let node = el.firstChild;
+    let oldNode;
     const elsToRemove = [];
     do {
       if (node?.nodeType === 3) {
         fn(node as Text);
-      } else if (node?.nodeType === 1 && node.childNodes && node.childNodes[0]) {
+      } else if (node?.nodeType === 1 && node.childNodes.length > 0) {
         walk(node, fn);
       }
       if (consumed == 0 && node?.nodeType == 1) {
@@ -70,7 +70,7 @@ function html_substr(html: string, start: number, count: number) {
     }
 
     for (const el of elsToRemove) {
-      if (el && el.parentNode) {
+      if (el.parentNode) {
         el.parentNode.removeChild(el);
       }
     }

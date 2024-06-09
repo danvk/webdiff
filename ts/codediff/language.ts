@@ -39,7 +39,7 @@ export function guessLanguageUsingContents(contents: string): string | undefined
   // First check for a shebang line.
   const firstLine = contents.substring(0, contents.indexOf('\n'));
   let lang: string | undefined;
-  if (firstLine.substring(0, 2) == '#!') {
+  if (firstLine.startsWith('#!')) {
     const processor = firstLine.substring(2);
     if (processor == '/bin/bash') return 'bash';
     if (processor == '/bin/sh') return 'bash';
@@ -53,7 +53,7 @@ export function guessLanguageUsingContents(contents: string): string | undefined
     let interpreter: keyof typeof options;
     for (interpreter in options) {
       lang = options[interpreter];
-      if (processor.indexOf(interpreter) >= 0) {
+      if (processor.includes(interpreter)) {
         return lang;
       }
     }

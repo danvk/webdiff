@@ -23,7 +23,7 @@ export function distributeSpans(text: string): string[] {
         outLine += groups[i + 1];
         liveSpans.pop();
         i += 2;
-      } else if (g.slice(0, 5) == '<span') {
+      } else if (g.startsWith('<span')) {
         // open span
         i += 2;
         outLine += g;
@@ -39,7 +39,7 @@ export function distributeSpans(text: string): string[] {
     });
     outLines.push(outLine);
   }
-  if (liveSpans.length) throw 'Unbalanced <span>s in ' + text;
+  if (liveSpans.length) throw new Error(`Unbalanced <span>s in ${text}`);
   return outLines;
 }
 
@@ -63,15 +63,13 @@ export function copyOnlyMatching(e: ClipboardEvent, selector: string) {
   const range = sel.getRangeAt(0);
   const doc = range.cloneContents();
   const nodes = doc.querySelectorAll(selector);
-  let text = '';
+  let text;
 
   if (nodes.length === 0) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     text = doc.textContent!;
   } else {
-    [].forEach.call(nodes, function (td: Element, i) {
-      text += (i ? '\n' : '') + td.textContent;
-    });
+    text = [...nodes].map(n => n.textContent ?? '').join('\n');
   }
 
   e.clipboardData?.setData('text', text);

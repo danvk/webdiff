@@ -20,11 +20,15 @@ export function ImageDiffModeSelector(props: Props) {
   }
 
   // Returns the text, optionally wrapped in a link and/or <b> tag.
-  const linkOrB = (isLink: boolean, isB: boolean, val: ImageDiffMode, text: string) => {
-    const inner = isB ? <b>{text}</b> : text;
+  const linkOrB = (isLink: boolean, isBold: boolean, val: ImageDiffMode, text: string) => {
+    const inner = isBold ? <b>{text}</b> : text;
     if (isLink) {
       return (
-        <a href="#" onClick={() => props.changeImageDiffModeHandler(val)}>
+        <a
+          href="#"
+          onClick={() => {
+            props.changeImageDiffModeHandler(val);
+          }}>
           {inner}
         </a>
       );

@@ -94,9 +94,9 @@ export function CodeDiffContainer(props: {filePair: FilePair; diffOptions: Parti
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({options: encodeDiffOptions(diffOptions ?? {})}),
+        body: JSON.stringify({options: encodeDiffOptions(diffOptions)}),
       });
-      return response.json();
+      return response.json() as Promise<DiffRange[]>;
     };
 
     const {a, b} = filePair;
@@ -109,7 +109,7 @@ export function CodeDiffContainer(props: {filePair: FilePair; diffOptions: Parti
         getDiff(),
       ]);
       setContents({before, after, diffOps});
-    })().catch(e => {
+    })().catch((e: unknown) => {
       alert('Unable to get diff!');
       console.error(e);
     });
@@ -173,7 +173,7 @@ function FileDiff(props: FileDiffProps) {
 
   if (
     !language &&
-    HIGHLIGHT_BLACKLIST.indexOf(extractFilename(path)) === -1 &&
+    !HIGHLIGHT_BLACKLIST.includes(extractFilename(path)) &&
     numLines < GIT_CONFIG.webdiff.maxLinesForSyntax
   ) {
     let byLength = [contentsBefore, contentsAfter];

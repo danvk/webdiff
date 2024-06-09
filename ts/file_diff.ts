@@ -11,7 +11,7 @@ export async function getThickDiff(index: number): Promise<ThickDiff> {
   }
 
   const response = await fetch(`/thick/${index}`);
-  const data = await response.json();
+  const data = (await response.json()) as ThickDiff;
   cache[index] = data;
   return data;
 }

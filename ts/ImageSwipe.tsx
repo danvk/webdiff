@@ -16,7 +16,7 @@ export function ImageOnionSkin(props: ImageDiffProps) {
 // Two images on top of one another with a slider to move the divider from left
 // to right.
 export function ImageSwipe(props: ImageSwipeProps) {
-  const mode = props.mode || 'swipe';
+  const mode = props.mode ?? 'swipe';
   const [rangePosition, setRangePosition] = React.useState<number | null>(null);
   const sliderRef = React.createRef<HTMLInputElement>();
   const onSlide = () => {
@@ -42,33 +42,34 @@ export function ImageSwipe(props: ImageSwipeProps) {
     containerWidth = Math.max(imA.width, imB.width);
   }
   const diffBoxDiv = makePerceptualBoxDiv(props.pdiffMode, pair, scaleDown);
-  const urlA = '/a/image/' + pair.a;
-  const urlB = '/b/image/' + pair.b;
-  const styleA: React.CSSProperties = {
-    backgroundImage: 'url(' + urlA + ')',
-    backgroundSize: imA.width + 'px ' + imA.height + 'px',
-    width: imA.width + 'px',
-    height: imA.height + 'px',
+  const urlA = `/a/image/${pair.a}`;
+  const urlB = `/b/image/${pair.b}`;
+  const styleA: React.CSSProperties & {backgroundSize: string; backgroundImage: string} = {
+    backgroundImage: `url(${urlA})`,
+    backgroundSize: `${imA.width}px ${imA.height}px`,
+    width: `${imA.width}px`,
+    height: `${imA.height}px`,
   };
-  const styleB: React.CSSProperties = {
-    backgroundImage: 'url(' + urlB + ')',
-    backgroundSize: imB.width + 'px ' + imB.height + 'px',
-    width: imB.width + 'px',
-    height: imB.height + 'px',
+  const styleB: React.CSSProperties & {backgroundSize: string; backgroundImage: string} = {
+    backgroundImage: `url(${urlB})`,
+    backgroundSize: `${imB.width}px ${imB.height}px`,
+    width: `${imB.width}px`,
+    height: `${imB.height}px`,
   };
   const styleContainer: React.CSSProperties = {
-    width: containerWidth + 'px',
-    height: Math.max(imA.height, imB.height) + 'px',
+    width: containerWidth,
+    height: Math.max(imA.height, imB.height),
   };
   if (mode === 'swipe') {
     _.extend(styleA, {
-      width: Math.floor(frac * imA.width) + 'px',
+      width: Math.floor(frac * imA.width),
     });
+    const bgTop = -Math.floor(frac * imB.width);
     _.extend(styleB, {
-      left: Math.floor(frac * imB.width) + 'px',
+      left: Math.floor(frac * imB.width),
       width: null,
-      right: containerWidth - imB.width + 'px',
-      backgroundPosition: -Math.floor(frac * imB.width) + 'px top',
+      right: containerWidth - imB.width,
+      backgroundPosition: `${bgTop} px top`,
     });
   } else {
     _.extend(styleB, {opacity: frac});

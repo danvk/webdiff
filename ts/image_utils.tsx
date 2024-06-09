@@ -18,15 +18,15 @@ export function makePerceptualBoxDiv(
     return null;
   } else if (pdiffMode === 'bbox') {
     const padding = 5; // try not to obscure anything inside the box
-    if (filePair.diffData && filePair.diffData.diffBounds) {
+    if (filePair.diffData?.diffBounds) {
       const bbox = filePair.diffData.diffBounds;
       const {top, left, right, bottom, width, height} = bbox;
       if (width === 0 || height === 0) return null;
       const styles = {
-        top: Math.floor(scaleDown * (top - padding)) + 'px',
-        left: Math.floor(scaleDown * (left - padding)) + 'px',
-        width: Math.ceil(scaleDown * (right - left + 2 * padding)) + 'px',
-        height: Math.ceil(scaleDown * (bottom - top + 2 * padding)) + 'px',
+        top: Math.floor(scaleDown * (top - padding)),
+        left: Math.floor(scaleDown * (left - padding)),
+        width: Math.ceil(scaleDown * (right - left + 2 * padding)),
+        height: Math.ceil(scaleDown * (bottom - top + 2 * padding)),
       };
       return <div className="perceptual-diff bbox" style={styles} />;
     } else {

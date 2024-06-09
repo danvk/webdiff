@@ -1,3 +1,4 @@
+/* eslint-disable */
 // disable: @ts-check
 // Disabled due to react-hooks, see https://github.com/facebook/react/issues/28313
 
@@ -29,6 +30,7 @@ export default tseslint.config(
       '@typescript-eslint/restrict-template-expressions': [
         'error',
         {
+          // https://github.com/typescript-eslint/typescript-eslint/issues/9311
           allowNumber: true,
         },
       ],

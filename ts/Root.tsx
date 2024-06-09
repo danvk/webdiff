@@ -67,7 +67,7 @@ export function Root(props: Props) {
       <DiffOptionsControl options={diffOptions} setOptions={setDiffOptions} />
       <FileSelector selectedFileIndex={idx} filePairs={pairs} fileChangeHandler={selectIndex} />
       <DiffView
-        key={'diff-' + idx}
+        key={`diff-${idx}`}
         thinFilePair={filePair}
         imageDiffMode={imageDiffMode}
         pdiffMode={pdiffMode}

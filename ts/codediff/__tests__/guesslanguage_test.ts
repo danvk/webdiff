@@ -2,7 +2,7 @@ import {guessLanguageUsingContents, guessLanguageUsingFileName} from '../languag
 
 import highlightjs from 'highlight.js';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
 (globalThis as any).hljs = highlightjs;
 
 describe('guess language', () => {

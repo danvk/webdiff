@@ -28,7 +28,9 @@ export function DiffView(props: Props) {
         ...newFilePair,
         idx: thinFilePair.idx,
       });
-    })();
+    })().catch((e: unknown) => {
+      console.error(e);
+    });
   }, [thinFilePair, setFilePair]);
 
   if (!filePair) {
