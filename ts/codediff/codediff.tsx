@@ -154,18 +154,19 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
 
   const diffRows = [];
   for (const range of ops) {
-    const type = range.type;
-    const numBeforeRows = range.before[1] - range.before[0];
-    const numAfterRows = range.after[1] - range.after[0];
+    const {type} = range;
+    const {before, after} = range;
+    const numBeforeRows = before[1] - before[0];
+    const numAfterRows = after[1] - after[0];
     const numRows = Math.max(numBeforeRows, numAfterRows);
-    const before = range.before[0];
-    const after = range.after[0];
+    const beforeStartLine = before[0];
+    const afterStartLine = after[0];
     if (type == 'skip') {
       diffRows.push(
         <SkipRow
-          key={`${before}-${after}`}
-          beforeStartLine={range.before[0]}
-          afterStartLine={range.after[0]}
+          key={`${beforeStartLine}-${afterStartLine}`}
+          beforeStartLine={beforeStartLine}
+          afterStartLine={afterStartLine}
           numRows={numRows}
           header={range.header ?? null}
           expandLines={expandLines}
@@ -174,8 +175,8 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
       );
     } else {
       for (let j = 0; j < numRows; j++) {
-        const beforeIdx = j < numBeforeRows ? before + j : null;
-        const afterIdx = j < numAfterRows ? after + j : null;
+        const beforeIdx = j < numBeforeRows ? beforeStartLine + j : null;
+        const afterIdx = j < numAfterRows ? afterStartLine + j : null;
         const beforeText = beforeIdx !== null ? beforeLines[beforeIdx] : undefined;
         const beforeHTML =
           beforeIdx !== null && beforeLinesHighlighted

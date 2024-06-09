@@ -34,7 +34,7 @@ export function ImageDiff(props: Props) {
   };
 
   const {changePDiffMode, pdiffMode} = props;
-  let imageDiffMode = props.imageDiffMode;
+  let {imageDiffMode} = props;
   const pair = props.filePair;
   if (isOneSided(pair)) {
     imageDiffMode = 'side-by-side'; // Only one that makes sense for one-sided diffs.

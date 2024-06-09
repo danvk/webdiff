@@ -37,6 +37,14 @@ export default tseslint.config(
       // Let tsc handle these
       '@typescript-eslint/no-unused-vars': 'off',
       'object-shorthand': ['error', 'always'],
+      'prefer-destructuring': 'off',
+      '@typescript-eslint/prefer-destructuring': [
+        'error',
+        {
+          // Many true positives, but too many false positives.
+          array: false,
+        },
+      ],
     },
   },
 );

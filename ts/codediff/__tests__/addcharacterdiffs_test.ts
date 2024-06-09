@@ -178,8 +178,7 @@ describe('add character diffs', () => {
     }
     // 'Declined to generate a diff when one was expected.');
 
-    const beforeCodes = codes[0],
-      afterCodes = codes[1];
+    const [beforeCodes, afterCodes] = codes;
 
     const process = function (codes: CharacterDiff[], txt: string) {
       return codes

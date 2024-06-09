@@ -1,7 +1,7 @@
 import React from 'react';
 import {ImageFilePair} from './CodeDiffContainer';
 import {PerceptualDiffMode} from './DiffView';
-import {isSameSizeImagePair} from './utils';
+import {assertUnreachable, isSameSizeImagePair} from './utils';
 
 // XXX should this just be a component?
 
@@ -32,6 +32,7 @@ export function makePerceptualBoxDiv(
     } else {
       return null;
     }
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   } else if (pdiffMode === 'pixels') {
     const styles = {top: 0, left: 0};
     const width = filePair.image_a.width * scaleDown;
@@ -47,4 +48,5 @@ export function makePerceptualBoxDiv(
       />
     );
   }
+  assertUnreachable(pdiffMode);
 }
