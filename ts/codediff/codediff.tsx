@@ -2,9 +2,10 @@ import React from 'react';
 
 import {DiffRange} from './codes';
 import {closest, copyOnlyMatching, distributeSpans} from './dom-utils';
-import {addCharacterDiffs} from './char-diffs';
 import {stringAsLines} from './string-utils';
 import {isLegitKeypress} from '../file_diff';
+import {DiffRow} from './DiffRow';
+import {SkipRange, SkipRow} from './SkipRow';
 
 export interface PatchOptions {
   /** Minimum number of skipped lines to elide into a "jump" row */
@@ -167,6 +168,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
               break;
             }
           }
+          // TODO: if the last hunk was already selected, advance to the next file.
         }
       } else if (e.code === 'KeyP') {
         if (selectedLine !== undefined) {
@@ -278,148 +280,3 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
     </div>
   );
 });
-
-interface WebkitHTMLTableRowElement extends HTMLTableRowElement {
-  scrollIntoViewIfNeeded?: () => void;
-}
-
-interface SkipRange {
-  beforeStartLine: number;
-  afterStartLine: number;
-  numRows: number;
-}
-
-export interface SkipRowProps extends SkipRange {
-  header: string | null;
-  expandLines: number;
-  /** positive num = expand down, negative num = expand up */
-  onShowMore: (existing: SkipRange, num: number) => void;
-  isSelected: boolean;
-}
-
-function SkipRow(props: SkipRowProps) {
-  const {expandLines, header, onShowMore, isSelected, ...range} = props;
-  const {numRows} = range;
-  const showAll = (e: React.MouseEvent) => {
-    e.preventDefault();
-    onShowMore(range, numRows);
-  };
-  const arrows =
-    numRows <= expandLines ? (
-      <span className="skip" title={`show ${numRows} skipped lines`} onClick={showAll}>
-        ↕
-      </span>
-    ) : (
-      <>
-        <span
-          className="skip expand-up"
-          title={`show ${expandLines} more lines above`}
-          onClick={() => {
-            onShowMore(range, -expandLines);
-          }}>
-          ↥
-        </span>
-        <span
-          className="skip expand-down"
-          title={`show ${expandLines} more lines below`}
-          onClick={() => {
-            onShowMore(range, expandLines);
-          }}>
-          ↧
-        </span>
-      </>
-    );
-  const showMore = (
-    <a href="#" onClick={showAll}>
-      Show {numRows} more lines
-    </a>
-  );
-  const headerHTML = header ? <span className="hunk-header">${header}</span> : '';
-
-  const rowRef = React.useRef<HTMLTableRowElement>(null);
-  React.useEffect(() => {
-    if (isSelected && rowRef.current) {
-      const tr = rowRef.current as WebkitHTMLTableRowElement;
-      tr.scrollIntoViewIfNeeded?.() ?? tr.scrollIntoView({block: 'nearest'});
-    }
-  }, [isSelected]);
-  return (
-    <tr ref={rowRef} className={'skip-row' + (isSelected ? ` selected` : '')}>
-      <td colSpan={4} className="skip code">
-        <span className="arrows-left">{arrows}</span>
-        {showMore} {headerHTML}
-        <span className="arrows-right">{arrows}</span>
-      </td>
-    </tr>
-  );
-}
-
-// TODO: factor out a {text, html} type
-interface DiffRowProps {
-  type: DiffRange['type'];
-  beforeLineNum: number | null;
-  afterLineNum: number | null;
-  beforeText: string | undefined;
-  beforeHTML?: string;
-  afterText: string | undefined;
-  afterHTML?: string;
-  isSelected: boolean;
-}
-
-function escapeHtml(unsafe: string) {
-  return unsafe
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
-
-const makeCodeTd = (type: string, text: string | undefined, html: string | undefined) => {
-  if (text === undefined) {
-    return {text: '', html: '', className: 'empty code'};
-  }
-  if (html === undefined) {
-    html = escapeHtml(text);
-  }
-  text = text.replaceAll('\t', '\u00a0\u00a0\u00a0\u00a0');
-  html = html.replaceAll('\t', '\u00a0\u00a0\u00a0\u00a0');
-  const className = 'code ' + type;
-  return {className, html, text};
-};
-
-function DiffRow(props: DiffRowProps) {
-  const {beforeLineNum, afterLineNum, type, isSelected} = props;
-  const cells = [
-    makeCodeTd(type, props.beforeText, props.beforeHTML),
-    makeCodeTd(type, props.afterText, props.afterHTML),
-  ];
-  let [beforeHtml, afterHtml] = [cells[0].html, cells[1].html];
-  if (type === 'replace') {
-    [beforeHtml, afterHtml] = addCharacterDiffs(
-      cells[0].text,
-      cells[0].html,
-      cells[1].text,
-      cells[1].html,
-    );
-  }
-  const rowRef = React.useRef<HTMLTableRowElement>(null);
-  React.useEffect(() => {
-    if (isSelected && rowRef.current) {
-      const tr = rowRef.current as WebkitHTMLTableRowElement;
-      tr.scrollIntoViewIfNeeded?.() ?? tr.scrollIntoView({block: 'nearest'});
-    }
-  }, [isSelected]);
-  return (
-    <tr ref={rowRef} className={isSelected ? 'selected' : undefined}>
-      <td className="line-no">{beforeLineNum ?? ''}</td>
-      <td
-        className={cells[0].className + ' before'}
-        dangerouslySetInnerHTML={{__html: beforeHtml}}></td>
-      <td
-        className={cells[1].className + ' after'}
-        dangerouslySetInnerHTML={{__html: afterHtml}}></td>
-      <td className="line-no">{afterLineNum ?? ''}</td>
-    </tr>
-  );
-}

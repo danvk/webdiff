@@ -76,3 +76,13 @@ export function copyOnlyMatching(e: ClipboardEvent, selector: string) {
   e.clipboardData?.setData('text', text);
   e.preventDefault();
 }
+
+interface WebkitElement extends Element {
+  scrollIntoViewIfNeeded?: () => void;
+}
+
+/** scrollIntoViewIfNeeded has nicer behavior than the web standard, but is non-standard. */
+export function scrollIntoViewIfNeeded(el: Element) {
+  const wkEl = el as WebkitElement;
+  wkEl.scrollIntoViewIfNeeded?.() ?? wkEl.scrollIntoView({block: 'nearest'});
+}
