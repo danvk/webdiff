@@ -4,6 +4,7 @@ import {DiffRange} from './codes';
 import {closest, copyOnlyMatching, distributeSpans} from './dom-utils';
 import {addCharacterDiffs} from './char-diffs';
 import {stringAsLines} from './string-utils';
+import {isLegitKeypress} from '../file_diff';
 
 export interface PatchOptions {
   /** Minimum number of skipped lines to elide into a "jump" row */
@@ -114,6 +115,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
     // this will blow away all "show more lines" actions
     setOps(initOps);
   }, [initOps]);
+  const [selectedLine, setSelectedLine] = React.useState<number | undefined>();
   const handleShowMore = (existing: SkipRange, num: number) => {
     setOps(oldOps =>
       oldOps.flatMap(op => {
@@ -150,6 +152,42 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
     );
   };
 
+  React.useEffect(() => {
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (!isLegitKeypress(e)) return;
+      if (e.code === 'KeyN') {
+        if (selectedLine === undefined) {
+          setSelectedLine(0);
+        } else {
+          for (const range of ops) {
+            const {after} = range;
+            const afterStart = after[0];
+            if (selectedLine < afterStart) {
+              setSelectedLine(afterStart);
+              break;
+            }
+          }
+        }
+      } else if (e.code === 'KeyP') {
+        if (selectedLine !== undefined) {
+          for (let i = ops.length - 1; i >= 0; i--) {
+            const range = ops[i];
+            const {after} = range;
+            const afterStart = after[0];
+            if (selectedLine > afterStart) {
+              setSelectedLine(afterStart);
+              break;
+            }
+          }
+        }
+      }
+    };
+    document.addEventListener('keydown', handleKeydown);
+    return () => {
+      document.removeEventListener('keydown', handleKeydown);
+    };
+  }, [ops, selectedLine]);
+
   const diffRows = [];
   for (const range of ops) {
     const {type} = range;
@@ -159,6 +197,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
     const numRows = Math.max(numBeforeRows, numAfterRows);
     const beforeStartLine = before[0];
     const afterStartLine = after[0];
+    const trClassName = afterStartLine === selectedLine ? 'selected' : undefined;
     if (type == 'skip') {
       diffRows.push(
         <SkipRow
@@ -169,6 +208,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
           header={range.header ?? null}
           expandLines={expandLines}
           onShowMore={handleShowMore}
+          trClassName={trClassName}
         />,
       );
     } else {
@@ -193,6 +233,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
             beforeHTML={beforeHTML}
             afterText={afterText}
             afterHTML={afterHTML}
+            trClassName={j === 0 ? trClassName : undefined}
           />,
         );
       }
@@ -249,10 +290,11 @@ export interface SkipRowProps extends SkipRange {
   expandLines: number;
   /** positive num = expand down, negative num = expand up */
   onShowMore: (existing: SkipRange, num: number) => void;
+  trClassName?: string;
 }
 
 function SkipRow(props: SkipRowProps) {
-  const {expandLines, header, onShowMore, ...range} = props;
+  const {expandLines, header, onShowMore, trClassName, ...range} = props;
   const {numRows} = range;
   const showAll = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -290,7 +332,7 @@ function SkipRow(props: SkipRowProps) {
   );
   const headerHTML = header ? <span className="hunk-header">${header}</span> : '';
   return (
-    <tr className="skip-row">
+    <tr className={'skip-row' + (trClassName ? ` ${trClassName}` : '')}>
       <td colSpan={4} className="skip code">
         <span className="arrows-left">{arrows}</span>
         {showMore} {headerHTML}
@@ -309,6 +351,7 @@ interface DiffRowProps {
   beforeHTML?: string;
   afterText: string | undefined;
   afterHTML?: string;
+  trClassName?: string;
 }
 
 function escapeHtml(unsafe: string) {
@@ -349,7 +392,7 @@ function DiffRow(props: DiffRowProps) {
     );
   }
   return (
-    <tr>
+    <tr className={props.trClassName}>
       <td className="line-no">{beforeLineNum ?? ''}</td>
       <td
         className={cells[0].className + ' before'}
