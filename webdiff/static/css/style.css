@@ -189,3 +189,30 @@ table .side-a, table .side-b {
 .magick {
   font-style: italic;
 }
+
+/* Cribbed from GitHub */
+kbd {
+  display: inline-block;
+  padding: 3px 5px;
+  line-height: 10px;
+  color: rgb(31, 35, 40);
+  vertical-align: middle;
+  background-color: rgb(246, 248, 250);
+  border: solid 1px rgba(175, 184, 193, 0.2);
+  border-radius: 6px;
+  box-shadow: rgba(175, 184, 193, 0.2) 0px -1px 0px 0px inset;
+}
+
+.keyboard-shortcuts { font-size: 80%; }
+
+.keyboard-shortcuts .header {
+  font-weight: bold;
+}
+
+.keyboard-shortcuts ul {
+  padding-left: 0;  /* 1em; */
+}
+.keyboard-shortcuts li {
+  list-style-type: none;
+  margin-bottom: 2px;
+}

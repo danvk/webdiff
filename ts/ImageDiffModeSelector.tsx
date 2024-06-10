@@ -10,7 +10,7 @@ export type ImageDiffMode = (typeof IMAGE_DIFF_MODES)[number];
 export interface Props {
   filePair: FilePair;
   imageDiffMode: ImageDiffMode;
-  changeImageDiffModeHandler: (imageDiffMode: ImageDiffMode) => void;
+  changeImageDiffMode: (imageDiffMode: ImageDiffMode) => void;
 }
 
 /** A widget to toggle between image diff modes (blink or side-by-side). */
@@ -27,7 +27,7 @@ export function ImageDiffModeSelector(props: Props) {
         <a
           href="#"
           onClick={() => {
-            props.changeImageDiffModeHandler(val);
+            props.changeImageDiffMode(val);
           }}>
           {inner}
         </a>
