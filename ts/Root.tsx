@@ -8,6 +8,7 @@ import {isLegitKeypress} from './file_diff';
 import {ImageDiffMode} from './ImageDiffModeSelector';
 import {filePairDisplayName} from './utils';
 import {DiffOptionsControl} from './DiffOptions';
+import {KeyboardShortcuts} from './codediff/KeyboardShortcuts';
 
 declare const pairs: FilePair[];
 declare const initialIdx: number;
@@ -21,6 +22,7 @@ export function Root(props: Props) {
   const [pdiffMode, setPDiffMode] = React.useState<PerceptualDiffMode>('off');
   const [imageDiffMode, setImageDiffMode] = React.useState<ImageDiffMode>('side-by-side');
   const [diffOptions, setDiffOptions] = React.useState<Partial<DiffOptions>>({});
+  const [showKeyboardHelp, setShowKeyboardHelp] = React.useState(false);
 
   const history = useHistory();
   const selectIndex = React.useCallback(
@@ -53,19 +55,28 @@ export function Root(props: Props) {
       } else if (e.code == 'KeyB') {
         setImageDiffMode('blink');
       } else if (e.code == 'KeyP') {
-        setPDiffMode(PDIFF_MODES[(PDIFF_MODES.indexOf(pdiffMode) + 1) % 3]);
+        setPDiffMode(mode => PDIFF_MODES[(PDIFF_MODES.indexOf(mode) + 1) % 3]);
+      } else if (e.code === 'Slash' && e.shiftKey) {
+        setShowKeyboardHelp(val => !val);
       }
     };
     document.addEventListener('keydown', handleKeydown);
     return () => {
       document.removeEventListener('keydown', handleKeydown);
     };
-  }, [idx, pdiffMode, selectIndex, setImageDiffMode, setPDiffMode]);
+  }, [idx, selectIndex]);
 
   return (
     <div>
       <DiffOptionsControl options={diffOptions} setOptions={setDiffOptions} />
       <FileSelector selectedFileIndex={idx} filePairs={pairs} fileChangeHandler={selectIndex} />
+      {showKeyboardHelp ? (
+        <KeyboardShortcuts
+          onClose={() => {
+            setShowKeyboardHelp(false);
+          }}
+        />
+      ) : null}
       <DiffView
         key={`diff-${idx}`}
         thinFilePair={filePair}

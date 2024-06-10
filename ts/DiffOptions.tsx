@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {DiffAlgorithm, DiffOptions, encodeDiffOptions} from './diff-options';
+import {PageCover} from './codediff/PageCover';
 
 export interface Props {
   options: Partial<DiffOptions>;
@@ -28,18 +29,9 @@ const closeButtonStyle: React.CSSProperties = {
   cursor: 'pointer',
 };
 
-const pageCoverStyle: React.CSSProperties = {
-  position: 'absolute',
-  zIndex: 1,
-  left: 0,
-  top: 0,
-  right: 0,
-  bottom: 0,
-};
-
 const popupStyle: React.CSSProperties = {
   position: 'fixed',
-  zIndex: 2,
+  zIndex: 3,
   right: 8,
   border: '1px solid #ddd',
   borderRadius: 4,
@@ -85,7 +77,7 @@ export function DiffOptionsControl(props: Props) {
       </button>
       {isPopupVisible ? (
         <>
-          <div style={pageCoverStyle} onClick={togglePopup}></div>
+          <PageCover onClick={togglePopup} />
           <div style={popupStyle}>
             <button style={closeButtonStyle} onClick={togglePopup}>
               ✕
