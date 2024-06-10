@@ -58,6 +58,8 @@ export function Root(props: Props) {
         setPDiffMode(mode => PDIFF_MODES[(PDIFF_MODES.indexOf(mode) + 1) % 3]);
       } else if (e.code === 'Slash' && e.shiftKey) {
         setShowKeyboardHelp(val => !val);
+      } else if (e.code === 'Escape') {
+        setShowKeyboardHelp(false);
       }
     };
     document.addEventListener('keydown', handleKeydown);
