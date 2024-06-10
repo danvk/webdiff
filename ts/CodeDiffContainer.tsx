@@ -157,35 +157,39 @@ function lengthOrZero(data: unknown[] | string | null | undefined) {
 function FileDiff(props: FileDiffProps) {
   const {pathBefore, pathAfter, contentsBefore, contentsAfter, diffOps} = props;
   // build the diff view and add it to the current DOM
-  const opts: Partial<PatchOptions> = {
-    // set the display titles for each resource
-    beforeName: pathBefore || '(none)',
-    afterName: pathAfter || '(none)',
-    // TODO: thread through minJumpSize
-  };
-
-  // First guess a language based on the file name.
-  // Fall back to guessing based on the contents of the longer version.
-  const path = pathBefore || pathAfter;
-  let language = guessLanguageUsingFileName(path);
 
   const lastOp = diffOps[diffOps.length - 1];
   const numLines = Math.max(lastOp.before[1], lastOp.after[1]);
 
-  if (
-    !language &&
-    !HIGHLIGHT_BLACKLIST.includes(extractFilename(path)) &&
-    numLines < GIT_CONFIG.webdiff.maxLinesForSyntax
-  ) {
-    let byLength = [contentsBefore, contentsAfter];
-    if (contentsAfter && lengthOrZero(contentsAfter) > lengthOrZero(contentsBefore)) {
-      byLength = [byLength[1], byLength[0]];
+  // First guess a language based on the file name.
+  // Fall back to guessing based on the contents of the longer version.
+  const path = pathBefore || pathAfter;
+  const language = React.useMemo(() => {
+    let language = guessLanguageUsingFileName(path);
+    if (
+      !language &&
+      !HIGHLIGHT_BLACKLIST.includes(extractFilename(path)) &&
+      numLines < GIT_CONFIG.webdiff.maxLinesForSyntax
+    ) {
+      let byLength = [contentsBefore, contentsAfter];
+      if (contentsAfter && lengthOrZero(contentsAfter) > lengthOrZero(contentsBefore)) {
+        byLength = [byLength[1], byLength[0]];
+      }
+      language = byLength[0] ? guessLanguageUsingContents(byLength[0]) ?? null : null;
     }
-    language = byLength[0] ? guessLanguageUsingContents(byLength[0]) ?? null : null;
-  }
-  if (language) {
-    opts.language = language;
-  }
+    return language;
+  }, [contentsAfter, contentsBefore, numLines, path]);
+
+  const opts = React.useMemo(
+    (): Partial<PatchOptions> => ({
+      // set the display titles for each resource
+      beforeName: pathBefore || '(none)',
+      afterName: pathAfter || '(none)',
+      language,
+      // TODO: thread through minJumpSize
+    }),
+    [language, pathAfter, pathBefore],
+  );
 
   return (
     <div className="diff">
