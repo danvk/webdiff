@@ -16,8 +16,14 @@ div#thediff {
 
 /* It's not possible to set a border without shifting the row */
 tr.selected {
-  box-shadow: 0px -2px 0px 0px hotpink;
+  box-shadow: 0px -2px 0px 0px yellow;
   z-index: 1;
+  position: relative;
+}
+
+/* keeps the header on top of the selection line and cell */
+.diff thead {
+  z-index: 2;
   position: relative;
 }
 
