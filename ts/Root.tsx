@@ -23,6 +23,7 @@ export function Root(props: Props) {
   const [imageDiffMode, setImageDiffMode] = React.useState<ImageDiffMode>('side-by-side');
   const [diffOptions, setDiffOptions] = React.useState<Partial<DiffOptions>>({});
   const [showKeyboardHelp, setShowKeyboardHelp] = React.useState(false);
+  const [showOptions, setShowOptions] = React.useState(false);
 
   const history = useHistory();
   const selectIndex = React.useCallback(
@@ -60,6 +61,8 @@ export function Root(props: Props) {
         setShowKeyboardHelp(val => !val);
       } else if (e.code === 'Escape') {
         setShowKeyboardHelp(false);
+      } else if (e.code === 'Period') {
+        setShowOptions(val => !val);
       }
     };
     document.addEventListener('keydown', handleKeydown);
@@ -70,7 +73,12 @@ export function Root(props: Props) {
 
   return (
     <div>
-      <DiffOptionsControl options={diffOptions} setOptions={setDiffOptions} />
+      <DiffOptionsControl
+        options={diffOptions}
+        setOptions={setDiffOptions}
+        isVisible={showOptions}
+        setIsVisible={setShowOptions}
+      />
       <FileSelector selectedFileIndex={idx} filePairs={pairs} fileChangeHandler={selectIndex} />
       {showKeyboardHelp ? (
         <KeyboardShortcuts

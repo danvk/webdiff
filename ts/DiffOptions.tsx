@@ -6,6 +6,8 @@ import {PageCover} from './codediff/PageCover';
 export interface Props {
   options: Partial<DiffOptions>;
   setOptions: (newOptions: Partial<DiffOptions>) => void;
+  isVisible: boolean;
+  setIsVisible: (isVisible: boolean) => void;
 }
 
 const gearStyle: React.CSSProperties = {
@@ -46,11 +48,10 @@ const popupStyle: React.CSSProperties = {
 };
 
 export function DiffOptionsControl(props: Props) {
-  const {options, setOptions} = props;
-  const [isPopupVisible, setIsPopupVisible] = React.useState(false);
+  const {options, setOptions, isVisible, setIsVisible} = props;
 
   const togglePopup = () => {
-    setIsPopupVisible(oldVal => !oldVal);
+    setIsVisible(!isVisible);
   };
   const toggleIgnoreAllSpace = () => {
     setOptions({...options, ignoreAllSpace: !options.ignoreAllSpace});
@@ -75,7 +76,7 @@ export function DiffOptionsControl(props: Props) {
       <button style={gearStyle} onClick={togglePopup}>
         ⚙
       </button>
-      {isPopupVisible ? (
+      {isVisible ? (
         <>
           <PageCover onClick={togglePopup} />
           <div style={popupStyle}>

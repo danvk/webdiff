@@ -16,11 +16,6 @@ const closeButtonStyle: React.CSSProperties = {
 
 const popupStyle: React.CSSProperties = {
   zIndex: 3,
-  /*
-  position: 'fixed',
-  left: '50%',
-  top: '50%',
-  */
   position: 'absolute',
   border: '1px solid #ddd',
   borderRadius: 4,
@@ -29,7 +24,6 @@ const popupStyle: React.CSSProperties = {
   paddingLeft: 18,
   paddingRight: 18,
   background: 'white',
-  // fontSize: '90%',
   userSelect: 'none',
   boxShadow: '0px 0px 8px 0px rgba(0,0,0,0.5)',
   fontFamily: 'sans-serif',
@@ -70,6 +64,9 @@ export function KeyboardShortcuts(props: KeyboardShortcutsProps) {
             </li>
             <li>
               <kbd>p</kbd> Previous Diffhunk
+            </li>
+            <li>
+              <kbd>.</kbd> Show diff options
             </li>
             <li>
               <kbd>?</kbd> Show this panel
