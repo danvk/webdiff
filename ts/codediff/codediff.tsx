@@ -279,6 +279,10 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
   );
 });
 
+interface WebkitHTMLTableRowElement extends HTMLTableRowElement {
+  scrollIntoViewIfNeeded?: () => void;
+}
+
 interface SkipRange {
   beforeStartLine: number;
   afterStartLine: number;
@@ -335,7 +339,8 @@ function SkipRow(props: SkipRowProps) {
   const rowRef = React.useRef<HTMLTableRowElement>(null);
   React.useEffect(() => {
     if (isSelected && rowRef.current) {
-      (rowRef.current as any).scrollIntoViewIfNeeded();
+      const tr = rowRef.current as WebkitHTMLTableRowElement;
+      tr.scrollIntoViewIfNeeded?.() ?? tr.scrollIntoView({block: 'nearest'});
     }
   }, [isSelected]);
   return (
@@ -401,7 +406,8 @@ function DiffRow(props: DiffRowProps) {
   const rowRef = React.useRef<HTMLTableRowElement>(null);
   React.useEffect(() => {
     if (isSelected && rowRef.current) {
-      (rowRef.current as any).scrollIntoViewIfNeeded();
+      const tr = rowRef.current as WebkitHTMLTableRowElement;
+      tr.scrollIntoViewIfNeeded?.() ?? tr.scrollIntoView({block: 'nearest'});
     }
   }, [isSelected]);
   return (
