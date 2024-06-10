@@ -15,8 +15,6 @@ declare const initialIdx: number;
 
 type Props = RouteComponentProps<{index?: string}>;
 
-const PDIFF_MODES: PerceptualDiffMode[] = ['off', 'bbox', 'pixels'];
-
 // Webdiff application root.
 export function Root(props: Props) {
   const [pdiffMode, setPDiffMode] = React.useState<PerceptualDiffMode>('off');
@@ -51,12 +49,6 @@ export function Root(props: Props) {
         if (idx < pairs.length - 1) {
           selectIndex(idx + 1);
         }
-      } else if (e.code == 'KeyS') {
-        setImageDiffMode('side-by-side');
-      } else if (e.code == 'KeyB') {
-        setImageDiffMode('blink');
-      } else if (e.code == 'KeyP') {
-        setPDiffMode(mode => PDIFF_MODES[(PDIFF_MODES.indexOf(mode) + 1) % 3]);
       } else if (e.code === 'Slash' && e.shiftKey) {
         setShowKeyboardHelp(val => !val);
       } else if (e.code === 'Escape') {
@@ -93,7 +85,7 @@ export function Root(props: Props) {
         imageDiffMode={imageDiffMode}
         pdiffMode={pdiffMode}
         diffOptions={diffOptions}
-        changeImageDiffModeHandler={setImageDiffMode}
+        changeImageDiffMode={setImageDiffMode}
         changePDiffMode={setPDiffMode}
         changeDiffOptions={setDiffOptions}
       />

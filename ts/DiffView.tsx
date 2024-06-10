@@ -12,8 +12,8 @@ export interface Props {
   imageDiffMode: ImageDiffMode;
   pdiffMode: PerceptualDiffMode;
   diffOptions: Partial<DiffOptions>;
-  changeImageDiffModeHandler: (mode: ImageDiffMode) => void;
-  changePDiffMode: (pdiffMode: PerceptualDiffMode) => void;
+  changeImageDiffMode: (mode: ImageDiffMode) => void;
+  changePDiffMode: React.Dispatch<React.SetStateAction<PerceptualDiffMode>>;
   changeDiffOptions: (options: Partial<DiffOptions>) => void;
 }
 

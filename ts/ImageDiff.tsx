@@ -8,6 +8,7 @@ import {isOneSided, isSameSizeImagePair} from './utils';
 import {ImageSideBySide} from './ImageSideBySide';
 import {ImageBlinker} from './ImageBlinker';
 import {ImageOnionSkin, ImageSwipe} from './ImageSwipe';
+import {isLegitKeypress} from './file_diff';
 
 declare const HAS_IMAGE_MAGICK: boolean;
 
@@ -15,8 +16,8 @@ export interface Props {
   filePair: ImageFilePair;
   imageDiffMode: ImageDiffMode;
   pdiffMode: PerceptualDiffMode;
-  changeImageDiffModeHandler: (mode: ImageDiffMode) => void;
-  changePDiffMode: (pdiffMode: PerceptualDiffMode) => void;
+  changeImageDiffMode: (mode: ImageDiffMode) => void;
+  changePDiffMode: React.Dispatch<React.SetStateAction<PerceptualDiffMode>>;
 }
 
 export interface ImageDiffProps {
@@ -24,6 +25,8 @@ export interface ImageDiffProps {
   pdiffMode: PerceptualDiffMode;
   shrinkToFit: boolean;
 }
+
+const PDIFF_MODES: PerceptualDiffMode[] = ['off', 'bbox', 'pixels'];
 
 /** A diff between two images. */
 export function ImageDiff(props: Props) {
@@ -33,7 +36,7 @@ export function ImageDiff(props: Props) {
     setShrinkToFit(e.target.checked);
   };
 
-  const {changePDiffMode, pdiffMode} = props;
+  const {changePDiffMode, pdiffMode, changeImageDiffMode} = props;
   let {imageDiffMode} = props;
   const pair = props.filePair;
   if (isOneSided(pair)) {
@@ -74,6 +77,24 @@ export function ImageDiff(props: Props) {
       window.removeEventListener('resize', handleResize);
     };
   }, [shrinkToFit, forceUpdate]);
+
+  // TODO: switch to useKey() or some such
+  React.useEffect(() => {
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (!isLegitKeypress(e)) return;
+      if (e.code == 'KeyS') {
+        changeImageDiffMode('side-by-side');
+      } else if (e.code == 'KeyB') {
+        changeImageDiffMode('blink');
+      } else if (e.code == 'KeyP') {
+        changePDiffMode(mode => PDIFF_MODES[(PDIFF_MODES.indexOf(mode) + 1) % 3]);
+      }
+    };
+    document.addEventListener('keydown', handleKeydown);
+    return () => {
+      document.removeEventListener('keydown', handleKeydown);
+    };
+  }, [changeImageDiffMode, changePDiffMode]);
 
   const component = {
     'side-by-side': ImageSideBySide,

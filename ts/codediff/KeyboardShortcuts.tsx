@@ -72,7 +72,7 @@ export function KeyboardShortcuts(props: KeyboardShortcutsProps) {
               <kbd>?</kbd> Show this panel
             </li>
           </ul>
-          <p className="header">Image Diff Keyboard Shortcuts</p>
+          <p className="header">Image Diff</p>
           <ul>
             <li>
               <kbd>s</kbd> Side-by-Side (image diff)
@@ -82,6 +82,15 @@ export function KeyboardShortcuts(props: KeyboardShortcutsProps) {
             </li>
             <li>
               <kbd>p</kbd> Cycle perceptual diff mode (image diff)
+            </li>
+          </ul>
+          <p className="header">Diff Options</p>
+          <ul>
+            <li>
+              <kbd>w</kbd> Toggle <code>-w</code> (<code>--ignore-all-space</code>) option
+            </li>
+            <li>
+              <kbd>b</kbd> Toggle <code>-b</code> (<code>--ignore-space-change</code>) option
             </li>
           </ul>
         </div>

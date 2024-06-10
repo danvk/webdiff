@@ -2,6 +2,7 @@ import React from 'react';
 
 import {DiffAlgorithm, DiffOptions, encodeDiffOptions} from './diff-options';
 import {PageCover} from './codediff/PageCover';
+import {isLegitKeypress} from './file_diff';
 
 export interface Props {
   options: Partial<DiffOptions>;
@@ -68,6 +69,21 @@ export function DiffOptionsControl(props: Props) {
   const changeDiffAlgorithm: React.ChangeEventHandler<HTMLSelectElement> = e => {
     setOptions({...options, diffAlgorithm: e.currentTarget.value as DiffAlgorithm});
   };
+
+  React.useEffect(() => {
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (!isLegitKeypress(e)) return;
+      if (e.code == 'KeyW') {
+        setOptions({...options, ignoreAllSpace: !options.ignoreAllSpace});
+      } else if (e.code == 'KeyB') {
+        setOptions({...options, ignoreSpaceChange: !options.ignoreSpaceChange});
+      }
+    };
+    document.addEventListener('keydown', handleKeydown);
+    return () => {
+      document.removeEventListener('keydown', handleKeydown);
+    };
+  }, [options, setOptions]);
 
   const diffOptsStr = encodeDiffOptions(options).join(' ');
 
