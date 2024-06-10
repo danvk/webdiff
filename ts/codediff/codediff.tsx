@@ -90,6 +90,38 @@ export function CodeDiff(props: Props) {
   );
 }
 
+function moveUpDown(
+  dir: 'up' | 'down',
+  selectedLine: number | undefined,
+  ops: readonly DiffRange[],
+): number | undefined {
+  if (dir === 'up') {
+    if (selectedLine === undefined) {
+      return 0;
+    } else {
+      for (const range of ops) {
+        const {after} = range;
+        const afterStart = after[0];
+        if (selectedLine < afterStart) {
+          return afterStart;
+        }
+      }
+      // TODO: if the last hunk was already selected, advance to the next file.
+    }
+  } else {
+    if (selectedLine !== undefined) {
+      for (let i = ops.length - 1; i >= 0; i--) {
+        const range = ops[i];
+        const {after} = range;
+        const afterStart = after[0];
+        if (selectedLine > afterStart) {
+          return afterStart;
+        }
+      }
+    }
+  }
+}
+
 interface CodeDiffViewProps {
   beforeLines: readonly string[];
   afterLines: readonly string[];
@@ -156,32 +188,10 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
   React.useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
       if (!isLegitKeypress(e)) return;
-      if (e.code === 'KeyN') {
-        if (selectedLine === undefined) {
-          setSelectedLine(0);
-        } else {
-          for (const range of ops) {
-            const {after} = range;
-            const afterStart = after[0];
-            if (selectedLine < afterStart) {
-              setSelectedLine(afterStart);
-              break;
-            }
-          }
-          // TODO: if the last hunk was already selected, advance to the next file.
-        }
-      } else if (e.code === 'KeyP') {
-        if (selectedLine !== undefined) {
-          for (let i = ops.length - 1; i >= 0; i--) {
-            const range = ops[i];
-            const {after} = range;
-            const afterStart = after[0];
-            if (selectedLine > afterStart) {
-              setSelectedLine(afterStart);
-              break;
-            }
-          }
-        }
+      if (e.code !== 'KeyN' && e.code !== 'KeyP') return;
+      const newSelectedLine = moveUpDown(e.code === 'KeyN' ? 'up' : 'down', selectedLine, ops);
+      if (newSelectedLine !== undefined) {
+        setSelectedLine(newSelectedLine);
       }
     };
     document.addEventListener('keydown', handleKeydown);
