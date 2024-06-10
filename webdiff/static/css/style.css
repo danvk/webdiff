@@ -16,7 +16,7 @@ div#thediff {
 
 /* It's not possible to set a border without shifting the row */
 tr.selected {
-  box-shadow: 0px -2px 0px 0px yellow;
+  box-shadow: 0px -2px 0px 0px rgb(216,225,253);
   z-index: 1;
   position: relative;
 }
