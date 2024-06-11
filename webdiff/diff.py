@@ -29,7 +29,7 @@ def get_thin_dict(diff):
       - change type (add, delete, move, change)
       - (in the future) diffstats
     """
-    return {'a': diff.a, 'b': diff.b, 'type': diff.type}
+    return {'a': diff.a, 'b': diff.b, 'type': diff.type, 'num_add': diff.num_add, 'num_delete': diff.num_delete}
 
 
 def fast_num_lines(path: str) -> int:
