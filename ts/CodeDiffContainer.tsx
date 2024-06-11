@@ -14,6 +14,8 @@ interface BaseFilePair {
   type: 'add' | 'delete' | 'move' | 'change'; // XXX check "change"
   /** Are there any changes to the file? Only set for "thick" diffs. */
   no_changes?: boolean;
+  num_add: number | null;
+  num_delete: number | null;
 }
 
 interface TextFilePair extends BaseFilePair {

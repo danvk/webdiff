@@ -33,6 +33,8 @@ export function FileList(props: Props) {
       <li key={idx}>
         <span title={filePair.type} className={`diff ${filePair.type}`} />
         {content}
+        {filePair.num_add !== null && <span className="num-add">+{filePair.num_add}</span>}
+        {filePair.num_delete !== null && <span className="num-delete">-{filePair.num_delete}</span>}
       </li>
     );
   });

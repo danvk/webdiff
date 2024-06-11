@@ -3,7 +3,7 @@ import {RouteComponentProps, useHistory} from 'react-router';
 import {FilePair} from './CodeDiffContainer';
 import {DiffOptions} from './diff-options';
 import {DiffView, PerceptualDiffMode} from './DiffView';
-import {FileSelector} from './FileSelector';
+import {FileSelector, FileSelectorMode} from './FileSelector';
 import {isLegitKeypress} from './file_diff';
 import {ImageDiffMode} from './ImageDiffModeSelector';
 import {filePairDisplayName} from './utils';
@@ -22,6 +22,10 @@ export function Root(props: Props) {
   const [diffOptions, setDiffOptions] = React.useState<Partial<DiffOptions>>({});
   const [showKeyboardHelp, setShowKeyboardHelp] = React.useState(false);
   const [showOptions, setShowOptions] = React.useState(false);
+  // An explicit list is better, unless there are a ton of files.
+  const [fileSelectorMode, setFileSelectorMode] = React.useState<FileSelectorMode>(
+    pairs.length <= 6 ? 'list' : 'dropdown',
+  );
 
   const history = useHistory();
   const selectIndex = React.useCallback(
@@ -49,6 +53,8 @@ export function Root(props: Props) {
         if (idx < pairs.length - 1) {
           selectIndex(idx + 1);
         }
+      } else if (e.code == 'KeyV') {
+        setFileSelectorMode(mode => (mode === 'dropdown' ? 'list' : 'dropdown'));
       } else if (e.code === 'Slash' && e.shiftKey) {
         setShowKeyboardHelp(val => !val);
       } else if (e.code === 'Escape') {
@@ -71,7 +77,13 @@ export function Root(props: Props) {
         isVisible={showOptions}
         setIsVisible={setShowOptions}
       />
-      <FileSelector selectedFileIndex={idx} filePairs={pairs} fileChangeHandler={selectIndex} />
+      <FileSelector
+        selectedFileIndex={idx}
+        filePairs={pairs}
+        fileChangeHandler={selectIndex}
+        mode={fileSelectorMode}
+        onChangeMode={setFileSelectorMode}
+      />
       {showKeyboardHelp ? (
         <KeyboardShortcuts
           onClose={() => {
