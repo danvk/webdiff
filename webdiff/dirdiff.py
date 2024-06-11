@@ -42,7 +42,7 @@ def make_resolved_dir(dir: str) -> str:
     return temp_dir
 
 
-def gitdiff(a_dir, b_dir, webdiff_config):
+def gitdiff(a_dir: str, b_dir: str, webdiff_config):
     extra_args = webdiff_config['extraDirDiffArgs']
     cmd = 'git diff --raw -z --no-index'
     if extra_args:
@@ -62,9 +62,12 @@ def gitdiff(a_dir, b_dir, webdiff_config):
     # TODO: how to distinguish these cases?
     diff_stdout = diff_output.stdout.decode('utf8')
     # Make it look like the diff was between directories containing symlinks.
+    # After this point, the resolved directories are no longer needed.
     if a_dir != a_dir_nosym:
         diff_stdout = diff_stdout.replace(a_dir_nosym, a_dir)
+        shutil.rmtree(a_dir_nosym)
     if b_dir != b_dir_nosym:
         diff_stdout = diff_stdout.replace(b_dir_nosym, b_dir)
+        shutil.rmtree(b_dir_nosym)
     lines = parse_raw_diff(diff_stdout)
     return [LocalFileDiff.from_diff_raw_line(line, a_dir, b_dir) for line in lines]
