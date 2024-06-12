@@ -83,7 +83,6 @@ async function getOrNull(side: string, path: string) {
 // A side-by-side diff of source code.
 export function CodeDiffContainer(props: {filePair: FilePair; diffOptions: Partial<DiffOptions>}) {
   const {filePair, diffOptions} = props;
-  const codediffRef = React.useRef<HTMLDivElement>(null);
   const [contents, setContents] = React.useState<
     {before: string | null; after: string | null; diffOps: DiffRange[]} | undefined
   >();
@@ -119,8 +118,7 @@ export function CodeDiffContainer(props: {filePair: FilePair; diffOptions: Parti
 
   return (
     <div>
-      <NoChanges filePair={filePair} />
-      <div ref={codediffRef} key={filePair.idx}>
+      <div key={filePair.idx}>
         {contents ? (
           <FileDiff
             filePair={filePair}
@@ -192,6 +190,7 @@ function FileDiff(props: FileDiffProps) {
 
   return (
     <div className="diff">
+      <NoChanges filePair={filePair} />
       <CodeDiff
         beforeText={contentsBefore}
         afterText={contentsAfter}
