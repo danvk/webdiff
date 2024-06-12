@@ -57,7 +57,13 @@ class GitHubDiff(object):
     def __repr__(self):
         return '%s (%s)' % (self.a or self.b, self.type)
 
-    # TOOD: diffstats are accessible via file.{changes,additions,deletions}
+    @property
+    def num_add(self):
+        return self._file.additions + self._file.changes
+
+    @property
+    def num_delete(self):
+        return self._file.deletions + self._file.changes
 
 
 def fetch_pull_request(owner, repo, num):

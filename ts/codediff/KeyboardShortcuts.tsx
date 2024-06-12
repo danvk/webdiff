@@ -66,6 +66,9 @@ export function KeyboardShortcuts(props: KeyboardShortcutsProps) {
               <kbd>p</kbd> Previous Diffhunk
             </li>
             <li>
+              <kbd>v</kbd> Toggle file list / dropdown menu
+            </li>
+            <li>
               <kbd>.</kbd> Show diff options
             </li>
             <li>

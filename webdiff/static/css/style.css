@@ -7,6 +7,18 @@ div#thediff {
     top: 0px;
     position: sticky;
     background: white;
+    text-align: left;
+    padding: 4px;
+}
+.diff-header .num-add, .diff-header .num-delete {
+  font-weight: normal;
+  font-size: small;
+}
+.diff-header .num-add {
+  color: green;
+}
+.diff-header .num-delete {
+  color: red;
 }
 
 .diff .line-no, .diff .code {
@@ -64,7 +76,7 @@ ul.file-list {
   display: inline-block;
   width: 16px;
   height: 16px;
-  margin-right: 5px;
+  margin-right: 4px;
   background: url(/static/img/sprites.png) no-repeat left center;
   vertical-align: top;
 }
@@ -73,6 +85,23 @@ ul.file-list {
 .diff.change { background-position: 0 -16px; }
 .diff.delete { background-position: 0 -32px; }
 .diff.move   { background-position: 0 -48px; }
+
+.spark {
+  display: inline-block;
+  width: 32px;
+  height: 16px;
+  margin-right: 4px;
+}
+.spark .delete, .spark .add {
+  display: inline-block;
+  height: 16px;
+}
+.spark .delete {
+  background: #fcc;
+}
+.spark .add {
+  background: #cfc;
+}
 
 .side-a { border: 1px solid red; }
 .side-b { border: 1px solid green; }

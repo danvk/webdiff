@@ -2,6 +2,7 @@
 
 import os
 from dataclasses import dataclass
+from typing import Union
 
 from webdiff.unified_diff import RawDiffLine
 
@@ -20,6 +21,8 @@ class LocalFileDiff:
     """Full path to the right file on disk (may be empty if a_path != '')."""
     is_move: bool
     """Is this a move between the two files?"""
+    num_add: Union[int, None] = None
+    num_delete: Union[int, None] = None
 
     @property
     def a(self):
@@ -48,10 +51,10 @@ class LocalFileDiff:
         status = line.status
         # A, C (copy), D, M, R, T (change in type), U (unmerged), X (bug)
         if status == 'A':
-            return LocalFileDiff(a_dir, '', b_dir, line.path, is_move=False)
+            return LocalFileDiff(a_dir, '', b_dir, line.path, is_move=False, num_add=line.num_add, num_delete=line.num_delete)
         if status == 'D':
-            return LocalFileDiff(a_dir, line.path, b_dir, '', is_move=False)
+            return LocalFileDiff(a_dir, line.path, b_dir, '', is_move=False, num_add=line.num_add, num_delete=line.num_delete)
         if line.dst_path:
-            return LocalFileDiff(a_dir, line.path, b_dir, line.dst_path, is_move=True)
+            return LocalFileDiff(a_dir, line.path, b_dir, line.dst_path, is_move=True, num_add=line.num_add, num_delete=line.num_delete)
         dst_path = os.path.join(b_dir, os.path.relpath(line.path, a_dir))
-        return LocalFileDiff(a_dir, line.path, b_dir, dst_path, is_move=False)
+        return LocalFileDiff(a_dir, line.path, b_dir, dst_path, is_move=False, num_add=line.num_add, num_delete=line.num_delete)

@@ -1,8 +1,9 @@
 import React from 'react';
+import {FileSelectorMode} from './FileSelector';
 
 export interface Props {
-  mode: 'list' | 'dropdown';
-  changeHandler: (mode: 'list' | 'dropdown') => void;
+  mode: FileSelectorMode;
+  changeHandler: (mode: FileSelectorMode) => void;
 }
 
 /** A widget for toggling between file selection modes. */

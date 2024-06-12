@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from itertools import groupby
 from typing import List, Optional, Tuple, Union
+import re
 
 from unidiff import PatchSet
 
@@ -160,6 +161,10 @@ class RawDiffLine:
     """Only for R or C"""
     dst_path: Union[str, None] = None
     """Only set when status=C or R."""
+    num_add: Union[int, None] = None
+    """Num added lines from diffstat. None for binary files."""
+    num_delete: Union[int, None] = None
+    """Num removed lines from diffstat. None for binary files."""
 
 
 def parse_raw_diff_line(parts: list[str]) -> RawDiffLine:
@@ -191,9 +196,23 @@ def parse_raw_diff(diff: str) -> List[RawDiffLine]:
     # The "lines" start with ":".
     parts = diff.strip('\0').split('\0')
     lines = []
+    numstats = []
+    curline = None
     for part in parts:
         if part.startswith(':'):
-            lines.append([part])
+            curline = [part]
+            lines.append(curline)
+        elif m := re.match(r'(\d+|-)\t(\d+|-)\t', part):
+            # numstat line
+            add, drop = m.group(1), m.group(2)
+            curline = [int(add) if add != '-' else None, int(drop) if drop != '-' else None]
+            numstats.append(curline)
         else:
-            lines[-1].append(part)
-    return [parse_raw_diff_line(line) for line in lines]
+            curline.append(part)
+    diff_lines = []
+    for line, stats in zip(lines, numstats):
+        diff = parse_raw_diff_line(line)
+        diff.num_add = stats[0]
+        diff.num_delete = stats[1]
+        diff_lines.append(diff)
+    return diff_lines

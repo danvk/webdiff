@@ -6,6 +6,7 @@ import {stringAsLines} from './string-utils';
 import {isLegitKeypress} from '../file_diff';
 import {DiffRow} from './DiffRow';
 import {SkipRange, SkipRow} from './SkipRow';
+import {FilePair} from '../CodeDiffContainer';
 
 export interface PatchOptions {
   /** Minimum number of skipped lines to elide into a "jump" row */
@@ -13,16 +14,12 @@ export interface PatchOptions {
   /** Number of additional lines to show when you click an expand arrow. */
   expandLines: number;
   language: string | null;
-  beforeName: string;
-  afterName: string;
   wordWrap: boolean;
 }
 
 const DEFAULT_PARAMS: PatchOptions = {
   minJumpSize: 10,
   language: null,
-  beforeName: 'Before',
-  afterName: 'After',
   wordWrap: false,
   expandLines: 10,
 };
@@ -53,6 +50,7 @@ function enforceMinJumpSize(diffs: DiffRange[], minJumpSize: number): DiffRange[
 }
 
 export interface Props {
+  filePair: FilePair;
   beforeText: string | null;
   afterText: string | null;
   ops: DiffRange[];
@@ -61,6 +59,7 @@ export interface Props {
 
 export function CodeDiff(props: Props) {
   const {beforeText, afterText, ops, params} = props;
+
   const beforeLines = React.useMemo(
     () => (beforeText ? stringAsLines(beforeText) : []),
     [beforeText],
@@ -84,6 +83,7 @@ export function CodeDiff(props: Props) {
       beforeLinesHighlighted={beforeLinesHighlighted}
       afterLines={afterLines}
       afterLinesHighlighted={afterLinesHighlighted}
+      filePair={props.filePair}
       params={fullParams}
       ops={diffRanges}
     />
@@ -127,12 +127,14 @@ interface CodeDiffViewProps {
   afterLines: readonly string[];
   beforeLinesHighlighted: readonly string[] | null;
   afterLinesHighlighted: readonly string[] | null;
+  filePair: FilePair;
   params: PatchOptions;
   ops: readonly DiffRange[];
 }
 
 const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
   const {
+    filePair,
     params,
     ops: initOps,
     afterLines,
@@ -253,7 +255,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
   }
 
   const [selectingState, setSelectingState] = React.useState<'left' | 'right' | null>(null);
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseDown = (e: React.MouseEvent) => {
     const td = closest(e.target as Element, 'td');
     if (!td) {
       return;
@@ -264,7 +266,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
       setSelectingState('right');
     }
   };
-  const handleCopy = (e: React.ClipboardEvent<HTMLDivElement>) => {
+  const handleCopy = (e: React.ClipboardEvent) => {
     if (!selectingState) return;
     const isLeft = selectingState === 'left';
     copyOnlyMatching(e.nativeEvent, 'td.' + (isLeft ? 'before' : 'after'));
@@ -276,17 +278,39 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
     <div className={divClassName} onMouseDown={handleMouseDown} onCopy={handleCopy}>
       <table className={tableClassName}>
         <thead>
-          <tr>
-            <th className="diff-header" colSpan={2}>
-              {params.beforeName}
-            </th>
-            <th className="diff-header" colSpan={2}>
-              {params.afterName}
-            </th>
-          </tr>
+          <HeaderRow filePair={filePair} />
         </thead>
         <tbody>{diffRows}</tbody>
       </table>
     </div>
   );
 });
+
+function HeaderRow({filePair}: {filePair: FilePair}) {
+  const {a, b, num_add, num_delete} = filePair;
+  const addEl = num_add ? <span className="num-add">+{num_add}</span> : null;
+  const deleteEl = num_delete ? <span className="num-delete">-{num_delete}</span> : null;
+  const deltaEl = (
+    <span className="delta">
+      {deleteEl} {addEl}
+    </span>
+  );
+  return (
+    <tr>
+      {a === b ? (
+        <th className="diff-header combined" colSpan={4}>
+          {a} {deltaEl}
+        </th>
+      ) : (
+        <>
+          <th className="diff-header left" colSpan={2}>
+            {a}
+          </th>
+          <th className="diff-header right" colSpan={2}>
+            {b} {deltaEl}
+          </th>
+        </>
+      )}
+    </tr>
+  );
+}

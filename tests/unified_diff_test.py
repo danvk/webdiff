@@ -148,7 +148,7 @@ def test_add_replaces():
 
 
 def test_parse_raw_diff_many():
-    # git diff --no-index --raw -z testdata/manyfiles/{left,right}
+    # git diff --no-index --raw -z --numstat testdata/manyfiles/{left,right}
     diff = open('testdata/unified/manyfiles.txt').read()
     mod644 = ['100644', '100644', '0000000', '0000000']
     assert parse_raw_diff(diff) == [
@@ -161,20 +161,22 @@ def test_parse_raw_diff_many():
             'testdata/manyfiles/left/d.txt',
             score=100,
             dst_path='testdata/manyfiles/right/a.txt',
+            num_add=0,
+            num_delete=0,
         ),
-        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/b.txt'),
-        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/c.txt'),
-        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/e.txt'),
-        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/f.txt'),
-        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/g.txt'),
-        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/h.txt'),
-        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/i.txt'),
-        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/j.txt'),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/b.txt', num_add=0, num_delete=1),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/c.txt', num_add=0, num_delete=1),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/e.txt', num_add=0, num_delete=1),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/f.txt', num_add=0, num_delete=1),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/g.txt', num_add=0, num_delete=1),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/h.txt', num_add=0, num_delete=1),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/i.txt', num_add=0, num_delete=1),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/j.txt', num_add=0, num_delete=1),
     ]
 
 
 def test_parse_raw_diff_rename():
-    # git diff --no-index --raw -z testdata/rename+change/{left,right}
+    # git diff --no-index --raw -z --numstat testdata/rename+change/{left,right}
     diff = open('testdata/unified/rename+change.txt').read()
     assert parse_raw_diff(diff) == [
         RawDiffLine(
@@ -186,6 +188,8 @@ def test_parse_raw_diff_rename():
             'testdata/rename+change/left/huckfinn.txt',
             score=90,
             dst_path='testdata/rename+change/right/huckfinn.md',
+            num_add=2,
+            num_delete=2,
         ),
     ]
 

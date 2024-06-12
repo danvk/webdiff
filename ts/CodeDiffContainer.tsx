@@ -14,6 +14,8 @@ interface BaseFilePair {
   type: 'add' | 'delete' | 'move' | 'change'; // XXX check "change"
   /** Are there any changes to the file? Only set for "thick" diffs. */
   no_changes?: boolean;
+  num_add: number | null;
+  num_delete: number | null;
 }
 
 interface TextFilePair extends BaseFilePair {
@@ -121,8 +123,7 @@ export function CodeDiffContainer(props: {filePair: FilePair; diffOptions: Parti
       <div ref={codediffRef} key={filePair.idx}>
         {contents ? (
           <FileDiff
-            pathBefore={filePair.a}
-            pathAfter={filePair.b}
+            filePair={filePair}
             contentsBefore={contents.before}
             contentsAfter={contents.after}
             diffOps={contents.diffOps}
@@ -136,8 +137,7 @@ export function CodeDiffContainer(props: {filePair: FilePair; diffOptions: Parti
 }
 
 interface FileDiffProps {
-  pathBefore: string;
-  pathAfter: string;
+  filePair: FilePair;
   contentsBefore: string | null;
   contentsAfter: string | null;
   diffOps: DiffRange[];
@@ -155,7 +155,9 @@ function lengthOrZero(data: unknown[] | string | null | undefined) {
 }
 
 function FileDiff(props: FileDiffProps) {
-  const {pathBefore, pathAfter, contentsBefore, contentsAfter, diffOps} = props;
+  const {filePair, contentsBefore, contentsAfter, diffOps} = props;
+  const pathBefore = filePair.a;
+  const pathAfter = filePair.b;
   // build the diff view and add it to the current DOM
 
   const lastOp = diffOps[diffOps.length - 1];
@@ -182,18 +184,21 @@ function FileDiff(props: FileDiffProps) {
 
   const opts = React.useMemo(
     (): Partial<PatchOptions> => ({
-      // set the display titles for each resource
-      beforeName: pathBefore || '(none)',
-      afterName: pathAfter || '(none)',
       language,
       // TODO: thread through minJumpSize
     }),
-    [language, pathAfter, pathBefore],
+    [language],
   );
 
   return (
     <div className="diff">
-      <CodeDiff beforeText={contentsBefore} afterText={contentsAfter} ops={diffOps} params={opts} />
+      <CodeDiff
+        beforeText={contentsBefore}
+        afterText={contentsAfter}
+        filePair={filePair}
+        ops={diffOps}
+        params={opts}
+      />
     </div>
   );
 }

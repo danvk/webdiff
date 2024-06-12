@@ -8,11 +8,13 @@ test('util.filePairDisplayName', () => {
       type: 'delete',
       a: 'dir/file.json',
       b: '',
+      num_add: 0,
+      num_delete: 0,
     }),
   ).toEqual('dir/file.json');
 
   const rename = (a: string, b: string) => {
-    return filePairDisplayName({...props, type: 'move', a, b});
+    return filePairDisplayName({...props, type: 'move', a, b, num_add: 0, num_delete: 0});
   };
   expect(rename('file.json', 'renamed.json')).toEqual('{file → renamed}.json');
   expect(rename('dir/file.json', 'dir/renamed.json')).toEqual('dir/{file → renamed}.json');
