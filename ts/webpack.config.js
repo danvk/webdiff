@@ -7,7 +7,7 @@ const mode = process.env.NODE_ENV || 'production';
 const options = {
   mode: mode,
   entry: './index.tsx',
-  devtool: 'sourcemap',
+  devtool: 'source-map',
   module: {
     rules: [
       {

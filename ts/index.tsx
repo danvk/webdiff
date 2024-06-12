@@ -13,4 +13,9 @@ const App = () => (
 );
 
 injectStylesFromConfig();
-ReactDOM.render(<App />, document.getElementById('application'));
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  document.getElementById('application'),
+);
