@@ -11,7 +11,7 @@ def any_nonflag_args(args):
     return len([x for x in args if not x.startswith('-')]) > 0
 
 
-def run(argv):
+def run(argv=sys.argv):
     if os.environ.get('DEBUG'):
         sys.stderr.write(f'git webdiff invoked as: {argv}\n')
 

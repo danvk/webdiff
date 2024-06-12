@@ -158,6 +158,7 @@ Publication checklist. Do these from _outside_ the webdiff directory:
 
 - Run `webdiff webdiff/testdata/.../{left,right}`
 - Run `git webdiff 52aa15f^..52aa15f` in the codediff.js repo
+- Run `git webshow 52aa15f` from the codediff.js repo (should be same as previous command)
 - Run `webdiff https://github.com/danvk/webdiff/pull/160`
 
 ## Implementation notes
