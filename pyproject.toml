@@ -38,6 +38,7 @@ ruff = "^0.4.6"
 [tool.poetry.scripts]
 webdiff = "webdiff.app:run"
 git-webdiff = "webdiff.gitwebdiff:run"
+git-webshow = "webdiff.gitwebshow:run"
 
 [tool.ruff]
 line-length = 88

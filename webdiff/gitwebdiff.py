@@ -11,9 +11,9 @@ def any_nonflag_args(args):
     return len([x for x in args if not x.startswith('-')]) > 0
 
 
-def run():
+def run(argv):
     if os.environ.get('DEBUG'):
-        sys.stderr.write(f'git webdiff invoked as: {sys.argv}\n')
+        sys.stderr.write(f'git webdiff invoked as: {argv}\n')
 
     try:
         cmd = (
@@ -21,11 +21,11 @@ def run():
             if not os.environ.get('DEBUG')
             else os.path.join(os.path.curdir, 'test.sh')
         )
-        subprocess.call(f'git difftool -d -x {cmd}'.split(' ') + sys.argv[1:])
+        subprocess.call(f'git difftool -d -x {cmd}'.split(' ') + argv[1:])
     except KeyboardInterrupt:
         # Don't raise an exception to the user when sigint is received
         pass
 
 
 if __name__ == '__main__':
-    run()
+    run(sys.argv)
