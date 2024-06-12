@@ -164,14 +164,14 @@ def test_parse_raw_diff_many():
             num_add=0,
             num_delete=0,
         ),
-        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/b.txt', 0, 1),
-        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/c.txt', 0, 1),
-        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/e.txt', 0, 1),
-        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/f.txt', 0, 1),
-        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/g.txt', 0, 1),
-        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/h.txt', 0, 1),
-        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/i.txt', 0, 1),
-        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/j.txt', 0, 1),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/b.txt', num_add=0, num_delete=1),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/c.txt', num_add=0, num_delete=1),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/e.txt', num_add=0, num_delete=1),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/f.txt', num_add=0, num_delete=1),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/g.txt', num_add=0, num_delete=1),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/h.txt', num_add=0, num_delete=1),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/i.txt', num_add=0, num_delete=1),
+        RawDiffLine(*mod644, 'M', 'testdata/manyfiles/left/j.txt', num_add=0, num_delete=1),
     ]
 
 

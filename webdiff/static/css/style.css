@@ -97,10 +97,10 @@ ul.file-list {
   height: 16px;
 }
 .spark .delete {
-  background: red;
+  background: #fcc;
 }
 .spark .add {
-  background: green;
+  background: #cfc;
 }
 
 .side-a { border: 1px solid red; }

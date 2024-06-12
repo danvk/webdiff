@@ -292,7 +292,7 @@ function HeaderRow({filePair}: {filePair: FilePair}) {
   const deleteEl = num_delete ? <span className="num-delete">-{num_delete}</span> : null;
   const deltaEl = (
     <span className="delta">
-      {addEl} {deleteEl}
+      {deleteEl} {addEl}
     </span>
   );
   return (
