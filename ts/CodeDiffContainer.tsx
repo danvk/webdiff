@@ -164,21 +164,18 @@ function FileDiff(props: FileDiffProps) {
   // First guess a language based on the file name.
   // Fall back to guessing based on the contents of the longer version.
   const path = pathBefore || pathAfter;
-  const language = React.useMemo(() => {
-    let language = guessLanguageUsingFileName(path);
-    if (
-      !language &&
-      !HIGHLIGHT_BLACKLIST.includes(extractFilename(path)) &&
-      numLines < GIT_CONFIG.webdiff.maxLinesForSyntax
-    ) {
-      let byLength = [contentsBefore, contentsAfter];
-      if (contentsAfter && lengthOrZero(contentsAfter) > lengthOrZero(contentsBefore)) {
-        byLength = [byLength[1], byLength[0]];
-      }
-      language = byLength[0] ? guessLanguageUsingContents(byLength[0]) ?? null : null;
+  let language = guessLanguageUsingFileName(path);
+  if (
+    !language &&
+    !HIGHLIGHT_BLACKLIST.includes(extractFilename(path)) &&
+    numLines < GIT_CONFIG.webdiff.maxLinesForSyntax
+  ) {
+    let byLength = [contentsBefore, contentsAfter];
+    if (contentsAfter && lengthOrZero(contentsAfter) > lengthOrZero(contentsBefore)) {
+      byLength = [byLength[1], byLength[0]];
     }
-    return language;
-  }, [contentsAfter, contentsBefore, numLines, path]);
+    language = byLength[0] ? guessLanguageUsingContents(byLength[0]) ?? null : null;
+  }
 
   const opts: Partial<PatchOptions> = {
     language,

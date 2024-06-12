@@ -29,12 +29,9 @@ export function Root() {
   );
 
   const navigate = useNavigate();
-  const selectIndex = React.useCallback(
-    (idx: number) => {
-      navigate(`/${idx}`);
-    },
-    [navigate],
-  );
+  const selectIndex = (idx: number) => {
+    navigate(`/${idx}`);
+  };
 
   const params = useParams<'index'>();
   const idx = Number(params.index ?? initialIdx);
