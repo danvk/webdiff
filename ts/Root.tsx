@@ -1,5 +1,5 @@
 import React from 'react';
-import {RouteComponentProps, useHistory} from 'react-router';
+import {useNavigate, useParams} from 'react-router-dom';
 import {FilePair} from './CodeDiffContainer';
 import {DiffOptions} from './diff-options';
 import {DiffView, PerceptualDiffMode} from './DiffView';
@@ -15,10 +15,8 @@ declare const pairs: FilePair[];
 declare const initialIdx: number;
 declare const GIT_CONFIG: GitConfig;
 
-type Props = RouteComponentProps<{index?: string}>;
-
 // Webdiff application root.
-export function Root(props: Props) {
+export function Root() {
   const [pdiffMode, setPDiffMode] = React.useState<PerceptualDiffMode>('off');
   const [imageDiffMode, setImageDiffMode] = React.useState<ImageDiffMode>('side-by-side');
   const [diffOptions, setDiffOptions] = React.useState<Partial<DiffOptions>>({});
@@ -30,15 +28,16 @@ export function Root(props: Props) {
     pairs.length <= 6 ? 'list' : 'dropdown',
   );
 
-  const history = useHistory();
+  const navigate = useNavigate();
   const selectIndex = React.useCallback(
     (idx: number) => {
-      history.push(`/${idx}`);
+      navigate(`/${idx}`);
     },
-    [history],
+    [navigate],
   );
 
-  const idx = Number(props.match.params.index ?? initialIdx);
+  const params = useParams<'index'>();
+  const idx = Number(params.index ?? initialIdx);
   const filePair = pairs[idx];
   React.useEffect(() => {
     document.title = 'Diff: ' + filePairDisplayName(filePair) + ' (' + filePair.type + ')';

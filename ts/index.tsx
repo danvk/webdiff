@@ -1,21 +1,22 @@
+import {createRoot} from 'react-dom/client';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
+import {BrowserRouter, Routes, Route} from 'react-router-dom';
 import {injectStylesFromConfig} from './options';
 import {Root} from './Root';
 
 const App = () => (
-  <Router>
-    <Switch>
-      <Route path="/:index?" component={Root} />
-    </Switch>
-  </Router>
+  <BrowserRouter>
+    <Routes>
+      <Route path="/:index?" element={<Root />} />
+    </Routes>
+  </BrowserRouter>
 );
 
 injectStylesFromConfig();
-ReactDOM.render(
+const root = createRoot(document.getElementById('application')!);
+
+root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>,
-  document.getElementById('application'),
 );

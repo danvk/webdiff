@@ -21,8 +21,8 @@
     "@types/jest": "^29.5.12",
     "@types/lodash": "^4.14.161",
     "@types/node": "^20.14.2",
-    "@types/react": "^16.9.49",
-    "@types/react-dom": "^16.9.8",
+    "@types/react": "npm:types-react@rc",
+    "@types/react-dom": "npm:types-react-dom@rc",
     "@types/react-router": "^5.1.8",
     "@types/react-router-dom": "^5.1.5",
     "babel-plugin-react-compiler": "^0.0.0-experimental-938cd9a-20240601",
@@ -47,7 +47,11 @@
     "lodash": "^4.17.20",
     "react": "^19.0.0-rc-f3e09d6328-20240612",
     "react-dom": "^19.0.0-rc-f3e09d6328-20240612",
-    "react-router": "^5.2.0",
-    "react-router-dom": "^5.2.0"
+    "react-router": "^6.23.1",
+    "react-router-dom": "^6.23.1"
+  },
+  "overrides": {
+    "@types/react": "npm:types-react@rc",
+    "@types/react-dom": "npm:types-react-dom@rc"
   }
 }
