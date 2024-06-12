@@ -15,6 +15,7 @@ export interface Props {
 export function FileList(props: Props) {
   const {filePairs, selectedIndex, fileChangeHandler} = props;
 
+  const anyWithDiffstats = filePairs.some(fp => fp.num_add !== null || fp.num_delete !== null);
   const maxDelta = React.useMemo(() => {
     return Math.max(1, ...filePairs.map(fp => (fp.num_add ?? 0) + (fp.num_delete ?? 0)));
   }, [filePairs]);
@@ -35,7 +36,13 @@ export function FileList(props: Props) {
       );
     return (
       <li key={idx}>
-        <SparkChart maxDelta={maxDelta} numAdd={filePair.num_add} numDelete={filePair.num_delete} />
+        {anyWithDiffstats ? (
+          <SparkChart
+            maxDelta={maxDelta}
+            numAdd={filePair.num_add}
+            numDelete={filePair.num_delete}
+          />
+        ) : null}
         <span title={filePair.type} className={`diff ${filePair.type}`} />
         {content}
       </li>
@@ -52,17 +59,14 @@ interface SparkChartProps {
 
 function SparkChart(props: SparkChartProps) {
   const {numAdd, numDelete, maxDelta} = props;
-  if (numAdd === null || numDelete === null) {
-    return null;
-  }
   return (
     <div className="spark">
-      {numDelete > 0 && (
+      {numDelete !== null && numDelete > 0 && (
         <div
           className="delete"
           style={{width: `${Math.round((100 * numDelete) / maxDelta)}%`}}></div>
       )}
-      {numAdd > 0 && (
+      {numAdd !== null && numAdd > 0 && (
         <div className="add" style={{width: `${Math.round((100 * numAdd) / maxDelta)}%`}}></div>
       )}
     </div>

@@ -69,6 +69,12 @@ Make sure you chmod this file to only be readable by yourself. You can generate
 a personal access token for webdiff via github.com → profile → Settings →
 Personal access tokens. Make sure to grant all the "repo" privileges.
 
+You can also use `git webshow` in place of `git show` to show a single commit:
+
+    git webshow HEAD
+
+`git webshow REF` is shorthand for `git webdiff REF^..REF`.
+
 ## Configuration
 
 webdiff can be configured via [`git config`][git config]. To change the syntax highlighting theme, for example:
