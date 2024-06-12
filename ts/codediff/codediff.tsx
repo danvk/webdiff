@@ -6,6 +6,7 @@ import {stringAsLines} from './string-utils';
 import {isLegitKeypress} from '../file_diff';
 import {DiffRow} from './DiffRow';
 import {SkipRange, SkipRow} from './SkipRow';
+import {FilePair} from '../CodeDiffContainer';
 
 export interface PatchOptions {
   /** Minimum number of skipped lines to elide into a "jump" row */
@@ -13,16 +14,12 @@ export interface PatchOptions {
   /** Number of additional lines to show when you click an expand arrow. */
   expandLines: number;
   language: string | null;
-  beforeName: string;
-  afterName: string;
   wordWrap: boolean;
 }
 
 const DEFAULT_PARAMS: PatchOptions = {
   minJumpSize: 10,
   language: null,
-  beforeName: 'Before',
-  afterName: 'After',
   wordWrap: false,
   expandLines: 10,
 };
@@ -53,6 +50,7 @@ function enforceMinJumpSize(diffs: DiffRange[], minJumpSize: number): DiffRange[
 }
 
 export interface Props {
+  filePair: FilePair;
   beforeText: string | null;
   afterText: string | null;
   ops: DiffRange[];
@@ -61,6 +59,7 @@ export interface Props {
 
 export function CodeDiff(props: Props) {
   const {beforeText, afterText, ops, params} = props;
+
   const beforeLines = React.useMemo(
     () => (beforeText ? stringAsLines(beforeText) : []),
     [beforeText],
@@ -84,6 +83,7 @@ export function CodeDiff(props: Props) {
       beforeLinesHighlighted={beforeLinesHighlighted}
       afterLines={afterLines}
       afterLinesHighlighted={afterLinesHighlighted}
+      filePair={props.filePair}
       params={fullParams}
       ops={diffRanges}
     />
@@ -127,12 +127,14 @@ interface CodeDiffViewProps {
   afterLines: readonly string[];
   beforeLinesHighlighted: readonly string[] | null;
   afterLinesHighlighted: readonly string[] | null;
+  filePair: FilePair;
   params: PatchOptions;
   ops: readonly DiffRange[];
 }
 
 const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
   const {
+    filePair,
     params,
     ops: initOps,
     afterLines,
@@ -278,10 +280,10 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
         <thead>
           <tr>
             <th className="diff-header" colSpan={2}>
-              {params.beforeName}
+              {filePair.a}
             </th>
             <th className="diff-header" colSpan={2}>
-              {params.afterName}
+              {filePair.b}
             </th>
           </tr>
         </thead>
