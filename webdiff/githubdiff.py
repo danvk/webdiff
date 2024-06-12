@@ -59,13 +59,11 @@ class GitHubDiff(object):
 
     @property
     def num_add(self):
-        return self._file.additions
+        return self._file.additions + self._file.changes
 
     @property
     def num_delete(self):
-        return self._file.deletions
-
-    # TOOD: there's also file.changes
+        return self._file.deletions + self._file.changes
 
 
 def fetch_pull_request(owner, repo, num):
