@@ -30,13 +30,9 @@ export interface ColorsConfig {
 declare const GIT_CONFIG: GitConfig;
 
 export function injectStylesFromConfig() {
-  const config = GIT_CONFIG.webdiff;
   const colors = GIT_CONFIG['webdiff.colors'];
   document.write(`
   <style>
-  td.code {
-    width: ${1 + config.maxDiffWidth}ch;
-  }
   .diff .delete, .before.replace {
     background-color: ${colors.delete};
   }

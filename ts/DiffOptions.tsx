@@ -7,6 +7,9 @@ import {isLegitKeypress} from './file_diff';
 export interface Props {
   options: Partial<DiffOptions>;
   setOptions: (newOptions: Partial<DiffOptions>) => void;
+  defaultMaxDiffWidth: number;
+  maxDiffWidth: number;
+  setMaxDiffWidth: (maxDiffWidth: number) => void;
   isVisible: boolean;
   setIsVisible: (isVisible: boolean) => void;
 }
@@ -49,7 +52,7 @@ const popupStyle: React.CSSProperties = {
 };
 
 export function DiffOptionsControl(props: Props) {
-  const {options, setOptions, isVisible, setIsVisible} = props;
+  const {options, setOptions, isVisible, setIsVisible, maxDiffWidth, setMaxDiffWidth} = props;
 
   const togglePopup = () => {
     setIsVisible(!isVisible);
@@ -68,6 +71,9 @@ export function DiffOptionsControl(props: Props) {
   };
   const changeDiffAlgorithm: React.ChangeEventHandler<HTMLSelectElement> = e => {
     setOptions({...options, diffAlgorithm: e.currentTarget.value as DiffAlgorithm});
+  };
+  const changeMaxDiffWidth: React.ChangeEventHandler<HTMLInputElement> = e => {
+    setMaxDiffWidth(e.currentTarget.valueAsNumber);
   };
 
   React.useEffect(() => {
@@ -169,12 +175,26 @@ export function DiffOptionsControl(props: Props) {
                     </select>
                   </td>
                 </tr>
+                <tr>
+                  <td style={{textAlign: 'right', verticalAlign: 'top'}}>Max line width:</td>
+                  <td>
+                    <input
+                      type="number"
+                      min={1}
+                      max={1000}
+                      value={maxDiffWidth}
+                      onChange={changeMaxDiffWidth}
+                    />{' '}
+                    lines
+                  </td>
+                </tr>
               </tbody>
             </table>
 
-            <p>
-              <code>git diff {diffOptsStr}</code>
-            </p>
+            {diffOptsStr ? <pre>git diff {diffOptsStr}</pre> : null}
+            {maxDiffWidth !== props.defaultMaxDiffWidth ? (
+              <pre>git config webdiff.maxDiffWidth {maxDiffWidth}</pre>
+            ) : null}
           </div>
         </>
       ) : null}
