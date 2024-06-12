@@ -180,13 +180,10 @@ function FileDiff(props: FileDiffProps) {
     return language;
   }, [contentsAfter, contentsBefore, numLines, path]);
 
-  const opts = React.useMemo(
-    (): Partial<PatchOptions> => ({
-      language,
-      // TODO: thread through minJumpSize
-    }),
-    [language],
-  );
+  const opts: Partial<PatchOptions> = {
+    language,
+    // TODO: thread through minJumpSize
+  };
 
   return (
     <div className="diff">
