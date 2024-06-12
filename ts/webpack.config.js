@@ -4,6 +4,8 @@ const path = require('path');
 
 const mode = process.env.NODE_ENV || 'production';
 
+// const {defineReactCompilerLoaderOption, reactCompilerLoader} = require('react-compiler-webpack');
+
 const options = {
   mode: mode,
   entry: './index.tsx',

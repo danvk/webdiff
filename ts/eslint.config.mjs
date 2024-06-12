@@ -48,4 +48,10 @@ export default tseslint.config(
       // '@typescript-eslint/no-non-null-assertion': 'off',
     },
   },
+  {
+    plugins: ['eslint-plugin-react-compiler'],
+    rules: {
+      'react-compiler/react-compiler': 'error',
+    },
+  },
 );
