@@ -4,19 +4,13 @@
 
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import hooksPlugin from 'eslint-plugin-react-hooks';
+import reactCompilerPlugin from 'eslint-plugin-react-compiler';
 
 export default tseslint.config(
   eslint.configs.recommended,
   // See https://typescript-eslint.io/users/configs
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
-  {
-    plugins: {
-      'react-hooks': hooksPlugin,
-    },
-    rules: hooksPlugin.configs.recommended.rules,
-  },
   {
     languageOptions: {
       parserOptions: {
@@ -49,7 +43,9 @@ export default tseslint.config(
     },
   },
   {
-    plugins: ['eslint-plugin-react-compiler'],
+    plugins: {
+      'react-compiler': reactCompilerPlugin,
+    },
     rules: {
       'react-compiler/react-compiler': 'error',
     },
