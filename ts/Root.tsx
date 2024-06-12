@@ -9,9 +9,11 @@ import {ImageDiffMode} from './ImageDiffModeSelector';
 import {filePairDisplayName} from './utils';
 import {DiffOptionsControl} from './DiffOptions';
 import {KeyboardShortcuts} from './codediff/KeyboardShortcuts';
+import {GitConfig} from './options';
 
 declare const pairs: FilePair[];
 declare const initialIdx: number;
+declare const GIT_CONFIG: GitConfig;
 
 type Props = RouteComponentProps<{index?: string}>;
 
@@ -20,6 +22,7 @@ export function Root(props: Props) {
   const [pdiffMode, setPDiffMode] = React.useState<PerceptualDiffMode>('off');
   const [imageDiffMode, setImageDiffMode] = React.useState<ImageDiffMode>('side-by-side');
   const [diffOptions, setDiffOptions] = React.useState<Partial<DiffOptions>>({});
+  const [maxDiffWidth, setMaxDiffWidth] = React.useState(GIT_CONFIG.webdiff.maxDiffWidth);
   const [showKeyboardHelp, setShowKeyboardHelp] = React.useState(false);
   const [showOptions, setShowOptions] = React.useState(false);
   // An explicit list is better, unless there are a ton of files.
@@ -69,38 +72,49 @@ export function Root(props: Props) {
     };
   }, [idx, selectIndex]);
 
+  const inlineStyle = `
+  td.code {
+    width: ${1 + maxDiffWidth}ch;
+  }`;
+
   return (
-    <div>
-      <DiffOptionsControl
-        options={diffOptions}
-        setOptions={setDiffOptions}
-        isVisible={showOptions}
-        setIsVisible={setShowOptions}
-      />
-      <FileSelector
-        selectedFileIndex={idx}
-        filePairs={pairs}
-        fileChangeHandler={selectIndex}
-        mode={fileSelectorMode}
-        onChangeMode={setFileSelectorMode}
-      />
-      {showKeyboardHelp ? (
-        <KeyboardShortcuts
-          onClose={() => {
-            setShowKeyboardHelp(false);
-          }}
+    <>
+      <style>{inlineStyle}</style>
+      <div>
+        <DiffOptionsControl
+          options={diffOptions}
+          setOptions={setDiffOptions}
+          maxDiffWidth={maxDiffWidth}
+          setMaxDiffWidth={setMaxDiffWidth}
+          defaultMaxDiffWidth={GIT_CONFIG.webdiff.maxDiffWidth}
+          isVisible={showOptions}
+          setIsVisible={setShowOptions}
         />
-      ) : null}
-      <DiffView
-        key={`diff-${idx}`}
-        thinFilePair={filePair}
-        imageDiffMode={imageDiffMode}
-        pdiffMode={pdiffMode}
-        diffOptions={diffOptions}
-        changeImageDiffMode={setImageDiffMode}
-        changePDiffMode={setPDiffMode}
-        changeDiffOptions={setDiffOptions}
-      />
-    </div>
+        <FileSelector
+          selectedFileIndex={idx}
+          filePairs={pairs}
+          fileChangeHandler={selectIndex}
+          mode={fileSelectorMode}
+          onChangeMode={setFileSelectorMode}
+        />
+        {showKeyboardHelp ? (
+          <KeyboardShortcuts
+            onClose={() => {
+              setShowKeyboardHelp(false);
+            }}
+          />
+        ) : null}
+        <DiffView
+          key={`diff-${idx}`}
+          thinFilePair={filePair}
+          imageDiffMode={imageDiffMode}
+          pdiffMode={pdiffMode}
+          diffOptions={diffOptions}
+          changeImageDiffMode={setImageDiffMode}
+          changePDiffMode={setPDiffMode}
+          changeDiffOptions={setDiffOptions}
+        />
+      </div>
+    </>
   );
 }
