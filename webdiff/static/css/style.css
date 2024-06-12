@@ -7,6 +7,18 @@ div#thediff {
     top: 0px;
     position: sticky;
     background: white;
+    text-align: left;
+    padding: 4px;
+}
+.diff-header .num-add, .diff-header .num-delete {
+  font-weight: normal;
+  font-size: small;
+}
+.diff-header .num-add {
+  color: green;
+}
+.diff-header .num-delete {
+  color: red;
 }
 
 .diff .line-no, .diff .code {

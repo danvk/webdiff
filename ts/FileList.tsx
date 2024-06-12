@@ -57,13 +57,13 @@ function SparkChart(props: SparkChartProps) {
   }
   return (
     <div className="spark">
+      {numAdd > 0 && (
+        <div className="add" style={{width: `${Math.round((100 * numAdd) / maxDelta)}%`}}></div>
+      )}
       {numDelete > 0 && (
         <div
           className="delete"
           style={{width: `${Math.round((100 * numDelete) / maxDelta)}%`}}></div>
-      )}
-      {numAdd > 0 && (
-        <div className="add" style={{width: `${Math.round((100 * numAdd) / maxDelta)}%`}}></div>
       )}
     </div>
   );

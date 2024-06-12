@@ -255,7 +255,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
   }
 
   const [selectingState, setSelectingState] = React.useState<'left' | 'right' | null>(null);
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseDown = (e: React.MouseEvent) => {
     const td = closest(e.target as Element, 'td');
     if (!td) {
       return;
@@ -266,7 +266,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
       setSelectingState('right');
     }
   };
-  const handleCopy = (e: React.ClipboardEvent<HTMLDivElement>) => {
+  const handleCopy = (e: React.ClipboardEvent) => {
     if (!selectingState) return;
     const isLeft = selectingState === 'left';
     copyOnlyMatching(e.nativeEvent, 'td.' + (isLeft ? 'before' : 'after'));
@@ -278,17 +278,39 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
     <div className={divClassName} onMouseDown={handleMouseDown} onCopy={handleCopy}>
       <table className={tableClassName}>
         <thead>
-          <tr>
-            <th className="diff-header" colSpan={2}>
-              {filePair.a}
-            </th>
-            <th className="diff-header" colSpan={2}>
-              {filePair.b}
-            </th>
-          </tr>
+          <HeaderRow filePair={filePair} />
         </thead>
         <tbody>{diffRows}</tbody>
       </table>
     </div>
   );
 });
+
+function HeaderRow({filePair}: {filePair: FilePair}) {
+  const {a, b, num_add, num_delete} = filePair;
+  const addEl = num_add ? <span className="num-add">+{num_add}</span> : null;
+  const deleteEl = num_delete ? <span className="num-delete">-{num_delete}</span> : null;
+  const deltaEl = (
+    <span className="delta">
+      {addEl} {deleteEl}
+    </span>
+  );
+  return (
+    <tr>
+      {a === b ? (
+        <th className="diff-header combined" colSpan={4}>
+          {a} {deltaEl}
+        </th>
+      ) : (
+        <>
+          <th className="diff-header left" colSpan={2}>
+            {a}
+          </th>
+          <th className="diff-header right" colSpan={2}>
+            {b} {deltaEl}
+          </th>
+        </>
+      )}
+    </tr>
+  );
+}
