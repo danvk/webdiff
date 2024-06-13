@@ -6,7 +6,7 @@
   "author": "Dan Vanderkam (danvdk@gmail.com)",
   "license": "MIT",
   "scripts": {
-    "build": "NODE_OPTIONS=--openssl-legacy-provider webpack",
+    "build": "webpack",
     "format": "yarn prettier --write '**/*.ts{,x}'",
     "format:check": "yarn prettier --check '**/*.ts{,x}'",
     "watch": "yarn run build --watch",

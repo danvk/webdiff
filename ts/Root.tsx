@@ -36,12 +36,16 @@ export function Root() {
   const params = useParams<'index'>();
   const idx = Number(params.index ?? initialIdx);
   const filePair = pairs[idx];
+  // TODO: use react-helmet
   React.useEffect(() => {
     document.title = 'Diff: ' + filePairDisplayName(filePair) + ' (' + filePair.type + ')';
   }, [filePair]);
 
   // TODO: switch to useKey() or some such
   React.useEffect(() => {
+    const selectIndex = (idx: number) => {
+      navigate(`/${idx}`);
+    };
     const handleKeydown = (e: KeyboardEvent) => {
       if (!isLegitKeypress(e)) return;
       if (e.code == 'KeyK') {
@@ -66,7 +70,7 @@ export function Root() {
     return () => {
       document.removeEventListener('keydown', handleKeydown);
     };
-  }, [idx, selectIndex]);
+  }, [idx, navigate]);
 
   const inlineStyle = `
   td.code {
