@@ -19,18 +19,15 @@ export function ImageBlinker(props: ImageDiffProps) {
     }
   };
 
-  const blink = React.useCallback(
-    (e: KeyboardEvent) => {
-      if (!isLegitKeypress(e)) {
-        return;
-      }
-      if (e.key === 'b') {
-        setAutoBlink(false);
-        setIdx(idx => 1 - idx);
-      }
-    },
-    [setIdx, setAutoBlink],
-  );
+  const blink = React.useCallback((e: KeyboardEvent) => {
+    if (!isLegitKeypress(e)) {
+      return;
+    }
+    if (e.key === 'b') {
+      setAutoBlink(false);
+      setIdx(idx => 1 - idx);
+    }
+  }, []);
 
   // XXX old version also sets this on a[value="blink"], what is that?
   React.useEffect(() => {

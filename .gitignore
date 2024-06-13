@@ -62,6 +62,7 @@ node_modules
 webdiff/static/components
 webdiff/static/js/file_diff.js
 webdiff/static/js/file_diff.js.map
+webdiff/static/js/file_diff.js.LICENSE.txt
 
 wheelhouse
 .vscode

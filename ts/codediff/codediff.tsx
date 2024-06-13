@@ -29,6 +29,7 @@ const DEFAULT_PARAMS: PatchOptions = {
  *     tags will be balanced within each line.
  */
 function highlightText(text: string, language: string): string[] | null {
+  console.log('highlightText');
   // TODO(danvk): look into suppressing highlighting if .relevance is low.
   const html = hljs.highlight(text, {language, ignoreIllegals: true}).value;
 
@@ -60,22 +61,14 @@ export interface Props {
 export function CodeDiff(props: Props) {
   const {beforeText, afterText, ops, params} = props;
 
-  const beforeLines = React.useMemo(
-    () => (beforeText ? stringAsLines(beforeText) : []),
-    [beforeText],
-  );
-  const afterLines = React.useMemo(() => (afterText ? stringAsLines(afterText) : []), [afterText]);
-  const fullParams = React.useMemo(() => ({...DEFAULT_PARAMS, ...params}), [params]);
-  const diffRanges = React.useMemo(
-    () => enforceMinJumpSize(ops, fullParams.minJumpSize),
-    [ops, fullParams],
-  );
+  const beforeLines = beforeText ? stringAsLines(beforeText) : [];
+  const afterLines = afterText ? stringAsLines(afterText) : [];
+  const fullParams = {...DEFAULT_PARAMS, ...params};
+  const diffRanges = enforceMinJumpSize(ops, fullParams.minJumpSize);
   const {language} = fullParams;
 
-  const [beforeLinesHighlighted, afterLinesHighlighted] = React.useMemo(() => {
-    if (!language) return [null, null];
-    return [highlightText(beforeText ?? '', language), highlightText(afterText ?? '', language)];
-  }, [language, beforeText, afterText]);
+  const beforeLinesHighlighted = language ? highlightText(beforeText ?? '', language) : null;
+  const afterLinesHighlighted = language ? highlightText(afterText ?? '', language) : null;
 
   return (
     <CodeDiffView
@@ -132,7 +125,8 @@ interface CodeDiffViewProps {
   ops: readonly DiffRange[];
 }
 
-const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
+function CodeDiffView(props: CodeDiffViewProps) {
+  console.log('render CodeDiffView');
   const {
     filePair,
     params,
@@ -284,7 +278,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
       </table>
     </div>
   );
-});
+}
 
 function HeaderRow({filePair}: {filePair: FilePair}) {
   const {a, b, num_add, num_delete} = filePair;
