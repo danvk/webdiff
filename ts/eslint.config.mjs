@@ -4,6 +4,7 @@
 
 import eslint from '@eslint/js';
 import tseslint from 'typescript-eslint';
+import reactCompilerPlugin from 'eslint-plugin-react-compiler';
 import hooksPlugin from 'eslint-plugin-react-hooks';
 
 export default tseslint.config(
@@ -12,18 +13,18 @@ export default tseslint.config(
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
   {
-    plugins: {
-      'react-hooks': hooksPlugin,
-    },
-    rules: hooksPlugin.configs.recommended.rules,
-  },
-  {
     languageOptions: {
       parserOptions: {
         project: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },
+  },
+  {
+    plugins: {
+      'react-hooks': hooksPlugin,
+    },
+    rules: hooksPlugin.configs.recommended.rules,
   },
   {
     rules: {
@@ -46,6 +47,14 @@ export default tseslint.config(
         },
       ],
       // '@typescript-eslint/no-non-null-assertion': 'off',
+    },
+  },
+  {
+    plugins: {
+      'react-compiler': reactCompilerPlugin,
+    },
+    rules: {
+      'react-compiler/react-compiler': 'error',
     },
   },
 );

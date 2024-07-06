@@ -16,9 +16,7 @@ export function FileList(props: Props) {
   const {filePairs, selectedIndex, fileChangeHandler} = props;
 
   const anyWithDiffstats = filePairs.some(fp => fp.num_add !== null || fp.num_delete !== null);
-  const maxDelta = React.useMemo(() => {
-    return Math.max(1, ...filePairs.map(fp => (fp.num_add ?? 0) + (fp.num_delete ?? 0)));
-  }, [filePairs]);
+  const maxDelta = Math.max(1, ...filePairs.map(fp => (fp.num_add ?? 0) + (fp.num_delete ?? 0)));
 
   const lis = filePairs.map((filePair, idx) => {
     const displayName = filePairDisplayName(filePair);
