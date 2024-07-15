@@ -11,6 +11,7 @@ DEFAULTS = {
         'extraFileDiffArgs': '',
         'openBrowser': True,
         'port': -1,  # random
+        'websocketPort': None,
         'host': 'localhost',
         'maxDiffWidth': 100,
         'theme': 'googlecode',

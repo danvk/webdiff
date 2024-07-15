@@ -49,6 +49,7 @@ HOSTNAME = 'localhost'
 DEBUG = os.environ.get('DEBUG')
 SERVER = None
 WEBDIFF_DIR = determine_path()
+WS_PORT = None
 
 if DEBUG:
     handler = logging.StreamHandler()
@@ -126,6 +127,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
                         'has_magick': util.is_imagemagick_available(),
                         'pairs': pairs,
                         'git_config': GIT_CONFIG,
+                        'ws_port': WS_PORT,
                     },
                     indent=2,
                 ),
@@ -263,18 +265,7 @@ def usage_and_die():
     sys.exit(1)
 
 
-def pick_a_port(args, webdiff_config):
-    if 'port' in args:
-        return args['port']
-
-    env_port = os.environ.get('WEBDIFF_PORT')
-    if env_port:
-        return int(env_port)
-
-    # gitconfig
-    if webdiff_config['port'] != -1:
-        return webdiff_config['port']
-
+def random_port():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind(('localhost', 0))
     port = sock.getsockname()[1]
@@ -282,38 +273,34 @@ def pick_a_port(args, webdiff_config):
     return port
 
 
+def pick_ports(args, webdiff_config):
+    """Pick an http and websocket port."""
+    def get_port(key, env_key, gitconfig_key):
+        if key in args:
+            return args[key]
+
+        env_port = os.environ.get(env_key)
+        if env_port:
+            return int(env_port)
+
+        # gitconfig
+        if webdiff_config[gitconfig_key] != -1:
+            return webdiff_config[gitconfig_key]
+        return None
+
+    port = get_port('port', 'WEBDIFF_PORT', 'port') or random_port()
+    ws_port = get_port('ws_port', 'WEBDIFF_WS_PORT', 'websocketPort')
+    if ws_port is None:
+        for i in range(100):
+            ws_port = random_port()
+            if ws_port != port:
+                break
+
+    return port, ws_port
+
+
 def run_http():
-    global DIFF, PORT, HOSTNAME, GIT_CONFIG, SERVER
-    try:
-        parsed_args = argparser.parse(sys.argv[1:], VERSION)
-    except argparser.UsageError as e:
-        sys.stderr.write('Error: %s\n\n' % e)
-        usage_and_die()
-
-    GIT_CONFIG = options.get_config()
-    WEBDIFF_CONFIG = GIT_CONFIG['webdiff']
-    DIFF = argparser.diff_for_args(parsed_args, WEBDIFF_CONFIG)
-
-    if DEBUG:
-        sys.stderr.write('Invoked as: %s\n' % sys.argv)
-        sys.stderr.write('Args: %s\n' % parsed_args)
-        sys.stderr.write('Diff: %s\n' % DIFF)
-        sys.stderr.write('GitConfig: %s\n' % GIT_CONFIG)
-
-    PORT = pick_a_port(parsed_args, WEBDIFF_CONFIG)
-    HOSTNAME = (
-        parsed_args.get('host')
-        or os.environ.get('WEBDIFF_HOST')
-        or WEBDIFF_CONFIG['host']
-    )
-    if HOSTNAME == '<hostname>':
-        _hostname = platform.node()
-        # platform.node will return empty string if it can't find the hostname
-        if not _hostname:
-            sys.stderr.write('Warning: hostname could not be determined\n')
-        else:
-            HOSTNAME = _hostname
-
+    global SERVER
     sys.stderr.write(
         """Serving diffs on http://%s:%s
 Close the browser tab or hit Ctrl-C when you're done.
@@ -366,17 +353,47 @@ async def websocket_main():
     loop = asyncio.get_running_loop()
     STOP_WS = loop.create_future()
 
-    async with websockets.serve(echo, "localhost", 8765):
+    async with websockets.serve(echo, HOSTNAME, WS_PORT):
         await STOP_WS
 
 
 def run():
+    global DIFF, PORT, WS_PORT, HOSTNAME, GIT_CONFIG, SERVER
+    try:
+        parsed_args = argparser.parse(sys.argv[1:], VERSION)
+    except argparser.UsageError as e:
+        sys.stderr.write('Error: %s\n\n' % e)
+        usage_and_die()
+
+    GIT_CONFIG = options.get_config()
+    WEBDIFF_CONFIG = GIT_CONFIG['webdiff']
+    DIFF = argparser.diff_for_args(parsed_args, WEBDIFF_CONFIG)
+
+    if DEBUG:
+        sys.stderr.write('Invoked as: %s\n' % sys.argv)
+        sys.stderr.write('Args: %s\n' % parsed_args)
+        sys.stderr.write('Diff: %s\n' % DIFF)
+        sys.stderr.write('GitConfig: %s\n' % GIT_CONFIG)
+
+    PORT, WS_PORT = pick_ports(parsed_args, WEBDIFF_CONFIG)
+    logging.debug(f'chosen ports: {PORT} (http), {WS_PORT} (ws)')
+    HOSTNAME = (
+        parsed_args.get('host')
+        or os.environ.get('WEBDIFF_HOST')
+        or WEBDIFF_CONFIG['host']
+    )
+    if HOSTNAME == '<hostname>':
+        _hostname = platform.node()
+        # platform.node will return empty string if it can't find the hostname
+        if not _hostname:
+            sys.stderr.write('Warning: hostname could not be determined\n')
+        else:
+            HOSTNAME = _hostname
+
     t_http = threading.Thread(target=run_http)
     t_ws = threading.Thread(target=run_websocket)
-
     t_http.start()
     t_ws.start()
-
     t_http.join()
     t_ws.join()
 
