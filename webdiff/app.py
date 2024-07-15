@@ -400,10 +400,10 @@ def run():
             HOSTNAME = _hostname
 
     t_http = threading.Thread(target=run_http)
-    t_ws = threading.Thread(target=run_websocket)
     t_http.start()
-    t_ws.start()
-    t_ws.join()
+    run_websocket()
+    # t_ws.start()
+    # t_ws.join()
     t_http.join()
 
 
