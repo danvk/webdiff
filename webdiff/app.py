@@ -47,6 +47,7 @@ DIFF = None
 PORT = None
 HOSTNAME = 'localhost'
 DEBUG = os.environ.get('DEBUG')
+SERVER = None
 WEBDIFF_DIR = determine_path()
 
 if DEBUG:
@@ -107,8 +108,6 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         elif m := re.match(r'/diff/(?P<idx>\d+)', path):
             payload = json.loads(post_data.decode('utf-8'))
             self.handle_diff_ops(int(m['idx']), payload)
-        elif path == '/kill':
-            self.handle_kill()
         else:
             self.send_error(404, 'File not found')
 
@@ -221,25 +220,6 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         ]
         self.send_response_with_json(200, diff_ops)
 
-    def handle_kill(self):
-        last_ms = LAST_REQUEST_MS
-
-        def shutdown():
-            if LAST_REQUEST_MS <= last_ms:  # subsequent requests abort shutdown
-                # See https://stackoverflow.com/a/19040484/388951
-                # and https://stackoverflow.com/q/4330111/388951
-                sys.stderr.write('Shutting down...\n')
-                threading.Thread(target=self.server.shutdown, daemon=True).start()
-            else:
-                logging.debug('Received subsequent request; canceling shutdown')
-
-        logging.debug('Received request to shut down; waiting 500ms for subsequent requests...')
-        threading.Timer(0.5, shutdown).start()
-        self.send_response(200)
-        self.send_header('Content-Type', 'text/plain')
-        self.end_headers()
-        self.wfile.write(b'Shutting down...')
-
     def send_response_with_json(self, code, payload):
         self.send_response(code)
         self.send_header('Content-Type', 'application/json')
@@ -303,7 +283,7 @@ def pick_a_port(args, webdiff_config):
 
 
 def run_http():
-    global DIFF, PORT, HOSTNAME, GIT_CONFIG
+    global DIFF, PORT, HOSTNAME, GIT_CONFIG, SERVER
     try:
         parsed_args = argparser.parse(sys.argv[1:], VERSION)
     except argparser.UsageError as e:
@@ -343,7 +323,26 @@ Close the browser tab or hit Ctrl-C when you're done.
     threading.Timer(0.1, open_browser).start()
 
     server = HTTPServer((HOSTNAME, PORT), CustomHTTPRequestHandler)
+    SERVER = server
     server.serve_forever()
+
+
+def maybe_shutdown():
+    """Wait a second for new requests, then shut down the server."""
+    last_ms = LAST_REQUEST_MS
+
+    def shutdown():
+        if LAST_REQUEST_MS <= last_ms:  # subsequent requests abort shutdown
+            # See https://stackoverflow.com/a/19040484/388951
+            # and https://stackoverflow.com/q/4330111/388951
+            sys.stderr.write('Shutting down...\n')
+            STOP_WS.set_result(None)
+            threading.Thread(target=SERVER.shutdown, daemon=True).start()
+        else:
+            logging.debug('Received subsequent request; shutdown aborted.')
+
+    logging.debug('Received request to shut down; waiting 500ms for subsequent requests...')
+    threading.Timer(0.5, shutdown).start()
 
 
 def run_websocket():
@@ -351,17 +350,24 @@ def run_websocket():
 
 
 async def echo(websocket):
+    logging.debug('websocket connected')
+    note_request_time()
     async for message in websocket:
         logging.debug(f'Received {message} on websocket')
+        note_request_time()
         await websocket.send(message)
     logging.debug('websocket closed')
+    note_request_time()
+    maybe_shutdown()
 
 
 async def websocket_main():
-    async with websockets.serve(
-        echo, "localhost", 8765,
-    ):
-        await asyncio.Future()  # run forever
+    global STOP_WS
+    loop = asyncio.get_running_loop()
+    STOP_WS = loop.create_future()
+
+    async with websockets.serve(echo, "localhost", 8765):
+        await STOP_WS
 
 
 def run():
