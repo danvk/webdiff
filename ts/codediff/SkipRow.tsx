@@ -52,7 +52,7 @@ export function SkipRow(props: SkipRowProps) {
       Show {numRows} more lines
     </a>
   );
-  const headerHTML = header ? <span className="hunk-header">${header}</span> : '';
+  const headerHTML = header ? <span className="hunk-header">{header}</span> : '';
 
   const rowRef = React.useRef<HTMLTableRowElement>(null);
   React.useEffect(() => {
