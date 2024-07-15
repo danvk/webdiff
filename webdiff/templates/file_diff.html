@@ -3,8 +3,6 @@
 <head>
   <title>Diff</title>
 
-  <script src="/static/js/jquery-2.1.1.min.js"></script>
-
   <script src="/static/js/highlight.min.js"></script>
   <link rel="stylesheet" href="/theme.css">
 
@@ -32,9 +30,9 @@ var GIT_CONFIG = git_config;
 <script src="/static/js/file_diff.js"></script>
 
 <script>
-  window.addEventListener('beforeunload', function(e) {
-    $.post('/kill');
-  });
+window.addEventListener('beforeunload', function(e) {
+  fetch('/kill', { method: 'post' });
+});
 </script>
 
 </html>
