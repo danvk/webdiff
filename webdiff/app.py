@@ -4,6 +4,7 @@
 For usage, see README.md.
 """
 
+import asyncio
 import dataclasses
 import json
 import logging
@@ -17,6 +18,8 @@ import sys
 import threading
 import time
 import webbrowser
+
+import websockets
 from binaryornot.check import is_binary
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
@@ -299,7 +302,7 @@ def pick_a_port(args, webdiff_config):
     return port
 
 
-def run():
+def run_http():
     global DIFF, PORT, HOSTNAME, GIT_CONFIG
     try:
         parsed_args = argparser.parse(sys.argv[1:], VERSION)
@@ -341,6 +344,35 @@ Close the browser tab or hit Ctrl-C when you're done.
 
     server = HTTPServer((HOSTNAME, PORT), CustomHTTPRequestHandler)
     server.serve_forever()
+
+
+def run_websocket():
+    asyncio.run(websocket_main())
+
+
+async def echo(websocket):
+    async for message in websocket:
+        logging.debug(f'Received {message} on websocket')
+        await websocket.send(message)
+    logging.debug('websocket closed')
+
+
+async def websocket_main():
+    async with websockets.serve(
+        echo, "localhost", 8765,
+    ):
+        await asyncio.Future()  # run forever
+
+
+def run():
+    t_http = threading.Thread(target=run_http)
+    t_ws = threading.Thread(target=run_websocket)
+
+    t_http.start()
+    t_ws.start()
+
+    t_http.join()
+    t_ws.join()
 
 
 if __name__ == '__main__':
