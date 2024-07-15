@@ -5,9 +5,7 @@
   "ignoreExportsUsedInFile": true,
   "ignoreDependencies": [
     "jest-environment-jsdom",
-    "@types/jest",
-    // https://github.com/webpro-nl/knip/issues/675
-    "ts-jest"
+    "@types/jest"
   ],
   "prettier": {
     "config": [".prettierrc"]
