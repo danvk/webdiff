@@ -19,7 +19,9 @@ import threading
 import time
 import webbrowser
 
-import websockets
+import aiohttp
+from aiohttp import web
+import aiohttp.web_request
 from binaryornot.check import is_binary
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
@@ -75,16 +77,10 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         note_request_time()
         path = urlparse(self.path).path.removesuffix('/') or '/'
 
-        if path == '/':
-            self.handle_index(0)
-        elif m := re.match(r'/(?P<idx>\d+)$', path):
-            self.handle_index(int(m['idx']))
-        elif path == '/favicon.ico':
+        if path == '/favicon.ico':
             self.handle_favicon()
         elif path == '/theme.css':
             self.handle_theme()
-        elif path.startswith('/static/'):
-            self.handle_static(path[1:])
         elif m := re.match(r'/thick/(?P<idx>\d+)', path):
             self.handle_thick(int(m['idx']))
         elif m := re.match(r'/(?P<side>a|b)/image/(?P<path>.*)', path):
@@ -112,27 +108,7 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         else:
             self.send_error(404, 'File not found')
 
-    def handle_index(self, idx: int):
-        pairs = diff.get_thin_list(DIFF)
-        self.send_response(200)
-        self.send_header('Content-Type', 'text/html; charset=utf-8')
-        self.end_headers()
-        with open(os.path.join(WEBDIFF_DIR, 'templates/file_diff.html'), 'r') as file:
-            html = file.read()
-            html = html.replace(
-                '{{data}}',
-                json.dumps(
-                    {
-                        'idx': idx,
-                        'has_magick': util.is_imagemagick_available(),
-                        'pairs': pairs,
-                        'git_config': GIT_CONFIG,
-                        'ws_port': WS_PORT,
-                    },
-                    indent=2,
-                ),
-            )
-            self.wfile.write(html.encode('utf-8'))
+
 
     def handle_thick(self, idx: int):
         self.send_response_with_json(200, diff.get_thick_dict(DIFF[idx]))
@@ -246,6 +222,98 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
         if DEBUG:
             super().log_request(*args)
 
+async def handle_index(request: aiohttp.web_request.Request):
+    idx = int(request.match_info.get('idx', '0'))
+    pairs = diff.get_thin_list(DIFF)
+    # self.send_response(200)
+    # self.send_header('Content-Type', 'text/html; charset=utf-8')
+    # self.end_headers()
+    with open(os.path.join(WEBDIFF_DIR, 'templates/file_diff.html'), 'r') as file:
+        html = file.read()
+        html = html.replace(
+            '{{data}}',
+            json.dumps(
+                {
+                    'idx': idx,
+                    'has_magick': util.is_imagemagick_available(),
+                    'pairs': pairs,
+                    'git_config': GIT_CONFIG,
+                    'ws_port': WS_PORT,
+                },
+                indent=2,
+            ),
+        )
+        return web.Response(body=html, content_type='text/html', charset='utf-8')
+        # self.wfile.write(html.encode('utf-8'))
+
+
+async def handle_thick(request: aiohttp.web_request.Request):
+    idx = int(request.match_info.get('idx'))
+    return web.json_response(diff.get_thick_dict(DIFF[idx]))
+
+
+async def handle_get_contents(request: aiohttp.web_request.Request):
+    side = request.match_info['side']
+    form_data = await request.post()
+    path = form_data.get('path', '')
+    if not path:
+        return web.json_response({'error': 'incomplete'}, status=400)
+
+    idx = diff.find_diff_index(DIFF, side, path)
+    if idx is None:
+        return web.json_response({'error': 'not found'}, status=400)
+
+    d = DIFF[idx]
+    abs_path = d.a_path if side == 'a' else d.b_path
+
+    try:
+        if is_binary(abs_path):
+            size = os.path.getsize(abs_path)
+            contents = f'Binary file ({size} bytes)'
+        else:
+            with open(abs_path, 'r') as file:
+                contents = file.read()
+        return web.Response(text=contents, content_type='text/plain')
+    except Exception as e:
+        return web.json_response({'error': str(e)}, status=500)
+
+
+async def handle_diff_ops(request: aiohttp.web_request.Request):
+    idx = int(request.match_info.get('idx'))
+    payload = await request.post()
+    options = payload.get('options') or []
+    extra_args = GIT_CONFIG['webdiff']['extraFileDiffArgs']
+    if extra_args:
+        options += extra_args.split(' ')
+    diff_ops = [
+        dataclasses.asdict(op) for op in diff.get_diff_ops(DIFF[idx], options)
+    ]
+    return web.json_response(diff_ops, status=200)
+
+
+async def handle_theme(request: aiohttp.web_request.Request):
+    theme = GIT_CONFIG['webdiff']['theme']
+    theme_dir = os.path.dirname(theme)
+    theme_file = os.path.basename(theme)
+    theme_path = os.path.join(WEBDIFF_DIR, 'static/css/themes', theme_dir, theme_file + '.css')
+    with open(theme_path) as f:
+        text = f.read()
+        return web.Response(text=text, content_type='text/css')
+
+
+app = web.Application()
+app.add_routes(
+    [
+        web.get('/', handle_index),
+        web.get(r'/{idx:\d+}', handle_index),
+        web.get('/theme.css', handle_theme),
+        web.static('/static', os.path.join(WEBDIFF_DIR, 'static')),
+        web.get(r'/thick/{idx:\d+}', handle_thick),
+        web.post(r'/{side:a|b}/get_contents', handle_get_contents),
+        web.post(r'/diff/{idx:\d+}', handle_diff_ops),
+    ]
+)
+
 
 def note_request_time():
     global LAST_REQUEST_MS
@@ -309,9 +377,10 @@ Close the browser tab or hit Ctrl-C when you're done.
     )
     threading.Timer(0.1, open_browser).start()
 
-    server = HTTPServer((HOSTNAME, PORT), CustomHTTPRequestHandler)
-    SERVER = server
-    server.serve_forever()
+    web.run_app(app, host=HOSTNAME, port=PORT)
+    # server = HTTPServer((HOSTNAME, PORT), CustomHTTPRequestHandler)
+    # SERVER = server
+    # server.serve_forever()
     logging.debug('http server shut down')
 
 
@@ -328,8 +397,8 @@ def maybe_shutdown():
             # See https://stackoverflow.com/a/19040484/388951
             # and https://stackoverflow.com/q/4330111/388951
             sys.stderr.write('Shutting down...\n')
-            threading.Thread(target=stop_websocket, daemon=True).start()
-            threading.Thread(target=SERVER.shutdown, daemon=True).start()
+            # threading.Thread(target=stop_websocket, daemon=True).start()
+            # threading.Thread(target=SERVER.shutdown, daemon=True).start()
         else:
             logging.debug('Received subsequent request; shutdown aborted.')
 
@@ -358,12 +427,12 @@ async def websocket_main():
     loop = asyncio.get_running_loop()
     STOP_WS = loop.create_future()
 
-    logging.debug('serving WS')
-    async with websockets.serve(echo, HOSTNAME, WS_PORT):
-        logging.debug('awaiting STOP_WS')
-        await STOP_WS
-        logging.debug('STOP_WS is done')
-    logging.debug('done with websocket_main')
+    # logging.debug('serving WS')
+    # async with websockets.serve(echo, HOSTNAME, WS_PORT):
+    #     logging.debug('awaiting STOP_WS')
+    #     await STOP_WS
+    #     logging.debug('STOP_WS is done')
+    # logging.debug('done with websocket_main')
 
 
 def run():
@@ -399,12 +468,13 @@ def run():
         else:
             HOSTNAME = _hostname
 
-    t_http = threading.Thread(target=run_http)
-    t_http.start()
-    run_websocket()
+    run_http()
+    # t_http = threading.Thread(target=run_http)
+    # t_http.start()
+    # run_websocket()
     # t_ws.start()
     # t_ws.join()
-    t_http.join()
+    # t_http.join()
 
 
 if __name__ == '__main__':
