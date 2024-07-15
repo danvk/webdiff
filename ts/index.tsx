@@ -16,10 +16,10 @@ injectStylesFromConfig();
 ReactDOM.render(<App />, document.getElementById('application'));
 
 declare const WS_PORT: number;
-const hostname = window.location.hostname;
-const websocket = new WebSocket(`ws://${hostname}:${WS_PORT}/`);
+const host = window.location.host;
+const websocket = new WebSocket(`ws://${host}/ws`);
 websocket.onmessage = msg => {
-  // no-op
+  console.log('received', msg);
 };
 websocket.onopen = e => {
   websocket.send('hello!');
