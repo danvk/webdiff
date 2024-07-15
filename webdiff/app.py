@@ -22,6 +22,8 @@ import webbrowser
 import aiohttp
 from aiohttp import web
 import aiohttp.web_request
+from aiohttp.web_runner import GracefulExit
+
 from binaryornot.check import is_binary
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
@@ -302,6 +304,7 @@ async def handle_theme(request: aiohttp.web_request.Request):
 
 
 async def websocket_handler(request: aiohttp.web_request.Request):
+    print('websocket connect')
     ws = web.WebSocketResponse()
     await ws.prepare(request)
 
@@ -317,10 +320,22 @@ async def websocket_handler(request: aiohttp.web_request.Request):
                   ws.exception())
 
     print('websocket connection closed')
+    maybe_shutdown()
     return ws
 
+async def shutdown(request):
+    print("will shutdown now")
+    raise GracefulExit()
 
-app = web.Application()
+@web.middleware
+async def request_time_middleware(request, handler):
+    print("middleware called")
+    note_request_time()
+    response = await handler(request)
+    return response
+
+
+app = web.Application(middlewares=[request_time_middleware])
 app.add_routes(
     [
         web.get('/', handle_index),
@@ -330,7 +345,8 @@ app.add_routes(
         web.get(r'/thick/{idx:\d+}', handle_thick),
         web.post(r'/{side:a|b}/get_contents', handle_get_contents),
         web.post(r'/diff/{idx:\d+}', handle_diff_ops),
-        web.get('/ws', websocket_handler)
+        web.get('/ws', websocket_handler),
+        web.post('/shutdown', shutdown)
     ]
 )
 
@@ -404,6 +420,15 @@ Close the browser tab or hit Ctrl-C when you're done.
     logging.debug('http server shut down')
 
 
+async def issue_shutdown_request():
+    async with aiohttp.ClientSession() as session:
+        url = f'http://{HOSTNAME}:{PORT}/shutdown'
+        print(f'hitting {url}')
+        async with session.post(url) as _resp:
+            pass
+
+
+
 def maybe_shutdown():
     """Wait a second for new requests, then shut down the server."""
     last_ms = LAST_REQUEST_MS
@@ -417,6 +442,8 @@ def maybe_shutdown():
             # See https://stackoverflow.com/a/19040484/388951
             # and https://stackoverflow.com/q/4330111/388951
             sys.stderr.write('Shutting down...\n')
+            asyncio.run(issue_shutdown_request())
+            # app.loop.stop()
             # threading.Thread(target=stop_websocket, daemon=True).start()
             # threading.Thread(target=SERVER.shutdown, daemon=True).start()
         else:
