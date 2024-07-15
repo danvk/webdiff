@@ -312,18 +312,23 @@ Close the browser tab or hit Ctrl-C when you're done.
     server = HTTPServer((HOSTNAME, PORT), CustomHTTPRequestHandler)
     SERVER = server
     server.serve_forever()
+    logging.debug('http server shut down')
 
 
 def maybe_shutdown():
     """Wait a second for new requests, then shut down the server."""
     last_ms = LAST_REQUEST_MS
 
+    def stop_websocket():
+        logging.debug('setting stop_ws')
+        STOP_WS.set_result(None)
+
     def shutdown():
         if LAST_REQUEST_MS <= last_ms:  # subsequent requests abort shutdown
             # See https://stackoverflow.com/a/19040484/388951
             # and https://stackoverflow.com/q/4330111/388951
             sys.stderr.write('Shutting down...\n')
-            STOP_WS.set_result(None)
+            threading.Thread(target=stop_websocket, daemon=True).start()
             threading.Thread(target=SERVER.shutdown, daemon=True).start()
         else:
             logging.debug('Received subsequent request; shutdown aborted.')
@@ -353,8 +358,12 @@ async def websocket_main():
     loop = asyncio.get_running_loop()
     STOP_WS = loop.create_future()
 
+    logging.debug('serving WS')
     async with websockets.serve(echo, HOSTNAME, WS_PORT):
+        logging.debug('awaiting STOP_WS')
         await STOP_WS
+        logging.debug('STOP_WS is done')
+    logging.debug('done with websocket_main')
 
 
 def run():
@@ -394,8 +403,8 @@ def run():
     t_ws = threading.Thread(target=run_websocket)
     t_http.start()
     t_ws.start()
-    t_http.join()
     t_ws.join()
+    t_http.join()
 
 
 if __name__ == '__main__':
