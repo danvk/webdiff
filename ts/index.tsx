@@ -15,7 +15,6 @@ const App = () => (
 injectStylesFromConfig();
 ReactDOM.render(<App />, document.getElementById('application'));
 
-declare const WS_PORT: number;
 const host = window.location.host;
 const websocket = new WebSocket(`ws://${host}/ws`);
 websocket.onmessage = msg => {

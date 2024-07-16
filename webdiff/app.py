@@ -4,7 +4,6 @@
 For usage, see README.md.
 """
 
-import asyncio
 import dataclasses
 import json
 import logging
@@ -23,10 +22,9 @@ import webbrowser
 import aiohttp
 from aiohttp import web
 import aiohttp.web_request
-from aiohttp.web_runner import GracefulExit
 
 from binaryornot.check import is_binary
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 
 from webdiff import diff, util, argparser, options
@@ -54,7 +52,6 @@ HOSTNAME = 'localhost'
 DEBUG = os.environ.get('DEBUG')
 SERVER = None
 WEBDIFF_DIR = determine_path()
-WS_PORT = None
 
 if DEBUG:
     handler = logging.StreamHandler()
@@ -228,9 +225,6 @@ class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
 async def handle_index(request: aiohttp.web_request.Request):
     idx = int(request.match_info.get('idx', '0'))
     pairs = diff.get_thin_list(DIFF)
-    # self.send_response(200)
-    # self.send_header('Content-Type', 'text/html; charset=utf-8')
-    # self.end_headers()
     with open(os.path.join(WEBDIFF_DIR, 'templates/file_diff.html'), 'r') as file:
         html = file.read()
         html = html.replace(
@@ -241,7 +235,6 @@ async def handle_index(request: aiohttp.web_request.Request):
                     'has_magick': util.is_imagemagick_available(),
                     'pairs': pairs,
                     'git_config': GIT_CONFIG,
-                    'ws_port': WS_PORT,
                 },
                 indent=2,
             ),
@@ -305,32 +298,21 @@ async def handle_theme(request: aiohttp.web_request.Request):
 
 
 async def websocket_handler(request: aiohttp.web_request.Request):
-    print('websocket connect')
     ws = web.WebSocketResponse()
     await ws.prepare(request)
 
     async for msg in ws:
         if msg.type == aiohttp.WSMsgType.TEXT:
-            if msg.data == 'close':
-                print('got close message')
-                await ws.close()
-            else:
-                await ws.send_str(msg.data + '/answer')
+            await ws.send_str(msg.data + '/answer')
         elif msg.type == aiohttp.WSMsgType.ERROR:
-            print('ws connection closed with exception %s' %
-                  ws.exception())
+            print('ws connection closed with exception %s' % ws.exception())
 
-    print('websocket connection closed')
     maybe_shutdown()
     return ws
 
-async def shutdown(request):
-    print("will shutdown now")
-    raise GracefulExit()
 
 @web.middleware
 async def request_time_middleware(request, handler):
-    print("middleware called")
     note_request_time()
     response = await handler(request)
     return response
@@ -347,7 +329,6 @@ app.add_routes(
         web.post(r'/{side:a|b}/get_contents', handle_get_contents),
         web.post(r'/diff/{idx:\d+}', handle_diff_ops),
         web.get('/ws', websocket_handler),
-        web.post('/shutdown', shutdown)
     ]
 )
 
@@ -378,30 +359,19 @@ def random_port():
     return port
 
 
-def pick_ports(args, webdiff_config):
-    """Pick an http and websocket port."""
-    def get_port(key, env_key, gitconfig_key):
-        if key in args:
-            return args[key]
+def pick_a_port(args, webdiff_config):
+    if 'port' in args:
+        return args['port']
 
-        env_port = os.environ.get(env_key)
-        if env_port:
-            return int(env_port)
+    env_port = os.environ.get('WEBDIFF_PORT')
+    if env_port:
+        return int(env_port)
 
-        # gitconfig
-        if webdiff_config[gitconfig_key] != -1:
-            return webdiff_config[gitconfig_key]
-        return None
+    # gitconfig
+    if webdiff_config['port'] != -1:
+        return webdiff_config['port']
 
-    port = get_port('port', 'WEBDIFF_PORT', 'port') or random_port()
-    ws_port = get_port('ws_port', 'WEBDIFF_WS_PORT', 'websocketPort')
-    if ws_port is None:
-        for i in range(100):
-            ws_port = random_port()
-            if ws_port != port:
-                break
-
-    return port, ws_port
+    return random_port()
 
 
 def run_http():
@@ -415,42 +385,17 @@ Close the browser tab or hit Ctrl-C when you're done.
     threading.Timer(0.1, open_browser).start()
 
     web.run_app(app, host=HOSTNAME, port=PORT)
-    # server = HTTPServer((HOSTNAME, PORT), CustomHTTPRequestHandler)
-    # SERVER = server
-    # server.serve_forever()
     logging.debug('http server shut down')
-
-
-def issue_shutdown_request():
-    signal.raise_signal( signal.SIGINT )
-
-    # sys.exit()
-    # async with aiohttp.ClientSession() as session:
-    #     url = f'http://{HOSTNAME}:{PORT}/shutdown'
-    #     print(f'hitting {url}')
-    #     async with session.post(url) as _resp:
-    #         pass
-
 
 
 def maybe_shutdown():
     """Wait a second for new requests, then shut down the server."""
     last_ms = LAST_REQUEST_MS
 
-    def stop_websocket():
-        logging.debug('setting stop_ws')
-        STOP_WS.set_result(None)
-
     def shutdown():
         if LAST_REQUEST_MS <= last_ms:  # subsequent requests abort shutdown
-            # See https://stackoverflow.com/a/19040484/388951
-            # and https://stackoverflow.com/q/4330111/388951
             sys.stderr.write('Shutting down...\n')
-            issue_shutdown_request()
-            # asyncio.run(issue_shutdown_request())
-            # app.loop.stop()
-            # threading.Thread(target=stop_websocket, daemon=True).start()
-            # threading.Thread(target=SERVER.shutdown, daemon=True).start()
+            signal.raise_signal(signal.SIGINT)
         else:
             logging.debug('Received subsequent request; shutdown aborted.')
 
@@ -458,37 +403,8 @@ def maybe_shutdown():
     threading.Timer(0.5, shutdown).start()
 
 
-def run_websocket():
-    asyncio.run(websocket_main())
-
-
-async def echo(websocket):
-    logging.debug('websocket connected')
-    note_request_time()
-    async for message in websocket:
-        logging.debug(f'Received {message} on websocket')
-        note_request_time()
-        await websocket.send(message)
-    logging.debug('websocket closed')
-    note_request_time()
-    maybe_shutdown()
-
-
-async def websocket_main():
-    global STOP_WS
-    loop = asyncio.get_running_loop()
-    STOP_WS = loop.create_future()
-
-    # logging.debug('serving WS')
-    # async with websockets.serve(echo, HOSTNAME, WS_PORT):
-    #     logging.debug('awaiting STOP_WS')
-    #     await STOP_WS
-    #     logging.debug('STOP_WS is done')
-    # logging.debug('done with websocket_main')
-
-
 def run():
-    global DIFF, PORT, WS_PORT, HOSTNAME, GIT_CONFIG, SERVER
+    global DIFF, PORT, HOSTNAME, GIT_CONFIG, SERVER
     try:
         parsed_args = argparser.parse(sys.argv[1:], VERSION)
     except argparser.UsageError as e:
@@ -505,8 +421,7 @@ def run():
         sys.stderr.write('Diff: %s\n' % DIFF)
         sys.stderr.write('GitConfig: %s\n' % GIT_CONFIG)
 
-    PORT, WS_PORT = pick_ports(parsed_args, WEBDIFF_CONFIG)
-    logging.debug(f'chosen ports: {PORT} (http), {WS_PORT} (ws)')
+    PORT = pick_a_port(parsed_args, WEBDIFF_CONFIG)
     HOSTNAME = (
         parsed_args.get('host')
         or os.environ.get('WEBDIFF_HOST')
@@ -521,12 +436,6 @@ def run():
             HOSTNAME = _hostname
 
     run_http()
-    # t_http = threading.Thread(target=run_http)
-    # t_http.start()
-    # run_websocket()
-    # t_ws.start()
-    # t_ws.join()
-    # t_http.join()
 
 
 if __name__ == '__main__':
