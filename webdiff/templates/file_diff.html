@@ -29,10 +29,4 @@ var GIT_CONFIG = git_config;
 
 <script src="/static/js/file_diff.js"></script>
 
-<script>
-window.addEventListener('beforeunload', function(e) {
-  fetch('/kill', { method: 'post' });
-});
-</script>
-
 </html>
