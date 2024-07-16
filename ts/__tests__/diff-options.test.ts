@@ -14,6 +14,7 @@ describe('encodeDiffOptions', () => {
   });
 
   it('should decode flags', () => {
-    expect(decodeDiffOptions('-w')).toEqual({ignoreAllSpace: true});
+    expect(decodeDiffOptions(['-w'])).toEqual({ignoreAllSpace: true});
+    expect(decodeDiffOptions(['-W'])).toEqual({functionContext: true});
   });
 });
