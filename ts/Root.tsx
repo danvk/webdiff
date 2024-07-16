@@ -41,7 +41,6 @@ function encodeOptions(diffOptions: Partial<DiffOptions>, maxDiffWidth: number) 
 export function Root() {
   const [pdiffMode, setPDiffMode] = React.useState<PerceptualDiffMode>('off');
   const [imageDiffMode, setImageDiffMode] = React.useState<ImageDiffMode>('side-by-side');
-  // const [maxDiffWidth, setMaxDiffWidth] = React.useState(GIT_CONFIG.webdiff.maxDiffWidth);
   const [showKeyboardHelp, setShowKeyboardHelp] = React.useState(false);
   const [showOptions, setShowOptions] = React.useState(false);
 
