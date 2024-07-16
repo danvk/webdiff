@@ -42,9 +42,6 @@ def parse(args, version=None):
         '--port', '-p', type=int, help='Port to run webdiff on.', default=-1
     )
     parser.add_argument(
-        '--ws-port', type=int, help='Port to run webdiff websocket on.', default=-1
-    )
-    parser.add_argument(
         'dirs',
         type=str,
         nargs='+',
@@ -58,8 +55,6 @@ def parse(args, version=None):
         out['port'] = args.port
     if args.host:
         out['host'] = args.host
-    if args.ws_port != -1:
-        out['ws_port'] = args.ws_port
 
     if len(args.dirs) > 2:
         raise UsageError('You must specify two files/dirs (got %d)' % len(args.dirs))
