@@ -10,7 +10,6 @@ import logging
 import importlib.metadata
 import mimetypes
 import os
-import re
 import platform
 import signal
 import socket
@@ -22,10 +21,7 @@ import webbrowser
 import aiohttp
 from aiohttp import web
 import aiohttp.web_request
-
 from binaryornot.check import is_binary
-from http.server import BaseHTTPRequestHandler
-from urllib.parse import urlparse, parse_qs
 
 from webdiff import diff, util, argparser, options
 
@@ -66,161 +62,8 @@ if DEBUG:
         log.setLevel(logging.DEBUG)
         log.addHandler(handler)
     logging.getLogger('github').setLevel(logging.ERROR)
+    logging.getLogger('binaryornot').setLevel(logging.ERROR)
 
-# GPT's alternative:
-# logging.basicConfig(level=logging.DEBUG if 'DEBUG' in os.environ else logging.INFO)
-# logger = logging.getLogger(__name__)
-
-
-class CustomHTTPRequestHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        note_request_time()
-        path = urlparse(self.path).path.removesuffix('/') or '/'
-
-        if path == '/favicon.ico':
-            self.handle_favicon()
-        elif path == '/theme.css':
-            self.handle_theme()
-        elif m := re.match(r'/thick/(?P<idx>\d+)', path):
-            self.handle_thick(int(m['idx']))
-        elif m := re.match(r'/(?P<side>a|b)/image/(?P<path>.*)', path):
-            self.handle_image(m['side'], m['path'])
-        elif m := re.match(r'/pdiff/(?P<idx>\d+)', path):
-            self.handle_pdiff(int(m['idx']))
-        elif m := re.match(r'/pdiffbbox/(?P<idx>\d+)', path):
-            self.handle_pdiff_bbox(int(m['idx']))
-        else:
-            self.send_error(404, 'File not found')
-
-    def do_POST(self):
-        note_request_time()
-        path = urlparse(self.path).path.removesuffix('/') or '/'
-
-        content_length = int(self.headers['Content-Length'])
-        post_data = self.rfile.read(content_length)
-
-        if m := re.match(r'/(?P<side>a|b)/get_contents', path):
-            form_data = parse_qs(post_data.decode('utf-8'))
-            self.handle_get_contents(m['side'], form_data)
-        elif m := re.match(r'/diff/(?P<idx>\d+)', path):
-            payload = json.loads(post_data.decode('utf-8'))
-            self.handle_diff_ops(int(m['idx']), payload)
-        else:
-            self.send_error(404, 'File not found')
-
-
-
-    def handle_thick(self, idx: int):
-        self.send_response_with_json(200, diff.get_thick_dict(DIFF[idx]))
-
-    def handle_favicon(self):
-        self.serve_static_file('static/img/favicon.ico', 'image/vnd.microsoft.icon')
-
-    def handle_theme(self):
-        theme = GIT_CONFIG['webdiff']['theme']
-        theme_dir = os.path.dirname(theme)
-        theme_file = os.path.basename(theme)
-        theme_path = os.path.join('static/css/themes', theme_dir, theme_file + '.css')
-        self.serve_static_file(theme_path, 'text/css')
-
-    def handle_static(self, path: str):
-        mime_type, _ = mimetypes.guess_type(path)
-        self.serve_static_file(path, mime_type)
-
-    def handle_image(self, side, path):
-        mime_type, _ = mimetypes.guess_type(path)
-        if not mime_type or not mime_type.startswith('image/'):
-            return self.send_response_with_json(400, {'error': 'wrong type'})
-
-        idx = diff.find_diff_index(DIFF, side, path)
-        if idx is None:
-            return self.send_response_with_json(400, {'error': 'not found'})
-
-        d = DIFF[idx]
-        abs_path = d.a_path if side == 'a' else d.b_path
-        self.serve_file(abs_path, mime_type)
-
-    def handle_pdiff(self, idx):
-        d = DIFF[idx]
-        try:
-            _, pdiff_image = util.generate_pdiff_image(d.a_path, d.b_path)
-            dilated_image_path = util.generate_dilated_pdiff_image(pdiff_image)
-            self.serve_static_file(dilated_image_path, 'image/png')
-        except util.ImageMagickNotAvailableError:
-            self.send_error(501, 'ImageMagick is not available')
-        except util.ImageMagickError as e:
-            self.send_error(501, f'ImageMagick error {e}')
-
-    def handle_pdiff_bbox(self, idx):
-        d = DIFF[idx]
-        try:
-            _, pdiff_image = util.generate_pdiff_image(d.a_path, d.b_path)
-            bbox = util.get_pdiff_bbox(pdiff_image)
-            self.send_response_with_json(200, bbox)
-        except util.ImageMagickNotAvailableError:
-            self.send_error(501, 'ImageMagick is not available')
-        except util.ImageMagickError as e:
-            self.send_error(501, f'ImageMagick error {e}')
-
-    def handle_get_contents(self, side: str, form_data: dict[str, list[str]]):
-        path = form_data.get('path', [''])[0]
-        if not path:
-            return self.send_response_with_json(400, {'error': 'incomplete'})
-
-        idx = diff.find_diff_index(DIFF, side, path)
-        if idx is None:
-            return self.send_response_with_json(400, {'error': 'not found'})
-
-        d = DIFF[idx]
-        abs_path = d.a_path if side == 'a' else d.b_path
-
-        try:
-            if is_binary(abs_path):
-                size = os.path.getsize(abs_path)
-                contents = f'Binary file ({size} bytes)'
-            else:
-                with open(abs_path, 'r') as file:
-                    contents = file.read()
-            self.send_response(200)
-            self.send_header('Content-Type', 'text/plain')
-            self.end_headers()
-            self.wfile.write(contents.encode('utf-8'))
-        except Exception as e:
-            self.send_response_with_json(500, {'error': str(e)})
-
-    def handle_diff_ops(self, idx: int, payload):
-        options = payload.get('options') or []
-        extra_args = GIT_CONFIG['webdiff']['extraFileDiffArgs']
-        if extra_args:
-            options += extra_args.split(' ')
-        diff_ops = [
-            dataclasses.asdict(op) for op in diff.get_diff_ops(DIFF[idx], options)
-        ]
-        self.send_response_with_json(200, diff_ops)
-
-    def send_response_with_json(self, code, payload):
-        self.send_response(code)
-        self.send_header('Content-Type', 'application/json')
-        self.end_headers()
-        self.wfile.write(json.dumps(payload).encode('utf-8'))
-
-    def serve_static_file(self, file_path, mime_type):
-        self.serve_file(os.path.join(WEBDIFF_DIR, file_path), mime_type)
-
-    def serve_file(self, file_path, mime_type):
-        try:
-            with open(file_path, 'rb') as file:
-                contents = file.read()
-            self.send_response(200)
-            self.send_header('Content-Type', mime_type)
-            self.end_headers()
-            self.wfile.write(contents)
-        except Exception as e:
-            self.send_response_with_json(500, {'error': str(e)})
-
-    def log_request(self, *args):
-        if DEBUG:
-            super().log_request(*args)
 
 async def handle_index(request: aiohttp.web_request.Request):
     idx = int(request.match_info.get('idx', '0'))
@@ -240,7 +83,6 @@ async def handle_index(request: aiohttp.web_request.Request):
             ),
         )
         return web.Response(body=html, content_type='text/html', charset='utf-8')
-        # self.wfile.write(html.encode('utf-8'))
 
 
 async def handle_thick(request: aiohttp.web_request.Request):
@@ -265,11 +107,9 @@ async def handle_get_contents(request: aiohttp.web_request.Request):
     try:
         if is_binary(abs_path):
             size = os.path.getsize(abs_path)
-            contents = f'Binary file ({size} bytes)'
+            return web.Response(text=f'Binary file ({size} bytes)')
         else:
-            with open(abs_path, 'r') as file:
-                contents = file.read()
-        return web.Response(text=contents, content_type='text/plain')
+            return web.FileResponse(abs_path, headers={'Content-Type': 'text/plain'})
     except Exception as e:
         return web.json_response({'error': str(e)}, status=500)
 
@@ -292,9 +132,53 @@ async def handle_theme(request: aiohttp.web_request.Request):
     theme_dir = os.path.dirname(theme)
     theme_file = os.path.basename(theme)
     theme_path = os.path.join(WEBDIFF_DIR, 'static/css/themes', theme_dir, theme_file + '.css')
-    with open(theme_path) as f:
-        text = f.read()
-        return web.Response(text=text, content_type='text/css')
+    return web.FileResponse(theme_path)
+
+
+async def handle_favicon(request):
+    return web.FileResponse(os.path.join(WEBDIFF_DIR, 'static/img/favicon.ico'))
+
+
+async def handle_get_image(request: aiohttp.web_request.Request):
+    side = request.match_info.get('side')
+    path = request.match_info.get('path')
+    mime_type, _ = mimetypes.guess_type(path)
+    if not mime_type or not mime_type.startswith('image/'):
+        return web.json_response({'error': 'wrong type'}, status=400)
+
+    idx = diff.find_diff_index(DIFF, side, path)
+    if idx is None:
+        return web.json_response({'error': 'not found'}, status=400)
+
+    d = DIFF[idx]
+    abs_path = d.a_path if side == 'a' else d.b_path
+    return web.FileResponse(abs_path, headers={'Content-Type': mime_type})
+
+
+async def handle_pdiff(request: aiohttp.web_request.Request):
+    idx = int(request.match_info.get('idx'))
+    d = DIFF[idx]
+    try:
+        _, pdiff_image = util.generate_pdiff_image(d.a_path, d.b_path)
+        dilated_image_path = util.generate_dilated_pdiff_image(pdiff_image)
+        return web.FileResponse(dilated_image_path)
+    except util.ImageMagickNotAvailableError:
+        return web.Response(status=501, text='ImageMagick is not available')
+    except util.ImageMagickError as e:
+        return web.Response(status=501, text=f'ImageMagick error {e}')
+
+
+async def handle_pdiff_bbox(request: aiohttp.web_request.Request):
+    idx = int(request.match_info.get('idx'))
+    d = DIFF[idx]
+    try:
+        _, pdiff_image = util.generate_pdiff_image(d.a_path, d.b_path)
+        bbox = util.get_pdiff_bbox(pdiff_image)
+        return web.json_response(bbox, status=200)
+    except util.ImageMagickNotAvailableError:
+        return web.json_response('ImageMagick is not available', status=501)
+    except util.ImageMagickError as e:
+        return web.json_response(f'ImageMagick error {e}', status=501)
 
 
 async def websocket_handler(request: aiohttp.web_request.Request):
@@ -323,11 +207,19 @@ app.add_routes(
     [
         web.get('/', handle_index),
         web.get(r'/{idx:\d+}', handle_index),
+        web.get('/favicon.ico', handle_favicon),
         web.get('/theme.css', handle_theme),
         web.static('/static', os.path.join(WEBDIFF_DIR, 'static')),
         web.get(r'/thick/{idx:\d+}', handle_thick),
         web.post(r'/{side:a|b}/get_contents', handle_get_contents),
         web.post(r'/diff/{idx:\d+}', handle_diff_ops),
+
+        # Image diffs
+        web.get(r'/{side:a|b}/image/{path:.*}', handle_get_image),
+        web.get(r'/pdiff/{idx:\d+}', handle_pdiff),
+        web.get(r'/pdiffbbox/{idx:\d+}', handle_pdiff_bbox),
+
+        # Websocket for detecting when the tab is closed
         web.get('/ws', websocket_handler),
     ]
 )
