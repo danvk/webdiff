@@ -1,7 +1,8 @@
 import React from 'react';
 import {useNavigate, useParams} from 'react-router';
+import {useSearchParams} from 'react-router-dom';
 import {FilePair} from './CodeDiffContainer';
-import {DiffOptions} from './diff-options';
+import {decodeDiffOptions, DiffOptions, encodeDiffOptions} from './diff-options';
 import {DiffView, PerceptualDiffMode} from './DiffView';
 import {FileSelector, FileSelectorMode} from './FileSelector';
 import {isLegitKeypress} from './file_diff';
@@ -15,11 +16,16 @@ declare const pairs: FilePair[];
 declare const initialIdx: number;
 declare const GIT_CONFIG: GitConfig;
 
+function parseDiffOptions(query: URLSearchParams): Partial<DiffOptions> {
+  const flags = query.getAll('flag');
+  return decodeDiffOptions(flags);
+}
+
 // Webdiff application root.
 export function Root() {
   const [pdiffMode, setPDiffMode] = React.useState<PerceptualDiffMode>('off');
   const [imageDiffMode, setImageDiffMode] = React.useState<ImageDiffMode>('side-by-side');
-  const [diffOptions, setDiffOptions] = React.useState<Partial<DiffOptions>>({});
+  // const [diffOptions, setDiffOptions] = React.useState<Partial<DiffOptions>>({});
   const [maxDiffWidth, setMaxDiffWidth] = React.useState(GIT_CONFIG.webdiff.maxDiffWidth);
   const [showKeyboardHelp, setShowKeyboardHelp] = React.useState(false);
   const [showOptions, setShowOptions] = React.useState(false);
@@ -40,8 +46,21 @@ export function Root() {
   const idx = Number(params.index ?? initialIdx);
   const filePair = pairs[idx];
   React.useEffect(() => {
-    document.title = 'Diff: ' + filePairDisplayName(filePair) + ' (' + filePair.type + ')';
+    const fileName = filePairDisplayName(filePair);
+    const diffType = filePair.type;
+    document.title = `Diff: ${fileName} (${diffType})`;
   }, [filePair]);
+
+  const [searchParams, setSeachParams] = useSearchParams();
+  const diffOptions = React.useMemo(() => parseDiffOptions(searchParams), [searchParams]);
+  const setDiffOptions = React.useCallback(
+    (newOptions: Partial<DiffOptions>) => {
+      const flags = encodeDiffOptions(newOptions);
+      const params = new URLSearchParams(flags.map(f => ['flag', f]));
+      setSeachParams(params);
+    },
+    [setSeachParams],
+  );
 
   // TODO: switch to useKey() or some such
   React.useEffect(() => {

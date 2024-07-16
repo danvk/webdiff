@@ -43,20 +43,19 @@ export function encodeDiffOptions(opts: Partial<DiffOptions>) {
   return flags;
 }
 
-export function decodeDiffOptions(flags: string): Partial<DiffOptions> {
-  const args = flags.split(' ');
+export function decodeDiffOptions(flags: string[]): Partial<DiffOptions> {
   const options: Partial<DiffOptions> = {};
-  for (const arg of args) {
-    if (arg == '-w' || arg == '--ignoreAllSpace') {
+  for (const flag of flags) {
+    if (flag == '-w' || flag == '--ignoreAllSpace') {
       options.ignoreAllSpace = true;
-    } else if (arg == '-b' || arg == '--ignoreSpaceChange') {
+    } else if (flag == '-b' || flag == '--ignoreSpaceChange') {
       options.ignoreSpaceChange = true;
-    } else if (arg.startsWith('--diff-algorithm=')) {
+    } else if (flag.startsWith('--diff-algorithm=')) {
       // This is pretty imprecise; I believe `--diff-algorithm patience` would also work.
-      const algo = arg.split('=')[1];
+      const algo = flag.split('=')[1];
       options.diffAlgorithm = algo as DiffAlgorithm;
-    } else if (arg.startsWith('-U')) {
-      options.unified = Number(arg.slice(2));
+    } else if (flag.startsWith('-U')) {
+      options.unified = Number(flag.slice(2));
     }
   }
   return options;
