@@ -46,7 +46,6 @@ DIFF = None
 PORT = None
 HOSTNAME = 'localhost'
 DEBUG = os.environ.get('DEBUG')
-SERVER = None
 WEBDIFF_DIR = determine_path()
 
 if DEBUG:
@@ -267,7 +266,6 @@ def pick_a_port(args, webdiff_config):
 
 
 def run_http():
-    global SERVER
     sys.stderr.write(
         """Serving diffs on http://%s:%s
 Close the browser tab or hit Ctrl-C when you're done.
@@ -296,7 +294,7 @@ def maybe_shutdown():
 
 
 def run():
-    global DIFF, PORT, HOSTNAME, GIT_CONFIG, SERVER
+    global DIFF, PORT, HOSTNAME, GIT_CONFIG
     try:
         parsed_args = argparser.parse(sys.argv[1:], VERSION)
     except argparser.UsageError as e:
