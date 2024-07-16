@@ -34,12 +34,15 @@ export function Root() {
     pairs.length <= 6 ? 'list' : 'dropdown',
   );
 
+  const [searchParams, setSeachParams] = useSearchParams();
   const navigate = useNavigate();
   const selectIndex = React.useCallback(
     (idx: number) => {
-      navigate(`/${idx}`);
+      const search = searchParams.toString();
+      const url = `/${idx}` + (search ? `?${search}` : '');
+      navigate(url);
     },
-    [navigate],
+    [navigate, searchParams],
   );
 
   const params = useParams();
@@ -51,7 +54,6 @@ export function Root() {
     document.title = `Diff: ${fileName} (${diffType})`;
   }, [filePair]);
 
-  const [searchParams, setSeachParams] = useSearchParams();
   const diffOptions = React.useMemo(() => parseDiffOptions(searchParams), [searchParams]);
   const setDiffOptions = React.useCallback(
     (newOptions: Partial<DiffOptions>) => {
