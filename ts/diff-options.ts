@@ -46,10 +46,12 @@ export function encodeDiffOptions(opts: Partial<DiffOptions>) {
 export function decodeDiffOptions(flags: string[]): Partial<DiffOptions> {
   const options: Partial<DiffOptions> = {};
   for (const flag of flags) {
-    if (flag == '-w' || flag == '--ignoreAllSpace') {
+    if (flag == '-w' || flag == '--ignore-all-space') {
       options.ignoreAllSpace = true;
-    } else if (flag == '-b' || flag == '--ignoreSpaceChange') {
+    } else if (flag == '-b' || flag == '--ignore-space-change') {
       options.ignoreSpaceChange = true;
+    } else if (flag == '-W' || flag == '--function-context') {
+      options.functionContext = true;
     } else if (flag.startsWith('--diff-algorithm=')) {
       // This is pretty imprecise; I believe `--diff-algorithm patience` would also work.
       const algo = flag.split('=')[1];

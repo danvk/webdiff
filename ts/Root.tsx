@@ -16,25 +16,41 @@ declare const pairs: FilePair[];
 declare const initialIdx: number;
 declare const GIT_CONFIG: GitConfig;
 
-function parseDiffOptions(query: URLSearchParams): Partial<DiffOptions> {
+interface CombinedOptions extends DiffOptions {
+  maxDiffWidth: number;
+}
+
+function parseOptions(query: URLSearchParams): Partial<CombinedOptions> {
   const flags = query.getAll('flag');
-  return decodeDiffOptions(flags);
+  const diffOptions = decodeDiffOptions(flags);
+  const maxWidthStr = query.get('width');
+  const maxDiffWidth = maxWidthStr ? {maxDiffWidth: Number(maxWidthStr)} : undefined;
+  return {...diffOptions, ...maxDiffWidth};
+}
+
+function encodeOptions(diffOptions: Partial<DiffOptions>, maxDiffWidth: number) {
+  const flags = encodeDiffOptions(diffOptions);
+  const params = new URLSearchParams(flags.map(f => ['flag', f]));
+  if (maxDiffWidth !== GIT_CONFIG.webdiff.maxDiffWidth) {
+    params.set('width', String(maxDiffWidth));
+  }
+  return params;
 }
 
 // Webdiff application root.
 export function Root() {
   const [pdiffMode, setPDiffMode] = React.useState<PerceptualDiffMode>('off');
   const [imageDiffMode, setImageDiffMode] = React.useState<ImageDiffMode>('side-by-side');
-  // const [diffOptions, setDiffOptions] = React.useState<Partial<DiffOptions>>({});
-  const [maxDiffWidth, setMaxDiffWidth] = React.useState(GIT_CONFIG.webdiff.maxDiffWidth);
+  // const [maxDiffWidth, setMaxDiffWidth] = React.useState(GIT_CONFIG.webdiff.maxDiffWidth);
   const [showKeyboardHelp, setShowKeyboardHelp] = React.useState(false);
   const [showOptions, setShowOptions] = React.useState(false);
+
   // An explicit list is better, unless there are a ton of files.
   const [fileSelectorMode, setFileSelectorMode] = React.useState<FileSelectorMode>(
     pairs.length <= 6 ? 'list' : 'dropdown',
   );
 
-  const [searchParams, setSeachParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const selectIndex = React.useCallback(
     (idx: number) => {
@@ -54,14 +70,21 @@ export function Root() {
     document.title = `Diff: ${fileName} (${diffType})`;
   }, [filePair]);
 
-  const diffOptions = React.useMemo(() => parseDiffOptions(searchParams), [searchParams]);
+  const options = React.useMemo(() => parseOptions(searchParams), [searchParams]);
+  const maxDiffWidth = options.maxDiffWidth ?? GIT_CONFIG.webdiff.maxDiffWidth;
+
   const setDiffOptions = React.useCallback(
     (newOptions: Partial<DiffOptions>) => {
-      const flags = encodeDiffOptions(newOptions);
-      const params = new URLSearchParams(flags.map(f => ['flag', f]));
-      setSeachParams(params);
+      setSearchParams(encodeOptions(newOptions, maxDiffWidth));
     },
-    [setSeachParams],
+    [maxDiffWidth, setSearchParams],
+  );
+
+  const setMaxDiffWidth = React.useCallback(
+    (newMaxWidth: number) => {
+      setSearchParams(encodeOptions(options, newMaxWidth));
+    },
+    [options, setSearchParams],
   );
 
   // TODO: switch to useKey() or some such
@@ -102,7 +125,7 @@ export function Root() {
       <style>{inlineStyle}</style>
       <div>
         <DiffOptionsControl
-          options={diffOptions}
+          options={options}
           setOptions={setDiffOptions}
           maxDiffWidth={maxDiffWidth}
           setMaxDiffWidth={setMaxDiffWidth}
@@ -129,7 +152,7 @@ export function Root() {
           thinFilePair={filePair}
           imageDiffMode={imageDiffMode}
           pdiffMode={pdiffMode}
-          diffOptions={diffOptions}
+          diffOptions={options}
           changeImageDiffMode={setImageDiffMode}
           changePDiffMode={setPDiffMode}
           changeDiffOptions={setDiffOptions}
