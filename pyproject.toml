@@ -30,7 +30,6 @@ binaryornot = "*"
 pillow = "*"
 PyGithub = "2.3.0"
 unidiff = "==0.7.4"
-websockets = "^12.0"
 aiohttp = "^3.9.5"
 
 [tool.poetry.group.dev.dependencies]
