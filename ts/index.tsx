@@ -1,14 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
+import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import {injectStylesFromConfig} from './options';
 import {Root} from './Root';
 
 const App = () => (
   <Router>
-    <Switch>
-      <Route path="/:index?" component={Root} />
-    </Switch>
+    <Routes>
+      <Route path="/:index?" element={<Root />} />
+    </Routes>
   </Router>
 );
 
