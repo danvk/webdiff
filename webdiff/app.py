@@ -13,6 +13,7 @@ import mimetypes
 import os
 import re
 import platform
+import signal
 import socket
 import sys
 import threading
@@ -420,12 +421,15 @@ Close the browser tab or hit Ctrl-C when you're done.
     logging.debug('http server shut down')
 
 
-async def issue_shutdown_request():
-    async with aiohttp.ClientSession() as session:
-        url = f'http://{HOSTNAME}:{PORT}/shutdown'
-        print(f'hitting {url}')
-        async with session.post(url) as _resp:
-            pass
+def issue_shutdown_request():
+    signal.raise_signal( signal.SIGINT )
+
+    # sys.exit()
+    # async with aiohttp.ClientSession() as session:
+    #     url = f'http://{HOSTNAME}:{PORT}/shutdown'
+    #     print(f'hitting {url}')
+    #     async with session.post(url) as _resp:
+    #         pass
 
 
 
@@ -442,7 +446,8 @@ def maybe_shutdown():
             # See https://stackoverflow.com/a/19040484/388951
             # and https://stackoverflow.com/q/4330111/388951
             sys.stderr.write('Shutting down...\n')
-            asyncio.run(issue_shutdown_request())
+            issue_shutdown_request()
+            # asyncio.run(issue_shutdown_request())
             # app.loop.stop()
             # threading.Thread(target=stop_websocket, daemon=True).start()
             # threading.Thread(target=SERVER.shutdown, daemon=True).start()
