@@ -7,6 +7,7 @@ import {isLegitKeypress} from '../file_diff';
 import {DiffRow} from './DiffRow';
 import {SkipRange, SkipRow} from './SkipRow';
 import {FilePair} from '../CodeDiffContainer';
+import { GitConfig } from '../options';
 
 export interface PatchOptions {
   /** Minimum number of skipped lines to elide into a "jump" row */
@@ -57,6 +58,8 @@ export interface Props {
   params: Partial<PatchOptions>;
 }
 
+declare const GIT_CONFIG: GitConfig;
+
 export function CodeDiff(props: Props) {
   const {beforeText, afterText, ops, params} = props;
 
@@ -71,11 +74,12 @@ export function CodeDiff(props: Props) {
     [ops, fullParams],
   );
   const {language} = fullParams;
+  const numLines = Math.max(beforeLines.length, afterLines.length);
 
   const [beforeLinesHighlighted, afterLinesHighlighted] = React.useMemo(() => {
-    if (!language) return [null, null];
+    if (!language || numLines > GIT_CONFIG.webdiff.maxLinesForSyntax) return [null, null];
     return [highlightText(beforeText ?? '', language), highlightText(afterText ?? '', language)];
-  }, [language, beforeText, afterText]);
+  }, [language, numLines, beforeText, afterText]);
 
   return (
     <CodeDiffView
