@@ -33,10 +33,8 @@ def get_thin_dict(diff):
 
 
 def fast_num_lines(path: str) -> int:
-    # See https://stackoverflow.com/q/9629179/388951 for the idea to use a Unix command.
-    # Unfortunately `wc -l` ignores the last line if there is no trailing newline. So
-    # instead, see https://stackoverflow.com/a/38870057/388951
-    return int(subprocess.check_output(['grep', '-c', '', path]))
+    with open(path, 'rb') as f:
+        return sum(1 for _ in f)
 
 
 def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
