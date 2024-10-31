@@ -14,3 +14,12 @@ const App = () => (
 
 injectStylesFromConfig();
 ReactDOM.render(<App />, document.getElementById('application'));
+
+const host = window.location.host;
+const websocket = new WebSocket(`ws://${host}/ws`);
+websocket.onmessage = msg => {
+  // no op
+};
+websocket.onopen = e => {
+  websocket.send('hello!');
+};
