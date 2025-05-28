@@ -1,0 +1,51 @@
+{
+  "name": "webdiff",
+  "version": "1.3.0",
+  "description": "client-side code for webdiff",
+  "main": "index.js",
+  "author": "Dan Vanderkam (danvdk@gmail.com)",
+  "license": "MIT",
+  "scripts": {
+    "build": "NODE_OPTIONS=--openssl-legacy-provider webpack",
+    "format": "yarn prettier --write '**/*.ts{,x}'",
+    "format:check": "yarn prettier --check '**/*.ts{,x}'",
+    "watch": "yarn run build --watch",
+    "test": "jest",
+    "knip": "knip",
+    "lint": "yarn run eslint ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.4.0",
+    "@types/diff": "^5.2.1",
+    "@types/eslint__js": "^8.42.3",
+    "@types/jest": "^29.5.12",
+    "@types/lodash": "^4.14.161",
+    "@types/node": "^20.14.2",
+    "@types/react": "^16.9.49",
+    "@types/react-dom": "^16.9.8",
+    "@types/react-router": "^5.1.8",
+    "@types/react-router-dom": "^5.1.5",
+    "eslint": "^9.4.0",
+    "eslint-plugin-react-hooks": "^5.1.0-rc-cc1ec60d0d-20240607",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "knip": "^5.17.4",
+    "prettier": "^2.1.2",
+    "ts-jest": "^29.1.4",
+    "ts-loader": "^8.0.4",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^7.12.0",
+    "webpack": "^4.44.2",
+    "webpack-cli": "^3.3.12"
+  },
+  "dependencies": {
+    "diff": "^5.2.0",
+    "highlight.js": "^11.9.0",
+    "lodash": "^4.17.20",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-router": "^6.25.0",
+    "react-router-dom": "^6.25.0"
+  },
+  "packageManager": "yarn@1.22.19+sha1.4ba7fc5c6e704fce2066ecbfb0b0d8976fe62447"
+}
