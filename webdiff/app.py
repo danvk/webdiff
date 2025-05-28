@@ -95,6 +95,7 @@ async def handle_get_contents(request: aiohttp.web_request.Request):
     path = form_data.get('path', '')
     if not path:
         return web.json_response({'error': 'incomplete'}, status=400)
+    should_normalize = form_data.get('normalize')
 
     idx = diff.find_diff_index(DIFF, side, path)
     if idx is None:
@@ -108,6 +109,8 @@ async def handle_get_contents(request: aiohttp.web_request.Request):
             size = os.path.getsize(abs_path)
             return web.Response(text=f'Binary file ({size} bytes)')
         else:
+            if should_normalize:
+                abs_path = util.normalize_json(abs_path)
             return web.FileResponse(abs_path, headers={'Content-Type': 'text/plain'})
     except Exception as e:
         return web.json_response({'error': str(e)}, status=500)

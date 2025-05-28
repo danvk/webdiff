@@ -2,6 +2,8 @@
 
 import functools
 import hashlib
+import json
+import logging
 import os
 import re
 import subprocess
@@ -18,6 +20,7 @@ class ImageMagickError(Exception):
     pass
 
 
+# TODO: replace with functools.lru_cache
 # via https://wiki.python.org/moin/PythonDecoratorLibrary#Memoize
 def memoize(obj):
     """Decorator to memoize a function."""
@@ -160,3 +163,14 @@ def get_pdiff_bbox(diff_path):
         'bottom': top + height,
         'right': left + width,
     }
+
+
+@memoize
+def normalize_json(in_path: str):
+    with open(in_path) as f:
+        data = json.load(f)
+    _, norm_path = tempfile.mkstemp(suffix='.json')
+    with open(norm_path, 'w') as out:
+        json.dump(data, out, indent=2, sort_keys=True)
+    logging.debug(f'Normalized JSON {in_path} -> {norm_path}')
+    return norm_path
