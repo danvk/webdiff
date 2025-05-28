@@ -5,9 +5,9 @@ For usage, see README.md.
 """
 
 import dataclasses
+import importlib.metadata
 import json
 import logging
-import importlib.metadata
 import mimetypes
 import os
 import platform
@@ -19,11 +19,11 @@ import time
 import webbrowser
 
 import aiohttp
-from aiohttp import web
 import aiohttp.web_request
+from aiohttp import web
 from binaryornot.check import is_binary
 
-from webdiff import diff, util, argparser, options
+from webdiff import argparser, diff, options, util
 
 VERSION = importlib.metadata.version('webdiff')
 
@@ -95,7 +95,7 @@ async def handle_get_contents(request: aiohttp.web_request.Request):
     path = form_data.get('path', '')
     if not path:
         return web.json_response({'error': 'incomplete'}, status=400)
-    should_normalize = form_data.get('normalize')
+    should_normalize = form_data.get('normalize_json')
 
     idx = diff.find_diff_index(DIFF, side, path)
     if idx is None:
@@ -120,11 +120,15 @@ async def handle_diff_ops(request: aiohttp.web_request.Request):
     idx = int(request.match_info.get('idx'))
     payload = await request.post()
     options = payload.get('options') or []
+    should_normalize = payload.get('normalize_json')
+    logging.debug([*payload.keys()])
+    logging.debug({**payload})
     extra_args = GIT_CONFIG['webdiff']['extraFileDiffArgs']
     if extra_args:
         options += extra_args.split(' ')
     diff_ops = [
-        dataclasses.asdict(op) for op in diff.get_diff_ops(DIFF[idx], options)
+        dataclasses.asdict(op)
+        for op in diff.get_diff_ops(DIFF[idx], options, normalize_json=should_normalize)
     ]
     return web.json_response(diff_ops, status=200)
 
@@ -133,7 +137,9 @@ async def handle_theme(request: aiohttp.web_request.Request):
     theme = GIT_CONFIG['webdiff']['theme']
     theme_dir = os.path.dirname(theme)
     theme_file = os.path.basename(theme)
-    theme_path = os.path.join(WEBDIFF_DIR, 'static/css/themes', theme_dir, theme_file + '.css')
+    theme_path = os.path.join(
+        WEBDIFF_DIR, 'static/css/themes', theme_dir, theme_file + '.css'
+    )
     return web.FileResponse(theme_path)
 
 
@@ -215,12 +221,10 @@ app.add_routes(
         web.get(r'/thick/{idx:\d+}', handle_thick),
         web.post(r'/{side:a|b}/get_contents', handle_get_contents),
         web.post(r'/diff/{idx:\d+}', handle_diff_ops),
-
         # Image diffs
         web.get(r'/{side:a|b}/image/{path:.*}', handle_get_image),
         web.get(r'/pdiff/{idx:\d+}', handle_pdiff),
         web.get(r'/pdiffbbox/{idx:\d+}', handle_pdiff_bbox),
-
         # Websocket for detecting when the tab is closed
         web.get('/ws', websocket_handler),
     ]
@@ -292,7 +296,9 @@ def maybe_shutdown():
         else:
             logging.debug('Received subsequent request; shutdown aborted.')
 
-    logging.debug('Received request to shut down; waiting 500ms for subsequent requests...')
+    logging.debug(
+        'Received request to shut down; waiting 500ms for subsequent requests...'
+    )
     threading.Timer(0.5, shutdown).start()
 
 
