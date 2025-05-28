@@ -168,7 +168,12 @@ def get_pdiff_bbox(diff_path):
 @memoize
 def normalize_json(in_path: str):
     with open(in_path) as f:
-        data = json.load(f)
+        try:
+            data = json.load(f)
+        except json.JSONDecodeError:
+            # This would be a good place to try parsing as JSON5/JSONC.
+            logging.debug(f'Unable to parse {in_path} as JSON')
+            return in_path
     _, norm_path = tempfile.mkstemp(suffix='.json')
     with open(norm_path, 'w') as out:
         json.dump(data, out, indent=2, sort_keys=True)
