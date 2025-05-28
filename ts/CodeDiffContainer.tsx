@@ -67,12 +67,14 @@ export function NoChanges(props: {filePair: FilePair}) {
   return null;
 }
 
-// Either side can be empty (i.e. an add or a delete), in which case
-// getOrNull resolves to null
-async function getOrNull(side: string, path: string) {
+// Either side can be empty (i.e. an add or a delete), in which case getOrNull resolves to null.
+async function getOrNull(side: string, path: string, normalizeJSON: boolean) {
   if (!path) return null;
   const data = new URLSearchParams();
   data.set('path', path);
+  if (normalizeJSON) {
+    data.set('normalize_json', '1');
+  }
   const response = await fetch(`/${side}/get_contents`, {
     method: 'post',
     body: data,
@@ -80,9 +82,15 @@ async function getOrNull(side: string, path: string) {
   return response.text();
 }
 
+export interface CodeDiffContainerProps {
+  filePair: FilePair;
+  diffOptions: Partial<DiffOptions>;
+  normalizeJSON: boolean;
+}
+
 // A side-by-side diff of source code.
-export function CodeDiffContainer(props: {filePair: FilePair; diffOptions: Partial<DiffOptions>}) {
-  const {filePair, diffOptions} = props;
+export function CodeDiffContainer(props: CodeDiffContainerProps) {
+  const {filePair, diffOptions, normalizeJSON} = props;
   const [contents, setContents] = React.useState<
     {before: string | null; after: string | null; diffOps: DiffRange[]} | undefined
   >();
@@ -95,7 +103,10 @@ export function CodeDiffContainer(props: {filePair: FilePair; diffOptions: Parti
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({options: encodeDiffOptions(diffOptions)}),
+        body: JSON.stringify({
+          options: encodeDiffOptions(diffOptions),
+          normalize_json: normalizeJSON,
+        }),
       });
       return response.json() as Promise<DiffRange[]>;
     };
@@ -105,8 +116,8 @@ export function CodeDiffContainer(props: {filePair: FilePair; diffOptions: Parti
     // TODO: split these into three useEffects to avoid over-fetching when diff options change.
     (async () => {
       const [before, after, diffOps] = await Promise.all([
-        getOrNull('a', a),
-        getOrNull('b', b),
+        getOrNull('a', a, normalizeJSON),
+        getOrNull('b', b, normalizeJSON),
         getDiff(),
       ]);
       setContents({before, after, diffOps});
@@ -114,7 +125,7 @@ export function CodeDiffContainer(props: {filePair: FilePair; diffOptions: Parti
       alert('Unable to get diff!');
       console.error(e);
     });
-  }, [filePair, diffOptions]);
+  }, [filePair, diffOptions, normalizeJSON]);
 
   return (
     <div>

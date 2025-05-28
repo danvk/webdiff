@@ -118,7 +118,7 @@ async def handle_get_contents(request: aiohttp.web_request.Request):
 
 async def handle_diff_ops(request: aiohttp.web_request.Request):
     idx = int(request.match_info.get('idx'))
-    payload = await request.post()
+    payload = await request.json()
     options = payload.get('options') or []
     should_normalize = payload.get('normalize_json')
     logging.debug([*payload.keys()])

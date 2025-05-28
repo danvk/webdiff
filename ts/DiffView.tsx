@@ -12,6 +12,7 @@ export interface Props {
   imageDiffMode: ImageDiffMode;
   pdiffMode: PerceptualDiffMode;
   diffOptions: Partial<DiffOptions>;
+  normalizeJSON: boolean;
   changeImageDiffMode: (mode: ImageDiffMode) => void;
   changePDiffMode: React.Dispatch<React.SetStateAction<PerceptualDiffMode>>;
   changeDiffOptions: (options: Partial<DiffOptions>) => void;
@@ -41,7 +42,13 @@ export function DiffView(props: Props) {
   if (filePair.is_image_diff) {
     diffEl = <ImageDiff filePair={filePair} {...props} />;
   } else {
-    diffEl = <CodeDiffContainer filePair={filePair} diffOptions={diffOptions} />;
+    diffEl = (
+      <CodeDiffContainer
+        filePair={filePair}
+        diffOptions={diffOptions}
+        normalizeJSON={props.normalizeJSON}
+      />
+    );
   }
 
   return diffEl;

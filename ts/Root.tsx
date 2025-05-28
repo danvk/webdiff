@@ -11,6 +11,7 @@ import {filePairDisplayName} from './utils';
 import {DiffOptionsControl} from './DiffOptions';
 import {KeyboardShortcuts} from './codediff/KeyboardShortcuts';
 import {GitConfig} from './options';
+import {NormalizeJSONOption} from './codediff/NormalizeJSONOption';
 
 declare const pairs: FilePair[];
 declare const initialIdx: number;
@@ -18,6 +19,7 @@ declare const GIT_CONFIG: GitConfig;
 
 interface CombinedOptions extends DiffOptions {
   maxDiffWidth: number;
+  normalizeJSON?: boolean;
 }
 
 function parseOptions(query: URLSearchParams): Partial<CombinedOptions> {
@@ -25,14 +27,23 @@ function parseOptions(query: URLSearchParams): Partial<CombinedOptions> {
   const diffOptions = decodeDiffOptions(flags);
   const maxWidthStr = query.get('width');
   const maxDiffWidth = maxWidthStr ? {maxDiffWidth: Number(maxWidthStr)} : undefined;
-  return {...diffOptions, ...maxDiffWidth};
+  const normalizeJsonStr = query.get('normalize_json');
+  const normalizeJSON = normalizeJsonStr ? {normalizeJSON: true} : undefined;
+  return {...diffOptions, ...maxDiffWidth, ...normalizeJSON};
 }
 
-function encodeOptions(diffOptions: Partial<DiffOptions>, maxDiffWidth: number) {
+function encodeOptions(
+  diffOptions: Partial<DiffOptions>,
+  maxDiffWidth: number,
+  normalizeJSON: boolean,
+) {
   const flags = encodeDiffOptions(diffOptions);
   const params = new URLSearchParams(flags.map(f => ['flag', f]));
   if (maxDiffWidth !== GIT_CONFIG.webdiff.maxDiffWidth) {
     params.set('width', String(maxDiffWidth));
+  }
+  if (normalizeJSON) {
+    params.set('normalize_json', '1');
   }
   return params;
 }
@@ -71,19 +82,27 @@ export function Root() {
 
   const options = React.useMemo(() => parseOptions(searchParams), [searchParams]);
   const maxDiffWidth = options.maxDiffWidth ?? GIT_CONFIG.webdiff.maxDiffWidth;
+  const normalizeJSON = !!options.normalizeJSON;
 
   const setDiffOptions = React.useCallback(
     (newOptions: Partial<DiffOptions>) => {
-      setSearchParams(encodeOptions(newOptions, maxDiffWidth));
+      setSearchParams(encodeOptions(newOptions, maxDiffWidth, normalizeJSON));
     },
-    [maxDiffWidth, setSearchParams],
+    [maxDiffWidth, setSearchParams, normalizeJSON],
   );
 
   const setMaxDiffWidth = React.useCallback(
     (newMaxWidth: number) => {
-      setSearchParams(encodeOptions(options, newMaxWidth));
+      setSearchParams(encodeOptions(options, newMaxWidth, normalizeJSON));
     },
-    [options, setSearchParams],
+    [options, setSearchParams, normalizeJSON],
+  );
+
+  const setNormalizeJSON = React.useCallback(
+    (newNormalizeJSON: boolean) => {
+      setSearchParams(encodeOptions(options, maxDiffWidth, newNormalizeJSON));
+    },
+    [options, setSearchParams, maxDiffWidth],
   );
 
   // TODO: switch to useKey() or some such
@@ -139,6 +158,11 @@ export function Root() {
           mode={fileSelectorMode}
           onChangeMode={setFileSelectorMode}
         />
+        <NormalizeJSONOption
+          normalizeJSON={normalizeJSON}
+          setNormalizeJSON={setNormalizeJSON}
+          filePair={filePair}
+        />
         {showKeyboardHelp ? (
           <KeyboardShortcuts
             onClose={() => {
@@ -155,6 +179,7 @@ export function Root() {
           changeImageDiffMode={setImageDiffMode}
           changePDiffMode={setPDiffMode}
           changeDiffOptions={setDiffOptions}
+          normalizeJSON={normalizeJSON}
         />
       </div>
     </>
