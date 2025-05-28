@@ -28,6 +28,10 @@ Features include:
 
     pip install webdiff
 
+or using [pipx]:
+
+    pipx install webdiff
+
 or, if you prefer [Homebrew]:
 
     brew install danvk/webdiff/webdiff
@@ -188,3 +192,4 @@ There's one complication involving symlinks. `git difftool -d` may fill one of t
 [git config]: https://git-scm.com/docs/git-config
 [themes]: http://example.com
 [poetry]: https://python-poetry.org/docs/repositories/#publishable-repositories
+[pipx]: https://pipx.pypa.io/stable/
