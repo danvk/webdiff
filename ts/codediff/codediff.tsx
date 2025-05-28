@@ -7,7 +7,7 @@ import {isLegitKeypress} from '../file_diff';
 import {DiffRow} from './DiffRow';
 import {SkipRange, SkipRow} from './SkipRow';
 import {FilePair} from '../CodeDiffContainer';
-import { GitConfig } from '../options';
+import {GitConfig} from '../options';
 
 export interface PatchOptions {
   /** Minimum number of skipped lines to elide into a "jump" row */
