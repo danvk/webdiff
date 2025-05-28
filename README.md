@@ -108,8 +108,7 @@ Options are:
     poetry install
     cd ts
     yarn
-    # see https://github.com/webpack/webpack/issues/14532
-    NODE_OPTIONS=--openssl-legacy-provider webpack
+    yarn build
 
 Then from the root directory:
 
