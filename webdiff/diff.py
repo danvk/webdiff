@@ -29,7 +29,13 @@ def get_thin_dict(diff):
       - change type (add, delete, move, change)
       - (in the future) diffstats
     """
-    return {'a': diff.a, 'b': diff.b, 'type': diff.type, 'num_add': diff.num_add, 'num_delete': diff.num_delete}
+    return {
+        'a': diff.a,
+        'b': diff.b,
+        'type': diff.type,
+        'num_add': diff.num_add,
+        'num_delete': diff.num_delete,
+    }
 
 
 def fast_num_lines(path: str) -> int:
@@ -39,7 +45,9 @@ def fast_num_lines(path: str) -> int:
     return int(subprocess.check_output(['grep', '-c', '', path]))
 
 
-def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
+def get_diff_ops(
+    diff: LocalFileDiff, git_diff_args=None, normalize_json=False
+) -> List[Code]:
     """Run git diff on the file pair and convert the results to a sequence of codes.
 
     git_diff_args is passed directly to git diff. It can be something like ['-w'] or
@@ -48,6 +56,10 @@ def get_diff_ops(diff: LocalFileDiff, git_diff_args=None) -> List[Code]:
     # git diff --no-index doesn't follow symlinks. So we help it a bit.
     a_path = os.path.realpath(diff.a_path) if diff.a_path else ''
     b_path = os.path.realpath(diff.b_path) if diff.b_path else ''
+    if normalize_json:
+        a_path = a_path and util.normalize_json(a_path)
+        b_path = b_path and util.normalize_json(b_path)
+
     if a_path and b_path:
         num_lines = fast_num_lines(b_path)
         args = (
