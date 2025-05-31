@@ -99,7 +99,10 @@ export function Root() {
   );
 
   const setNormalizeJSON = React.useCallback(
-    (newNormalizeJSON: boolean) => {
+    (newNormalizeJSON?: boolean) => {
+      if (newNormalizeJSON === undefined) {
+        newNormalizeJSON = !options.normalizeJSON;
+      }
       setSearchParams(encodeOptions(options, maxDiffWidth, newNormalizeJSON));
     },
     [options, setSearchParams, maxDiffWidth],
@@ -125,13 +128,15 @@ export function Root() {
         setShowKeyboardHelp(false);
       } else if (e.code === 'Period') {
         setShowOptions(val => !val);
+      } else if (e.code === 'KeyZ') {
+        setNormalizeJSON();  // toggles
       }
     };
     document.addEventListener('keydown', handleKeydown);
     return () => {
       document.removeEventListener('keydown', handleKeydown);
     };
-  }, [idx, selectIndex]);
+  }, [idx, selectIndex, setNormalizeJSON]);
 
   const inlineStyle = `
   td.code {

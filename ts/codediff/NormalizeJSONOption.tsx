@@ -27,7 +27,7 @@ export function NormalizeJSONOption(props: NormalizeJSONOptionProps) {
         onChange={toggleNormalizeJSON}
         id="normalize-json"
       />{' '}
-      <label htmlFor="normalize-json">Normalize JSON (indent, sort keys)</label>
+      <label htmlFor="normalize-json">Normalize JSON (z): indent, sort keys</label>
     </>
   );
 }

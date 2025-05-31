@@ -69,6 +69,9 @@ export function KeyboardShortcuts(props: KeyboardShortcutsProps) {
               <kbd>v</kbd> Toggle file list / dropdown menu
             </li>
             <li>
+              <kbd>z</kbd> Normalize JSON
+            </li>
+            <li>
               <kbd>.</kbd> Show diff options
             </li>
             <li>
