@@ -26,7 +26,7 @@ const DEFAULT_PARAMS: PatchOptions = {
 };
 
 /**
- * Long lines can bog down the browser or make it freeze it completely.
+ * Long lines can bog down the browser or freeze it completely.
  * We show an interstitial before rendering diffs if the first line is more than
  * this many characters.
  */
