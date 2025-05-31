@@ -56,7 +56,7 @@ export function injectStylesFromConfig() {
 
 export interface Options extends GitDiffOptions {
   maxDiffWidth: number;
-  normalizeJSON?: boolean;
+  normalizeJSON: boolean;
 }
 
 export function parseOptions(query: URLSearchParams): Partial<Options> {
