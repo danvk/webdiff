@@ -73,7 +73,7 @@ export function encodeOptions(options: Partial<Options>) {
   const {maxDiffWidth, normalizeJSON, ...diffOptions} = options;
   const flags = gitDiffOptionsToFlags(diffOptions);
   const params = new URLSearchParams(flags.map(f => ['flag', f]));
-  if (maxDiffWidth !== GIT_CONFIG.webdiff.maxDiffWidth) {
+  if (maxDiffWidth !== undefined && maxDiffWidth !== GIT_CONFIG.webdiff.maxDiffWidth) {
     params.set('width', String(maxDiffWidth));
   }
   if (normalizeJSON) {
