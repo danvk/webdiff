@@ -9,7 +9,7 @@ import {ImageDiffMode} from './ImageDiffModeSelector';
 import {filePairDisplayName} from './utils';
 import {DiffOptionsControl} from './DiffOptions';
 import {KeyboardShortcuts} from './codediff/KeyboardShortcuts';
-import {CombinedOptions, encodeOptions, GitConfig, parseOptions, UpdateOptionsFn} from './options';
+import {Options, encodeOptions, GitConfig, parseOptions, UpdateOptionsFn} from './options';
 import {NormalizeJSONOption} from './codediff/NormalizeJSONOption';
 
 declare const pairs: FilePair[];
@@ -54,7 +54,7 @@ export function Root() {
   const normalizeJSON = !!options.normalizeJSON;
 
   const setDiffOptions = React.useCallback(
-    (newOptions: Partial<CombinedOptions>) => {
+    (newOptions: Partial<Options>) => {
       setSearchParams(encodeOptions(newOptions));
     },
     [setSearchParams],

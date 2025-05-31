@@ -1,4 +1,9 @@
-import {DiffAlgorithm, flagsToGitDiffOptions, GitDiffOptions, gitDiffOptionsToFlags} from './diff-options';
+import {
+  DiffAlgorithm,
+  flagsToGitDiffOptions,
+  GitDiffOptions,
+  gitDiffOptionsToFlags,
+} from './diff-options';
 
 /** Type of global git_config object */
 export interface GitConfig {
@@ -49,12 +54,12 @@ export function injectStylesFromConfig() {
   `);
 }
 
-export interface CombinedOptions extends GitDiffOptions {
+export interface Options extends GitDiffOptions {
   maxDiffWidth: number;
   normalizeJSON?: boolean;
 }
 
-export function parseOptions(query: URLSearchParams): Partial<CombinedOptions> {
+export function parseOptions(query: URLSearchParams): Partial<Options> {
   const flags = query.getAll('flag');
   const gitDiffOptions = flagsToGitDiffOptions(flags);
   const maxWidthStr = query.get('width');
@@ -64,9 +69,7 @@ export function parseOptions(query: URLSearchParams): Partial<CombinedOptions> {
   return {...gitDiffOptions, ...maxDiffWidth, ...normalizeJSON};
 }
 
-export function encodeOptions(
-  options: Partial<CombinedOptions>,
-) {
+export function encodeOptions(options: Partial<Options>) {
   const {maxDiffWidth, normalizeJSON, ...diffOptions} = options;
   const flags = gitDiffOptionsToFlags(diffOptions);
   const params = new URLSearchParams(flags.map(f => ['flag', f]));
@@ -80,7 +83,5 @@ export function encodeOptions(
 }
 
 export type UpdateOptionsFn = (
-  updater:
-    | ((oldOptions: Partial<CombinedOptions>) => Partial<CombinedOptions>)
-    | Partial<CombinedOptions>,
+  updater: ((oldOptions: Partial<Options>) => Partial<Options>) | Partial<Options>,
 ) => void;

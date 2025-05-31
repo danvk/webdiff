@@ -3,10 +3,10 @@ import React from 'react';
 import {DiffAlgorithm, gitDiffOptionsToFlags} from './diff-options';
 import {PageCover} from './codediff/PageCover';
 import {isLegitKeypress} from './file_diff';
-import {CombinedOptions, UpdateOptionsFn} from './options';
+import {Options, UpdateOptionsFn} from './options';
 
 export interface Props {
-  options: Partial<CombinedOptions>;
+  options: Partial<Options>;
   updateOptions: UpdateOptionsFn;
   defaultMaxDiffWidth: number;
   isVisible: boolean;
