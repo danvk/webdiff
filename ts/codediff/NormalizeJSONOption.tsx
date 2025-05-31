@@ -20,7 +20,7 @@ export function NormalizeJSONOption(props: NormalizeJSONOptionProps) {
   };
 
   return (
-    <>
+    <div className="diff-mode-controls">
       <input
         type="checkbox"
         checked={props.normalizeJSON}
@@ -28,6 +28,6 @@ export function NormalizeJSONOption(props: NormalizeJSONOptionProps) {
         id="normalize-json"
       />{' '}
       <label htmlFor="normalize-json">Normalize JSON (z): indent, sort keys</label>
-    </>
+    </div>
   );
 }

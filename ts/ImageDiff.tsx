@@ -119,7 +119,7 @@ export function ImageDiff(props: Props) {
 
   return (
     <div>
-      <div className="image-diff-controls">
+      <div className="diff-mode-controls">
         <ImageDiffModeSelector {...props} />
         <input
           type="checkbox"
