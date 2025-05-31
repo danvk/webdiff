@@ -78,3 +78,9 @@ export function encodeOptions(
   }
   return params;
 }
+
+export type UpdateOptionsFn = (
+  updater:
+    | ((oldOptions: Partial<CombinedOptions>) => Partial<CombinedOptions>)
+    | Partial<CombinedOptions>,
+) => void;

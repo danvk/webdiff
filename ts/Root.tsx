@@ -9,13 +9,12 @@ import {ImageDiffMode} from './ImageDiffModeSelector';
 import {filePairDisplayName} from './utils';
 import {DiffOptionsControl} from './DiffOptions';
 import {KeyboardShortcuts} from './codediff/KeyboardShortcuts';
-import {CombinedOptions, encodeOptions, GitConfig, parseOptions} from './options';
+import {CombinedOptions, encodeOptions, GitConfig, parseOptions, UpdateOptionsFn} from './options';
 import {NormalizeJSONOption} from './codediff/NormalizeJSONOption';
 
 declare const pairs: FilePair[];
 declare const initialIdx: number;
 declare const GIT_CONFIG: GitConfig;
-
 
 // Webdiff application root.
 export function Root() {
@@ -61,10 +60,11 @@ export function Root() {
     [setSearchParams],
   );
 
-  const updateOptions = React.useCallback(
-    (updater: ((oldOptions: Partial<CombinedOptions>) => Partial<CombinedOptions>) | Partial<CombinedOptions>) => {
-      setDiffOptions({...options, ...(typeof updater === 'function' ? updater(options) : updater)});
-    }, [options, setDiffOptions]
+  const updateOptions = React.useCallback<UpdateOptionsFn>(
+    update => {
+      setDiffOptions({...options, ...(typeof update === 'function' ? update(options) : update)});
+    },
+    [options, setDiffOptions],
   );
 
   // TODO: switch to useKey() or some such
@@ -108,7 +108,7 @@ export function Root() {
       <div>
         <DiffOptionsControl
           options={options}
-          setOptions={setDiffOptions}
+          updateOptions={updateOptions}
           defaultMaxDiffWidth={GIT_CONFIG.webdiff.maxDiffWidth}
           isVisible={showOptions}
           setIsVisible={setShowOptions}
@@ -122,7 +122,9 @@ export function Root() {
         />
         <NormalizeJSONOption
           normalizeJSON={normalizeJSON}
-          setNormalizeJSON={v => { updateOptions({normalizeJSON: v}); }}
+          setNormalizeJSON={v => {
+            updateOptions({normalizeJSON: v});
+          }}
           filePair={filePair}
         />
         {showKeyboardHelp ? (

@@ -3,11 +3,11 @@ import React from 'react';
 import {DiffAlgorithm, gitDiffOptionsToFlags} from './diff-options';
 import {PageCover} from './codediff/PageCover';
 import {isLegitKeypress} from './file_diff';
-import { CombinedOptions } from './options';
+import {CombinedOptions, UpdateOptionsFn} from './options';
 
 export interface Props {
   options: Partial<CombinedOptions>;
-  setOptions: (newOptions: Partial<CombinedOptions>) => void;
+  updateOptions: UpdateOptionsFn;
   defaultMaxDiffWidth: number;
   isVisible: boolean;
   setIsVisible: (isVisible: boolean) => void;
@@ -51,45 +51,45 @@ const popupStyle: React.CSSProperties = {
 };
 
 export function DiffOptionsControl(props: Props) {
-  const {options, setOptions, isVisible, setIsVisible} = props;
+  const {options, updateOptions, isVisible, setIsVisible} = props;
   const maxDiffWidth = options.maxDiffWidth ?? props.defaultMaxDiffWidth;
 
   const togglePopup = () => {
     setIsVisible(!isVisible);
   };
   const toggleIgnoreAllSpace = () => {
-    setOptions({...options, ignoreAllSpace: !options.ignoreAllSpace});
+    updateOptions(options => ({ignoreAllSpace: !options.ignoreAllSpace}));
   };
   const toggleIgnoreSpaceChange = () => {
-    setOptions({...options, ignoreSpaceChange: !options.ignoreSpaceChange});
+    updateOptions(options => ({ignoreSpaceChange: !options.ignoreSpaceChange}));
   };
   const toggleFunctionContext = () => {
-    setOptions({...options, functionContext: !options.functionContext});
+    updateOptions(options => ({functionContext: !options.functionContext}));
   };
   const setUnifiedContext: React.ChangeEventHandler<HTMLInputElement> = e => {
-    setOptions({...options, unified: e.currentTarget.valueAsNumber});
+    updateOptions({unified: e.currentTarget.valueAsNumber});
   };
   const changeDiffAlgorithm: React.ChangeEventHandler<HTMLSelectElement> = e => {
-    setOptions({...options, diffAlgorithm: e.currentTarget.value as DiffAlgorithm});
+    updateOptions({diffAlgorithm: e.currentTarget.value as DiffAlgorithm});
   };
   const changeMaxDiffWidth: React.ChangeEventHandler<HTMLInputElement> = e => {
-    setOptions({...options, maxDiffWidth: e.currentTarget.valueAsNumber});
+    updateOptions({maxDiffWidth: e.currentTarget.valueAsNumber});
   };
 
   React.useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
       if (!isLegitKeypress(e)) return;
       if (e.code == 'KeyW') {
-        setOptions({...options, ignoreAllSpace: !options.ignoreAllSpace});
+        updateOptions(options => ({ignoreAllSpace: !options.ignoreAllSpace}));
       } else if (e.code == 'KeyB') {
-        setOptions({...options, ignoreSpaceChange: !options.ignoreSpaceChange});
+        updateOptions(options => ({ignoreSpaceChange: !options.ignoreSpaceChange}));
       }
     };
     document.addEventListener('keydown', handleKeydown);
     return () => {
       document.removeEventListener('keydown', handleKeydown);
     };
-  }, [options, setOptions]);
+  }, [options, updateOptions]);
 
   const diffOptsStr = gitDiffOptionsToFlags(options).join(' ');
 
