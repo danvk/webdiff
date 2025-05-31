@@ -6,7 +6,9 @@ describe('encodeDiffOptions', () => {
   });
 
   it('should encode basic flags', () => {
-    expect(gitDiffOptionsToFlags({diffAlgorithm: 'patience'})).toEqual(['--diff-algorithm=patience']);
+    expect(gitDiffOptionsToFlags({diffAlgorithm: 'patience'})).toEqual([
+      '--diff-algorithm=patience',
+    ]);
     expect(gitDiffOptionsToFlags({ignoreAllSpace: true})).toEqual(['-w']);
     expect(gitDiffOptionsToFlags({ignoreSpaceChange: true})).toEqual(['-b']);
     expect(gitDiffOptionsToFlags({unified: 16})).toEqual(['-U16']);
