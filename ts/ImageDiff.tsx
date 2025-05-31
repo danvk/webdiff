@@ -172,7 +172,7 @@ export function ImageDiff(props: Props) {
         </span>
       </div>
       <div className={'image-diff ' + imageDiffMode}>
-        <NoChanges filePair={props.filePair} />
+        <NoChanges filePair={props.filePair} isEqualAfterNormalization={false} />
         {image}
       </div>
     </div>
