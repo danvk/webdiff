@@ -2,7 +2,6 @@ import React from 'react';
 import {useNavigate, useParams} from 'react-router';
 import {useSearchParams} from 'react-router-dom';
 import {FilePair} from './CodeDiffContainer';
-import {decodeDiffOptions, DiffOptions, encodeDiffOptions} from './diff-options';
 import {DiffView, PerceptualDiffMode} from './DiffView';
 import {FileSelector, FileSelectorMode} from './FileSelector';
 import {isLegitKeypress} from './file_diff';
@@ -10,43 +9,12 @@ import {ImageDiffMode} from './ImageDiffModeSelector';
 import {filePairDisplayName} from './utils';
 import {DiffOptionsControl} from './DiffOptions';
 import {KeyboardShortcuts} from './codediff/KeyboardShortcuts';
-import {GitConfig} from './options';
+import {Options, encodeOptions, GitConfig, parseOptions, UpdateOptionsFn} from './options';
 import {NormalizeJSONOption} from './codediff/NormalizeJSONOption';
 
 declare const pairs: FilePair[];
 declare const initialIdx: number;
 declare const GIT_CONFIG: GitConfig;
-
-interface CombinedOptions extends DiffOptions {
-  maxDiffWidth: number;
-  normalizeJSON?: boolean;
-}
-
-function parseOptions(query: URLSearchParams): Partial<CombinedOptions> {
-  const flags = query.getAll('flag');
-  const diffOptions = decodeDiffOptions(flags);
-  const maxWidthStr = query.get('width');
-  const maxDiffWidth = maxWidthStr ? {maxDiffWidth: Number(maxWidthStr)} : undefined;
-  const normalizeJsonStr = query.get('normalize_json');
-  const normalizeJSON = normalizeJsonStr ? {normalizeJSON: true} : undefined;
-  return {...diffOptions, ...maxDiffWidth, ...normalizeJSON};
-}
-
-function encodeOptions(
-  diffOptions: Partial<DiffOptions>,
-  maxDiffWidth: number,
-  normalizeJSON: boolean,
-) {
-  const flags = encodeDiffOptions(diffOptions);
-  const params = new URLSearchParams(flags.map(f => ['flag', f]));
-  if (maxDiffWidth !== GIT_CONFIG.webdiff.maxDiffWidth) {
-    params.set('width', String(maxDiffWidth));
-  }
-  if (normalizeJSON) {
-    params.set('normalize_json', '1');
-  }
-  return params;
-}
 
 // Webdiff application root.
 export function Root() {
@@ -81,28 +49,22 @@ export function Root() {
   }, [filePair]);
 
   const options = React.useMemo(() => parseOptions(searchParams), [searchParams]);
+  // TODO: merge defaults into options
   const maxDiffWidth = options.maxDiffWidth ?? GIT_CONFIG.webdiff.maxDiffWidth;
   const normalizeJSON = !!options.normalizeJSON;
 
   const setDiffOptions = React.useCallback(
-    (newOptions: Partial<DiffOptions>) => {
-      setSearchParams(encodeOptions(newOptions, maxDiffWidth, normalizeJSON));
+    (newOptions: Partial<Options>) => {
+      setSearchParams(encodeOptions(newOptions));
     },
-    [maxDiffWidth, setSearchParams, normalizeJSON],
+    [setSearchParams],
   );
 
-  const setMaxDiffWidth = React.useCallback(
-    (newMaxWidth: number) => {
-      setSearchParams(encodeOptions(options, newMaxWidth, normalizeJSON));
+  const updateOptions = React.useCallback<UpdateOptionsFn>(
+    update => {
+      setDiffOptions({...options, ...(typeof update === 'function' ? update(options) : update)});
     },
-    [options, setSearchParams, normalizeJSON],
-  );
-
-  const setNormalizeJSON = React.useCallback(
-    (newNormalizeJSON: boolean) => {
-      setSearchParams(encodeOptions(options, maxDiffWidth, newNormalizeJSON));
-    },
-    [options, setSearchParams, maxDiffWidth],
+    [options, setDiffOptions],
   );
 
   // TODO: switch to useKey() or some such
@@ -125,13 +87,15 @@ export function Root() {
         setShowKeyboardHelp(false);
       } else if (e.code === 'Period') {
         setShowOptions(val => !val);
+      } else if (e.code === 'KeyZ') {
+        updateOptions(o => ({normalizeJSON: !o.normalizeJSON}));
       }
     };
     document.addEventListener('keydown', handleKeydown);
     return () => {
       document.removeEventListener('keydown', handleKeydown);
     };
-  }, [idx, selectIndex]);
+  }, [idx, selectIndex, updateOptions]);
 
   const inlineStyle = `
   td.code {
@@ -144,9 +108,7 @@ export function Root() {
       <div>
         <DiffOptionsControl
           options={options}
-          setOptions={setDiffOptions}
-          maxDiffWidth={maxDiffWidth}
-          setMaxDiffWidth={setMaxDiffWidth}
+          updateOptions={updateOptions}
           defaultMaxDiffWidth={GIT_CONFIG.webdiff.maxDiffWidth}
           isVisible={showOptions}
           setIsVisible={setShowOptions}
@@ -160,7 +122,9 @@ export function Root() {
         />
         <NormalizeJSONOption
           normalizeJSON={normalizeJSON}
-          setNormalizeJSON={setNormalizeJSON}
+          setNormalizeJSON={v => {
+            updateOptions({normalizeJSON: v});
+          }}
           filePair={filePair}
         />
         {showKeyboardHelp ? (

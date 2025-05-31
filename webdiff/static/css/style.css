@@ -106,29 +106,30 @@ ul.file-list {
 .side-a { border: 1px solid red; }
 .side-b { border: 1px solid green; }
 
-.image-diff-controls {
+/* Per-file type diff controls: image diff mode, JSON normalization */
+.diff-mode-controls {
   text-align: center;
   background-color: #f7f7f7;
   padding: 5px;
 }
-.image-diff-controls > input {
+.diff-mode-controls > input {
   margin-left: 20px;
 }
-.image-diff-controls a {
+.diff-mode-controls a {
   text-decoration: none;
 }
-.image-diff-controls a, .image-diff-controls a:visited {
+.diff-mode-controls a, .diff-mode-controls a:visited {
   color: #666;
 }
-.image-diff-controls b {
+.diff-mode-controls b {
   color: black;
 }
-.image-diff-controls .mode {
+.diff-mode-controls .mode {
   padding-left: 5px;
   padding-right: 5px;
   border-right: 1px solid #ccc;
 }
-.image-diff-controls .mode:last-child {
+.diff-mode-controls .mode:last-child {
   border-right: none;
 }
 
@@ -244,4 +245,9 @@ kbd {
 .keyboard-shortcuts li {
   list-style-type: none;
   margin-bottom: 2px;
+}
+
+.suppressed-large-diff {
+  text-align: center;
+  background-color: lightyellow;
 }

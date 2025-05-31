@@ -1,15 +1,15 @@
 import React from 'react';
 
-import {DiffAlgorithm, DiffOptions, encodeDiffOptions} from './diff-options';
+import {DiffAlgorithm, gitDiffOptionsToFlags} from './diff-options';
 import {PageCover} from './codediff/PageCover';
 import {isLegitKeypress} from './file_diff';
+import {Options, UpdateOptionsFn} from './options';
+import {Unionize} from './utils';
 
 export interface Props {
-  options: Partial<DiffOptions>;
-  setOptions: (newOptions: Partial<DiffOptions>) => void;
+  options: Partial<Options>;
+  updateOptions: UpdateOptionsFn;
   defaultMaxDiffWidth: number;
-  maxDiffWidth: number;
-  setMaxDiffWidth: (maxDiffWidth: number) => void;
   isVisible: boolean;
   setIsVisible: (isVisible: boolean) => void;
 }
@@ -51,47 +51,44 @@ const popupStyle: React.CSSProperties = {
   fontFamily: 'sans-serif',
 };
 
+type BooleanOptions = Extract<Unionize<Options>, {v: boolean}>['k'];
+
 export function DiffOptionsControl(props: Props) {
-  const {options, setOptions, isVisible, setIsVisible, maxDiffWidth, setMaxDiffWidth} = props;
+  const {options, updateOptions, isVisible, setIsVisible} = props;
+  const maxDiffWidth = options.maxDiffWidth ?? props.defaultMaxDiffWidth;
 
   const togglePopup = () => {
     setIsVisible(!isVisible);
   };
-  const toggleIgnoreAllSpace = () => {
-    setOptions({...options, ignoreAllSpace: !options.ignoreAllSpace});
-  };
-  const toggleIgnoreSpaceChange = () => {
-    setOptions({...options, ignoreSpaceChange: !options.ignoreSpaceChange});
-  };
-  const toggleFunctionContext = () => {
-    setOptions({...options, functionContext: !options.functionContext});
+  const toggleField = (k: BooleanOptions) => () => {
+    updateOptions(options => ({[k]: !options[k]}));
   };
   const setUnifiedContext: React.ChangeEventHandler<HTMLInputElement> = e => {
-    setOptions({...options, unified: e.currentTarget.valueAsNumber});
+    updateOptions({unified: e.currentTarget.valueAsNumber});
   };
   const changeDiffAlgorithm: React.ChangeEventHandler<HTMLSelectElement> = e => {
-    setOptions({...options, diffAlgorithm: e.currentTarget.value as DiffAlgorithm});
+    updateOptions({diffAlgorithm: e.currentTarget.value as DiffAlgorithm});
   };
   const changeMaxDiffWidth: React.ChangeEventHandler<HTMLInputElement> = e => {
-    setMaxDiffWidth(e.currentTarget.valueAsNumber);
+    updateOptions({maxDiffWidth: e.currentTarget.valueAsNumber});
   };
 
   React.useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
       if (!isLegitKeypress(e)) return;
       if (e.code == 'KeyW') {
-        setOptions({...options, ignoreAllSpace: !options.ignoreAllSpace});
+        updateOptions(options => ({ignoreAllSpace: !options.ignoreAllSpace}));
       } else if (e.code == 'KeyB') {
-        setOptions({...options, ignoreSpaceChange: !options.ignoreSpaceChange});
+        updateOptions(options => ({ignoreSpaceChange: !options.ignoreSpaceChange}));
       }
     };
     document.addEventListener('keydown', handleKeydown);
     return () => {
       document.removeEventListener('keydown', handleKeydown);
     };
-  }, [options, setOptions]);
+  }, [options, updateOptions]);
 
-  const diffOptsStr = encodeDiffOptions(options).join(' ');
+  const diffOptsStr = gitDiffOptionsToFlags(options).join(' ');
 
   return (
     <>
@@ -108,7 +105,7 @@ export function DiffOptionsControl(props: Props) {
             <table>
               <tbody>
                 <tr>
-                  <td style={{textAlign: 'right', verticalAlign: 'top'}} rowSpan={2}>
+                  <td style={{textAlign: 'right', verticalAlign: 'top'}} rowSpan={3}>
                     Whitespace:
                   </td>
                   <td>
@@ -116,7 +113,7 @@ export function DiffOptionsControl(props: Props) {
                       type="checkbox"
                       checked={!!options.ignoreAllSpace}
                       id="ignore-all-space"
-                      onChange={toggleIgnoreAllSpace}
+                      onChange={toggleField('ignoreAllSpace')}
                     />{' '}
                     <label htmlFor="ignore-all-space">
                       Ignore All Space (<code>git diff -w</code>)
@@ -129,11 +126,22 @@ export function DiffOptionsControl(props: Props) {
                       type="checkbox"
                       checked={!!options.ignoreSpaceChange}
                       id="ignore-space-changes"
-                      onChange={toggleIgnoreSpaceChange}
+                      onChange={toggleField('ignoreSpaceChange')}
                     />{' '}
                     <label htmlFor="ignore-space-changes">
                       Ignore Space Changes (<code>git diff -b</code>)
                     </label>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={!!options.normalizeJSON}
+                      id="normalize-json"
+                      onChange={toggleField('normalizeJSON')}
+                    />{' '}
+                    <label htmlFor="normalize-json">Normalize JSON</label>
                   </td>
                 </tr>
                 <tr>
@@ -157,7 +165,7 @@ export function DiffOptionsControl(props: Props) {
                       type="checkbox"
                       checked={!!options.functionContext}
                       id="function-context"
-                      onChange={toggleFunctionContext}
+                      onChange={toggleField('functionContext')}
                     />{' '}
                     <label htmlFor="function-context">
                       Function Context (<code>git diff -W</code>)

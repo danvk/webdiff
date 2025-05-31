@@ -64,3 +64,8 @@ export function isSameSizeImagePair(filePair: FilePair) {
 export function assertUnreachable(x: never): never {
   throw new Error(x);
 }
+
+// See https://effectivetypescript.com/2020/05/12/unionize-objectify/
+export type Unionize<T extends object> = {
+  [k in keyof T]: {k: k; v: T[k]};
+}[keyof T];

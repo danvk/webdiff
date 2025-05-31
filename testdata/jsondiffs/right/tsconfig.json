@@ -1,6 +1,6 @@
 {
+  /* Note that this file isn't really JSON! It's JSONC. */
   "compilerOptions": {
-    /* Note that this file isn't really JSON! */
 
     /* Basic Options */
     // "incremental": true,                   /* Enable incremental compilation */
@@ -8,7 +8,7 @@
     "module": "ESNext" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */,
     /* Specify library files to be included in the compilation. */
     "lib": [
-      "es2021", 
+      "es2021",
       "dom"
     ] ,
     // "allowJs": true,                       /* Allow javascript files to be compiled. */

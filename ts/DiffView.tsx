@@ -1,6 +1,6 @@
 import React from 'react';
 import {CodeDiffContainer, FilePair} from './CodeDiffContainer';
-import {DiffOptions} from './diff-options';
+import {GitDiffOptions} from './diff-options';
 import {getThickDiff} from './file_diff';
 import {ImageDiff} from './ImageDiff';
 import {ImageDiffMode} from './ImageDiffModeSelector';
@@ -11,11 +11,11 @@ export interface Props {
   thinFilePair: FilePair;
   imageDiffMode: ImageDiffMode;
   pdiffMode: PerceptualDiffMode;
-  diffOptions: Partial<DiffOptions>;
+  diffOptions: Partial<GitDiffOptions>;
   normalizeJSON: boolean;
   changeImageDiffMode: (mode: ImageDiffMode) => void;
   changePDiffMode: React.Dispatch<React.SetStateAction<PerceptualDiffMode>>;
-  changeDiffOptions: (options: Partial<DiffOptions>) => void;
+  changeDiffOptions: (options: Partial<GitDiffOptions>) => void;
 }
 
 export function DiffView(props: Props) {

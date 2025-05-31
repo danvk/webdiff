@@ -1,5 +1,5 @@
 import React from 'react';
-import {DiffOptions, encodeDiffOptions} from './diff-options';
+import {GitDiffOptions, gitDiffOptionsToFlags} from './diff-options';
 import {CodeDiff, PatchOptions} from './codediff/codediff';
 import {guessLanguageUsingContents, guessLanguageUsingFileName} from './codediff/language';
 import {GitConfig} from './options';
@@ -53,18 +53,19 @@ export interface ImageDiffData {
 }
 
 // A "no changes" sign which only appears when applicable.
-export function NoChanges(props: {filePair: FilePair}) {
-  const {filePair} = props;
+export function NoChanges(props: {filePair: FilePair; isEqualAfterNormalization: boolean}) {
+  const {filePair, isEqualAfterNormalization} = props;
+  let msg = null;
   if (filePair.no_changes) {
-    return <div className="no-changes">(File content is identical)</div>;
+    msg = <>(File content is identical)</>;
+  } else if (isEqualAfterNormalization) {
+    msg = <>(File content is identical after normalization)</>;
   } else if (filePair.is_image_diff && filePair.are_same_pixels) {
-    return (
-      <div className="no-changes">
-        Pixels are the same, though file content differs (perhaps the headers are different?)
-      </div>
+    msg = (
+      <>Pixels are the same, though file content differs (perhaps the headers are different?)</>
     );
   }
-  return null;
+  return msg ? <div className="no-changes">{msg}</div> : null;
 }
 
 // Either side can be empty (i.e. an add or a delete), in which case getOrNull resolves to null.
@@ -84,7 +85,7 @@ async function getOrNull(side: string, path: string, normalizeJSON: boolean) {
 
 export interface CodeDiffContainerProps {
   filePair: FilePair;
-  diffOptions: Partial<DiffOptions>;
+  diffOptions: Partial<GitDiffOptions>;
   normalizeJSON: boolean;
 }
 
@@ -96,6 +97,8 @@ export function CodeDiffContainer(props: CodeDiffContainerProps) {
   >();
 
   React.useEffect(() => {
+    // It would be more correct to set contents=undefined here to get a loading state,
+    // but this produces an unnecessary flash for rapid transitions.
     const getDiff = async () => {
       const response = await fetch(`/diff/${filePair.idx}`, {
         method: 'POST',
@@ -104,7 +107,7 @@ export function CodeDiffContainer(props: CodeDiffContainerProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          options: encodeDiffOptions(diffOptions),
+          options: gitDiffOptionsToFlags(diffOptions),
           normalize_json: normalizeJSON,
         }),
       });
@@ -127,6 +130,10 @@ export function CodeDiffContainer(props: CodeDiffContainerProps) {
     });
   }, [filePair, diffOptions, normalizeJSON]);
 
+  const isEqualAfterNormalization = React.useMemo(() => {
+    return !filePair.no_changes && normalizeJSON && contents && contents.before == contents.after;
+  }, [contents, filePair.no_changes, normalizeJSON]);
+
   return (
     <div>
       <div key={filePair.idx}>
@@ -136,6 +143,7 @@ export function CodeDiffContainer(props: CodeDiffContainerProps) {
             contentsBefore={contents.before}
             contentsAfter={contents.after}
             diffOps={contents.diffOps}
+            isEqualAfterNormalization={!!isEqualAfterNormalization}
           />
         ) : (
           'Loading…'
@@ -150,6 +158,7 @@ interface FileDiffProps {
   contentsBefore: string | null;
   contentsAfter: string | null;
   diffOps: DiffRange[];
+  isEqualAfterNormalization: boolean;
 }
 
 function extractFilename(path: string) {
@@ -164,7 +173,7 @@ function lengthOrZero(data: unknown[] | string | null | undefined) {
 }
 
 function FileDiff(props: FileDiffProps) {
-  const {filePair, contentsBefore, contentsAfter, diffOps} = props;
+  const {filePair, contentsBefore, contentsAfter, diffOps, isEqualAfterNormalization} = props;
   const pathBefore = filePair.a;
   const pathAfter = filePair.b;
   // build the diff view and add it to the current DOM
@@ -201,7 +210,7 @@ function FileDiff(props: FileDiffProps) {
 
   return (
     <div className="diff">
-      <NoChanges filePair={filePair} />
+      <NoChanges filePair={filePair} isEqualAfterNormalization={isEqualAfterNormalization} />
       <CodeDiff
         beforeText={contentsBefore}
         afterText={contentsAfter}
