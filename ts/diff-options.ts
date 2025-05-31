@@ -1,6 +1,7 @@
 export type DiffAlgorithm = 'patience' | 'minimal' | 'histogram' | 'myers';
 
-export interface DiffOptions {
+/** Options that can be passed to `git diff --no-index` */
+export interface GitDiffOptions {
   /** aka -w */
   ignoreAllSpace: boolean;
   /** aka -b */
@@ -17,7 +18,7 @@ export interface DiffOptions {
   findCopies?: number;
 }
 
-export function encodeDiffOptions(opts: Partial<DiffOptions>) {
+export function gitDiffOptionsToFlags(opts: Partial<GitDiffOptions>) {
   const flags = [];
   if (opts.ignoreAllSpace) {
     flags.push('-w');
@@ -43,8 +44,8 @@ export function encodeDiffOptions(opts: Partial<DiffOptions>) {
   return flags;
 }
 
-export function decodeDiffOptions(flags: string[]): Partial<DiffOptions> {
-  const options: Partial<DiffOptions> = {};
+export function flagsToGitDiffOptions(flags: string[]): Partial<GitDiffOptions> {
+  const options: Partial<GitDiffOptions> = {};
   for (const flag of flags) {
     if (flag == '-w' || flag == '--ignore-all-space') {
       options.ignoreAllSpace = true;

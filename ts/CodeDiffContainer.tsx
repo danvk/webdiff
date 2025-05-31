@@ -1,5 +1,5 @@
 import React from 'react';
-import {DiffOptions, encodeDiffOptions} from './diff-options';
+import {GitDiffOptions, gitDiffOptionsToFlags} from './diff-options';
 import {CodeDiff, PatchOptions} from './codediff/codediff';
 import {guessLanguageUsingContents, guessLanguageUsingFileName} from './codediff/language';
 import {GitConfig} from './options';
@@ -84,7 +84,7 @@ async function getOrNull(side: string, path: string, normalizeJSON: boolean) {
 
 export interface CodeDiffContainerProps {
   filePair: FilePair;
-  diffOptions: Partial<DiffOptions>;
+  diffOptions: Partial<GitDiffOptions>;
   normalizeJSON: boolean;
 }
 
@@ -104,7 +104,7 @@ export function CodeDiffContainer(props: CodeDiffContainerProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          options: encodeDiffOptions(diffOptions),
+          options: gitDiffOptionsToFlags(diffOptions),
           normalize_json: normalizeJSON,
         }),
       });

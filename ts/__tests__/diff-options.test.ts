@@ -1,20 +1,20 @@
-import {decodeDiffOptions, encodeDiffOptions} from '../diff-options';
+import {flagsToGitDiffOptions, gitDiffOptionsToFlags} from '../diff-options';
 
 describe('encodeDiffOptions', () => {
   it('should encode no flags', () => {
-    expect(encodeDiffOptions({})).toEqual([]);
+    expect(gitDiffOptionsToFlags({})).toEqual([]);
   });
 
   it('should encode basic flags', () => {
-    expect(encodeDiffOptions({diffAlgorithm: 'patience'})).toEqual(['--diff-algorithm=patience']);
-    expect(encodeDiffOptions({ignoreAllSpace: true})).toEqual(['-w']);
-    expect(encodeDiffOptions({ignoreSpaceChange: true})).toEqual(['-b']);
-    expect(encodeDiffOptions({unified: 16})).toEqual(['-U16']);
-    expect(encodeDiffOptions({functionContext: true})).toEqual(['-W']);
+    expect(gitDiffOptionsToFlags({diffAlgorithm: 'patience'})).toEqual(['--diff-algorithm=patience']);
+    expect(gitDiffOptionsToFlags({ignoreAllSpace: true})).toEqual(['-w']);
+    expect(gitDiffOptionsToFlags({ignoreSpaceChange: true})).toEqual(['-b']);
+    expect(gitDiffOptionsToFlags({unified: 16})).toEqual(['-U16']);
+    expect(gitDiffOptionsToFlags({functionContext: true})).toEqual(['-W']);
   });
 
   it('should decode flags', () => {
-    expect(decodeDiffOptions(['-w'])).toEqual({ignoreAllSpace: true});
-    expect(decodeDiffOptions(['-W'])).toEqual({functionContext: true});
+    expect(flagsToGitDiffOptions(['-w'])).toEqual({ignoreAllSpace: true});
+    expect(flagsToGitDiffOptions(['-W'])).toEqual({functionContext: true});
   });
 });

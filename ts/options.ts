@@ -1,4 +1,4 @@
-import {DiffAlgorithm} from './diff-options';
+import {DiffAlgorithm, flagsToGitDiffOptions, GitDiffOptions, gitDiffOptionsToFlags} from './diff-options';
 
 /** Type of global git_config object */
 export interface GitConfig {
@@ -47,4 +47,34 @@ export function injectStylesFromConfig() {
   }
   </style>
   `);
+}
+
+export interface CombinedOptions extends GitDiffOptions {
+  maxDiffWidth: number;
+  normalizeJSON?: boolean;
+}
+
+export function parseOptions(query: URLSearchParams): Partial<CombinedOptions> {
+  const flags = query.getAll('flag');
+  const gitDiffOptions = flagsToGitDiffOptions(flags);
+  const maxWidthStr = query.get('width');
+  const maxDiffWidth = maxWidthStr ? {maxDiffWidth: Number(maxWidthStr)} : undefined;
+  const normalizeJsonStr = query.get('normalize_json');
+  const normalizeJSON = normalizeJsonStr ? {normalizeJSON: true} : undefined;
+  return {...gitDiffOptions, ...maxDiffWidth, ...normalizeJSON};
+}
+
+export function encodeOptions(
+  options: Partial<CombinedOptions>,
+) {
+  const {maxDiffWidth, normalizeJSON, ...diffOptions} = options;
+  const flags = gitDiffOptionsToFlags(diffOptions);
+  const params = new URLSearchParams(flags.map(f => ['flag', f]));
+  if (maxDiffWidth !== GIT_CONFIG.webdiff.maxDiffWidth) {
+    params.set('width', String(maxDiffWidth));
+  }
+  if (normalizeJSON) {
+    params.set('normalize_json', '1');
+  }
+  return params;
 }

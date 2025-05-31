@@ -1,15 +1,14 @@
 import React from 'react';
 
-import {DiffAlgorithm, DiffOptions, encodeDiffOptions} from './diff-options';
+import {DiffAlgorithm, gitDiffOptionsToFlags} from './diff-options';
 import {PageCover} from './codediff/PageCover';
 import {isLegitKeypress} from './file_diff';
+import { CombinedOptions } from './options';
 
 export interface Props {
-  options: Partial<DiffOptions>;
-  setOptions: (newOptions: Partial<DiffOptions>) => void;
+  options: Partial<CombinedOptions>;
+  setOptions: (newOptions: Partial<CombinedOptions>) => void;
   defaultMaxDiffWidth: number;
-  maxDiffWidth: number;
-  setMaxDiffWidth: (maxDiffWidth: number) => void;
   isVisible: boolean;
   setIsVisible: (isVisible: boolean) => void;
 }
@@ -52,7 +51,8 @@ const popupStyle: React.CSSProperties = {
 };
 
 export function DiffOptionsControl(props: Props) {
-  const {options, setOptions, isVisible, setIsVisible, maxDiffWidth, setMaxDiffWidth} = props;
+  const {options, setOptions, isVisible, setIsVisible} = props;
+  const maxDiffWidth = options.maxDiffWidth ?? props.defaultMaxDiffWidth;
 
   const togglePopup = () => {
     setIsVisible(!isVisible);
@@ -73,7 +73,7 @@ export function DiffOptionsControl(props: Props) {
     setOptions({...options, diffAlgorithm: e.currentTarget.value as DiffAlgorithm});
   };
   const changeMaxDiffWidth: React.ChangeEventHandler<HTMLInputElement> = e => {
-    setMaxDiffWidth(e.currentTarget.valueAsNumber);
+    setOptions({...options, maxDiffWidth: e.currentTarget.valueAsNumber});
   };
 
   React.useEffect(() => {
@@ -91,7 +91,7 @@ export function DiffOptionsControl(props: Props) {
     };
   }, [options, setOptions]);
 
-  const diffOptsStr = encodeDiffOptions(options).join(' ');
+  const diffOptsStr = gitDiffOptionsToFlags(options).join(' ');
 
   return (
     <>
