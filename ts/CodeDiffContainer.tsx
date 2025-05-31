@@ -96,6 +96,8 @@ export function CodeDiffContainer(props: CodeDiffContainerProps) {
   >();
 
   React.useEffect(() => {
+    // It would be more correct to set contents=undefined here to get a loading state,
+    // but this produces an unnecessary flash for rapid transitions.
     const getDiff = async () => {
       const response = await fetch(`/diff/${filePair.idx}`, {
         method: 'POST',
