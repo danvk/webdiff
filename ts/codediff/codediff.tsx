@@ -26,6 +26,13 @@ const DEFAULT_PARAMS: PatchOptions = {
 };
 
 /**
+ * Long lines can bog down the browser or make it freeze it completely.
+ * We show an interstitial before rendering diffs if the first line is more than
+ * this many characters.
+ */
+export const LINE_LENGTH_FOR_WARNING = 200_000;
+
+/**
  * @return Lines marked up with syntax <span>s. The <span>
  *     tags will be balanced within each line.
  */
@@ -81,7 +88,20 @@ export function CodeDiff(props: Props) {
     return [highlightText(beforeText ?? '', language), highlightText(afterText ?? '', language)];
   }, [language, numLines, beforeText, afterText]);
 
-  return (
+  const [bypassSafetyCheck, setBypassSafetyCheck] = React.useState(false);
+
+  const isSafeToRender = React.useMemo(() => {
+    return (
+      Math.max(beforeLines[0]?.length ?? 0, afterLines[0]?.length ?? 0) < LINE_LENGTH_FOR_WARNING
+    );
+  }, [afterLines, beforeLines]);
+
+  // Make the user click the link again if they navigate to a new file.
+  React.useEffect(() => {
+    setBypassSafetyCheck(false);
+  }, [beforeText, afterText]);
+
+  return isSafeToRender || bypassSafetyCheck ? (
     <CodeDiffView
       beforeLines={beforeLines}
       beforeLinesHighlighted={beforeLinesHighlighted}
@@ -91,6 +111,26 @@ export function CodeDiff(props: Props) {
       params={fullParams}
       ops={diffRanges}
     />
+  ) : (
+    <div className="diff">
+      <table className="diff">
+        <tr>
+          <td className="code equal before suppressed-large-diff">
+            <p>⚠️ This file may be minified and the diff may slow down the browser. ⚠️</p>
+            <p>
+              <a
+                href="#"
+                onClick={e => {
+                  e.preventDefault();
+                  setBypassSafetyCheck(true);
+                }}>
+                Render diff anyway
+              </a>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </div>
   );
 }
 

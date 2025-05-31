@@ -246,3 +246,8 @@ kbd {
   list-style-type: none;
   margin-bottom: 2px;
 }
+
+.suppressed-large-diff {
+  text-align: center;
+  background-color: lightyellow;
+}
