@@ -4,9 +4,7 @@ import argparse
 import os
 import re
 
-from webdiff import dirdiff
-from webdiff import githubdiff
-from webdiff import github_fetcher
+from webdiff import dirdiff, github_fetcher, githubdiff
 from webdiff.localfilediff import LocalFileDiff
 
 
@@ -81,6 +79,12 @@ def parse(args, version=None):
 
     else:
         a, b = args.dirs
+        if os.environ.get('WEBDIFF_DIR_A') and os.environ.get('WEBDIFF_DIR_B'):
+            # This happens when you run "git webdiff" and we have to make a copy of
+            # the temp directories before we detach and git difftool cleans them up.
+            a = os.environ.get('WEBDIFF_DIR_A')
+            b = os.environ.get('WEBDIFF_DIR_B')
+
         for x in (a, b):
             if not os.path.exists(x):
                 raise UsageError('"%s" does not exist' % x)

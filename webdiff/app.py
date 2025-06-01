@@ -13,6 +13,7 @@ import os
 import platform
 import signal
 import socket
+import subprocess
 import sys
 import threading
 import time
@@ -24,6 +25,7 @@ from aiohttp import web
 from binaryornot.check import is_binary
 
 from webdiff import argparser, diff, options, util
+from webdiff.dirdiff import make_resolved_dir
 
 VERSION = importlib.metadata.version('webdiff')
 
@@ -46,6 +48,7 @@ DIFF = None
 PORT = None
 HOSTNAME = 'localhost'
 DEBUG = os.environ.get('DEBUG')
+DEBUG_DETACH = os.environ.get('DEBUG_DETACH')
 WEBDIFF_DIR = determine_path()
 
 if DEBUG:
@@ -273,15 +276,8 @@ def pick_a_port(args, webdiff_config):
 
 
 def run_http():
-    sys.stderr.write(
-        """Serving diffs on http://%s:%s
-Close the browser tab or hit Ctrl-C when you're done.
-"""
-        % (HOSTNAME, PORT)
-    )
     threading.Timer(0.1, open_browser).start()
-
-    web.run_app(app, host=HOSTNAME, port=PORT)
+    web.run_app(app, host=HOSTNAME, port=PORT, print=print if DEBUG else None)
     logging.debug('http server shut down')
 
 
@@ -291,7 +287,7 @@ def maybe_shutdown():
 
     def shutdown():
         if LAST_REQUEST_MS <= last_ms:  # subsequent requests abort shutdown
-            sys.stderr.write('Shutting down...\n')
+            logging.debug('Shutting down...')
             signal.raise_signal(signal.SIGINT)
         else:
             logging.debug('Received subsequent request; shutdown aborted.')
@@ -334,7 +330,36 @@ def run():
         else:
             HOSTNAME = _hostname
 
-    run_http()
+    run_in_process = os.environ.get('WEBDIFF_RUN_IN_PROCESS') or (
+        DEBUG and not DEBUG_DETACH
+    )
+
+    if not os.environ.get('WEBDIFF_LOGGED_MESSAGE'):
+        # Printing this in the main process gives you your prompt back more cleanly.
+        print(
+            """Serving diffs on http://%s:%s
+Close the browser tab when you're done to terminate the process."""
+            % (HOSTNAME, PORT)
+        )
+        os.environ['WEBDIFF_LOGGED_MESSAGE'] = '1'
+
+    if run_in_process:
+        run_http()
+    else:
+        os.environ['WEBDIFF_RUN_IN_PROCESS'] = '1'
+        os.environ['WEBDIFF_PORT'] = str(PORT)
+        if os.environ.get('WEBDIFF_FROM_GIT_DIFFTOOL'):
+            # git difftool will clean up these directories when we detach.
+            # To make them accessible to the child process, we make a (shallow) copy.
+            assert 'dirs' in parsed_args
+            dir_a, dir_b = parsed_args['dirs']
+            copied_dir_a = make_resolved_dir(dir_a)
+            copied_dir_b = make_resolved_dir(dir_b)
+            os.environ['WEBDIFF_DIR_A'] = copied_dir_a
+            os.environ['WEBDIFF_DIR_B'] = copied_dir_b
+            logging.debug(f'Copied {dir_a} -> {copied_dir_a} before detaching')
+            logging.debug(f'Copied {dir_b} -> {copied_dir_b} before detaching')
+        subprocess.Popen((sys.executable, *sys.argv))
 
 
 if __name__ == '__main__':

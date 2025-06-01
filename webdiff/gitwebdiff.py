@@ -21,6 +21,7 @@ def run(argv=sys.argv):
             if not os.environ.get('DEBUG')
             else os.path.join(os.path.curdir, 'test.sh')
         )
+        os.environ['WEBDIFF_FROM_GIT_DIFFTOOL'] = '1'
         subprocess.call(f'git difftool -d -x {cmd}'.split(' ') + argv[1:])
     except KeyboardInterrupt:
         # Don't raise an exception to the user when sigint is received
