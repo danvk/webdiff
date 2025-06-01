@@ -144,7 +144,7 @@ To iterate on the PyPI package, run:
 
     pip3 uninstall webdiff
     poetry build
-    pip3 install dist/webdiff-?.?.?.tar.gz
+    pip3 install dist/webdiff-(latest).tar.gz
 
 To publish to pypitest:
 
@@ -154,6 +154,8 @@ To publish to pypitest:
 And to the real pypi:
 
     poetry publish
+
+You can publish pre-release versions to pypi by adding "bN" to the version number.
 
 See [pypirc][] and [poetry][] docs for details on setting up tokens for pypi.
 
@@ -184,7 +186,10 @@ When you run `git webdiff (args)`, it runs:
 
 This tells `git` to set up two directories and invoke `webdiff leftdir rightdir`.
 
-There's one complication involving symlinks. `git difftool -d` may fill one of the sides (typically the right) with symlinks. This is faster than copying files, but unfortunately `git diff --no-index` does not resolve these symlinks. To make this work, if a directory contains symlinks, webdiff makes a copy of it before diffing. For file diffs, it resolves the symlink before passing it to `git diff --no-index`. The upshot is that you can run `git webdiff`, edit a file, reload the browser window and see the changes.
+There are two wrinkles here:
+
+- `git difftool -d` may fill one of the sides (typically the right) with symlinks. This is faster than copying files, but unfortunately `git diff --no-index` does not resolve these symlinks. To make this work, if a directory contains symlinks, webdiff makes a copy of it before diffing. For file diffs, it resolves the symlink before passing it to `git diff --no-index`. The upshot is that you can run `git webdiff`, edit a file, reload the browser window and see the changes.
+- `git difftool` cleans up its temporary directories when the main webdiff process terminates. Since webdiff detaches to give you back your terminal, it has to make another copy of the directories (this time without resolving symlinks) to make sure they're still there for the child process.
 
 [pypirc]: https://packaging.python.org/specifications/pypirc/
 [Homebrew]: https://brew.sh/

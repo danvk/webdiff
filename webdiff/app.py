@@ -277,7 +277,6 @@ def pick_a_port(args, webdiff_config):
 
 def run_http():
     threading.Timer(0.1, open_browser).start()
-
     web.run_app(app, host=HOSTNAME, port=PORT, print=print if DEBUG else None)
     logging.debug('http server shut down')
 
@@ -339,7 +338,7 @@ def run():
         # Printing this in the main process gives you your prompt back more cleanly.
         print(
             """Serving diffs on http://%s:%s
-Close the browser tab when you're done."""
+Close the browser tab when you're done to terminate the process."""
             % (HOSTNAME, PORT)
         )
         os.environ['WEBDIFF_LOGGED_MESSAGE'] = '1'
