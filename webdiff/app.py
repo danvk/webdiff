@@ -358,7 +358,7 @@ Close the browser tab when you're done to terminate the process."""
             os.environ['WEBDIFF_DIR_A'] = copied_dir_a
             os.environ['WEBDIFF_DIR_B'] = copied_dir_b
             logging.debug(f'Copied {dir_a} -> {copied_dir_a} before detaching')
-            logging.debug(f'Copied {dir_b} -> {copied_dir_a} before detaching')
+            logging.debug(f'Copied {dir_b} -> {copied_dir_b} before detaching')
         subprocess.Popen((sys.executable, *sys.argv))
 
 

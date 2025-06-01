@@ -79,7 +79,7 @@ def parse(args, version=None):
 
     else:
         a, b = args.dirs
-        if os.environ.get('WEBDIFF_DIR_A') and os.environ.get('WEBDIFF_DIR_A'):
+        if os.environ.get('WEBDIFF_DIR_A') and os.environ.get('WEBDIFF_DIR_B'):
             # This happens when you run "git webdiff" and we have to make a copy of
             # the temp directories before we detach and git difftool cleans them up.
             a = os.environ.get('WEBDIFF_DIR_A')
