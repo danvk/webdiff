@@ -6,11 +6,11 @@ This will create symlinks or clone git repos as needed.
 # Use this PR for testing to see all four types of change at once:
 # https://github.com/danvk/test-repo/pull/2/
 
-from collections import OrderedDict
 import os
 import re
 import subprocess
 import sys
+from collections import OrderedDict
 
 from github import Github, UnknownObjectException
 
@@ -138,7 +138,7 @@ def _get_github_remotes():
 
 # e.g. 'origin	git@github.com:danvk/expandable-image-grid.git (push)'
 ssh_push_re = re.compile(
-    '(?P<name>[^\s]+)\s+((?P<user>[^@]+)@)?(?P<host>[^:]+)(?::(?P<path>[^\s]+))?\s\(push\)'
+    r'(?P<name>[^\s]+)\s+((?P<user>[^@]+)@)?(?P<host>[^:]+)(?::(?P<path>[^\s]+))?\s\(push\)'
 )
 
 # e.g. 'origin	https://github.com/danvk/git-helpers.git (push)'
