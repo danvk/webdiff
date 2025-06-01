@@ -1,8 +1,7 @@
 # Trying to make a server that detaches
-
-
 import os
-import threading
+import subprocess
+import sys
 import time
 
 
@@ -14,8 +13,11 @@ def run():
 
 
 def main():
-    server_thread = threading.Thread(target=run)
-    server_thread.start()
+    if len(sys.argv) > 1:
+        run()
+    else:
+        subprocess.Popen((sys.executable, sys.argv[0], 'SUB'))
+        print('terminating parent process')
 
 
 if __name__ == '__main__':
