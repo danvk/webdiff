@@ -276,12 +276,6 @@ def pick_a_port(args, webdiff_config):
 
 
 def run_http():
-    sys.stderr.write(
-        """Serving diffs on http://%s:%s
-Close the browser tab or hit Ctrl-C when you're done.
-"""
-        % (HOSTNAME, PORT)
-    )
     threading.Timer(0.1, open_browser).start()
 
     web.run_app(app, host=HOSTNAME, port=PORT)
@@ -294,7 +288,7 @@ def maybe_shutdown():
 
     def shutdown():
         if LAST_REQUEST_MS <= last_ms:  # subsequent requests abort shutdown
-            sys.stderr.write('Shutting down...\n')
+            logging.debug('Shutting down...')
             signal.raise_signal(signal.SIGINT)
         else:
             logging.debug('Received subsequent request; shutdown aborted.')
@@ -340,6 +334,15 @@ def run():
     run_in_process = os.environ.get('WEBDIFF_RUN_IN_PROCESS') or (
         DEBUG and not DEBUG_DETACH
     )
+
+    if not os.environ.get('WEBDIFF_LOGGED_MESSAGE'):
+        # Printing this in the main process gives you your prompt back more cleanly.
+        print(
+            """Serving diffs on http://%s:%s
+Close the browser tab when you're done."""
+            % (HOSTNAME, PORT)
+        )
+        os.environ['WEBDIFF_LOGGED_MESSAGE'] = '1'
 
     if run_in_process:
         run_http()
