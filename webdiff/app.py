@@ -278,7 +278,7 @@ def pick_a_port(args, webdiff_config):
 def run_http():
     threading.Timer(0.1, open_browser).start()
 
-    web.run_app(app, host=HOSTNAME, port=PORT)
+    web.run_app(app, host=HOSTNAME, port=PORT, print=print if DEBUG else None)
     logging.debug('http server shut down')
 
 
