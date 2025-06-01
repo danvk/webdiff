@@ -13,6 +13,7 @@ import os
 import platform
 import signal
 import socket
+import subprocess
 import sys
 import threading
 import time
@@ -334,7 +335,12 @@ def run():
         else:
             HOSTNAME = _hostname
 
-    run_http()
+    if os.environ.get('WEBDIFF_RUN_IN_PROCESS') or DEBUG:
+        run_http()
+    else:
+        os.environ['WEBDIFF_RUN_IN_PROCESS'] = '1'
+        os.environ['WEBDIFF_PORT'] = str(PORT)
+        subprocess.Popen((sys.executable, *sys.argv))
 
 
 if __name__ == '__main__':

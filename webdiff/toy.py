@@ -7,16 +7,18 @@ import time
 
 def run():
     print('running server...')
+    print(f'{sys.argv=}')
     print(f'{os.getpid()=}')
     time.sleep(3)
     print('shutting down.')
 
 
 def main():
-    if len(sys.argv) > 1:
+    if os.environ.get('SUB'):
         run()
     else:
-        subprocess.Popen((sys.executable, sys.argv[0], 'SUB'))
+        os.environ['SUB'] = '1'
+        subprocess.Popen((sys.executable, *sys.argv))
         print('terminating parent process')
 
 
