@@ -1,7 +1,7 @@
 """Compute the diff between two directories on local disk."""
 
-import os
 import logging
+import os
 import shutil
 import subprocess
 import tempfile
@@ -27,7 +27,7 @@ def contains_symlinks(dir: str):
     return False
 
 
-def make_resolved_dir(dir: str) -> str:
+def make_resolved_dir(dir: str, follow_symlinks=False) -> str:
     # TODO: clean up this directory
     temp_dir = tempfile.mkdtemp(prefix='webdiff')
     for root, dirs, files in os.walk(dir):
@@ -38,7 +38,7 @@ def make_resolved_dir(dir: str) -> str:
             src_file = os.path.join(root, file_name)
             rel = os.path.relpath(src_file, dir)
             dst_file = os.path.join(temp_dir, rel)
-            shutil.copy(src_file, dst_file, follow_symlinks=True)
+            shutil.copy(src_file, dst_file, follow_symlinks=follow_symlinks)
     return temp_dir
 
 
@@ -49,11 +49,11 @@ def gitdiff(a_dir: str, b_dir: str, webdiff_config):
         cmd += ' ' + extra_args
     a_dir_nosym = a_dir
     if contains_symlinks(a_dir):
-        a_dir_nosym = make_resolved_dir(a_dir)
+        a_dir_nosym = make_resolved_dir(a_dir, follow_symlinks=True)
         logging.debug(f'Inlined symlinks in left directory {a_dir} -> {a_dir_nosym}')
     b_dir_nosym = b_dir
     if contains_symlinks(b_dir):
-        b_dir_nosym = make_resolved_dir(b_dir)
+        b_dir_nosym = make_resolved_dir(b_dir, follow_symlinks=True)
         logging.debug(f'Inlined symlinks in right directory {b_dir} -> {b_dir_nosym}')
     args = cmd.split(' ') + [a_dir_nosym, b_dir_nosym]
     logging.debug('Running git command: %s', args)

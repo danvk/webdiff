@@ -25,6 +25,7 @@ from aiohttp import web
 from binaryornot.check import is_binary
 
 from webdiff import argparser, diff, options, util
+from webdiff.dirdiff import make_resolved_dir
 
 VERSION = importlib.metadata.version('webdiff')
 
@@ -47,6 +48,7 @@ DIFF = None
 PORT = None
 HOSTNAME = 'localhost'
 DEBUG = os.environ.get('DEBUG')
+DEBUG_DETACH = os.environ.get('DEBUG_DETACH')
 WEBDIFF_DIR = determine_path()
 
 if DEBUG:
@@ -335,11 +337,26 @@ def run():
         else:
             HOSTNAME = _hostname
 
-    if os.environ.get('WEBDIFF_RUN_IN_PROCESS') or DEBUG:
+    run_in_process = os.environ.get('WEBDIFF_RUN_IN_PROCESS') or (
+        DEBUG and not DEBUG_DETACH
+    )
+
+    if run_in_process:
         run_http()
     else:
         os.environ['WEBDIFF_RUN_IN_PROCESS'] = '1'
         os.environ['WEBDIFF_PORT'] = str(PORT)
+        if os.environ.get('WEBDIFF_FROM_GIT_DIFFTOOL'):
+            # git difftool will clean up these directories when we detach.
+            # To make them accessible to the child process, we make a (shallow) copy.
+            assert 'dirs' in parsed_args
+            dir_a, dir_b = parsed_args['dirs']
+            copied_dir_a = make_resolved_dir(dir_a)
+            copied_dir_b = make_resolved_dir(dir_b)
+            os.environ['WEBDIFF_DIR_A'] = copied_dir_a
+            os.environ['WEBDIFF_DIR_B'] = copied_dir_b
+            logging.debug(f'Copied {dir_a} -> {copied_dir_a} before detaching')
+            logging.debug(f'Copied {dir_b} -> {copied_dir_a} before detaching')
         subprocess.Popen((sys.executable, *sys.argv))
 
 
