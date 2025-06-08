@@ -42,7 +42,12 @@ def fast_num_lines(path: str) -> int:
     # See https://stackoverflow.com/q/9629179/388951 for the idea to use a Unix command.
     # Unfortunately `wc -l` ignores the last line if there is no trailing newline. So
     # instead, see https://stackoverflow.com/a/38870057/388951
-    return int(subprocess.check_output(['grep', '-c', '', path]))
+    try:
+        return int(subprocess.check_output(['grep', '-c', '', path]))
+    except subprocess.CalledProcessError as e:
+        if e.returncode == 1:
+            return 0  # grep -c returns an error code if there are no matches
+        raise
 
 
 def get_diff_ops(
