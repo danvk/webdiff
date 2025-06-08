@@ -1,5 +1,7 @@
 # Changelog
 
+See [GitHub Releases](https://github.com/danvk/webdiff/releases) for newer releases.
+
 - 0.16
   - Update a few Python dependencies that had bitrotted (#147)
 
