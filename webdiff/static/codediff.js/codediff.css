@@ -175,17 +175,45 @@ tr.skip-row {
 }
 .skip.expand-up, .skip.expand-down {
   font-size: 0;
-  width: 20px;
-  height: 17px;
-  background: #aaa;
+  width: 0;
+  height: 0;
+  background: transparent;
   display: inline-block;
   cursor: pointer;
 }
+/* expand-up = ▽ (flat top, point at bottom): border appears on the two diagonal sides */
 .skip.expand-up {
   top: 0;
-  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-top: 17px solid #ddd;
 }
+.skip.expand-up::before {
+  content: '';
+  position: absolute;
+  top: -16px;
+  left: -9px;
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-top: 14px solid #f7f7f7;
+}
+/* expand-down = △ (point at top, flat bottom): border appears on the two diagonal sides */
 .skip.expand-down {
   bottom: 0;
-  clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-bottom: 17px solid #ddd;
+}
+.skip.expand-down::before {
+  content: '';
+  position: absolute;
+  bottom: -16px;
+  left: -9px;
+  width: 0;
+  height: 0;
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 14px solid #f7f7f7;
 }
