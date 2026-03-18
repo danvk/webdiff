@@ -174,46 +174,30 @@ tr.skip-row {
   right: 0;
 }
 .skip.expand-up, .skip.expand-down {
-  font-size: 0;
-  width: 0;
-  height: 0;
-  background: transparent;
-  display: inline-block;
+  font-size: 11px;
+  font-family: sans-serif;
+  color: #666;
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 1px 6px;
   cursor: pointer;
+  white-space: nowrap;
+  display: inline-block;
+  line-height: 1.4;
 }
-/* expand-up = ▽ (flat top, point at bottom): border appears on the two diagonal sides */
+.skip.expand-up:hover, .skip.expand-down:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+/* tab hangs down from the row above: no top border, rounded bottom corners */
 .skip.expand-up {
   top: 0;
-  border-left: 11px solid transparent;
-  border-right: 11px solid transparent;
-  border-top: 17px solid #ddd;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
 }
-.skip.expand-up::before {
-  content: '';
-  position: absolute;
-  top: -16px;
-  left: -9px;
-  width: 0;
-  height: 0;
-  border-left: 9px solid transparent;
-  border-right: 9px solid transparent;
-  border-top: 14px solid #f7f7f7;
-}
-/* expand-down = △ (point at top, flat bottom): border appears on the two diagonal sides */
+/* tab sticks up from the row below: no bottom border, rounded top corners */
 .skip.expand-down {
   bottom: 0;
-  border-left: 11px solid transparent;
-  border-right: 11px solid transparent;
-  border-bottom: 17px solid #ddd;
-}
-.skip.expand-down::before {
-  content: '';
-  position: absolute;
-  bottom: -16px;
-  left: -9px;
-  width: 0;
-  height: 0;
-  border-left: 9px solid transparent;
-  border-right: 9px solid transparent;
-  border-bottom: 14px solid #f7f7f7;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
 }
