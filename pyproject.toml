@@ -25,7 +25,7 @@ classifiers = [
 include = ["webdiff/static/js/file_diff.js"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.12"
 binaryornot = "*"
 pillow = "*"
 PyGithub = "^2.3.0"
