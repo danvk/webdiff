@@ -22,7 +22,7 @@ export function SkipRow(props: SkipRowProps) {
     e.preventDefault();
     onShowMore(range, numRows);
   };
-  const arrowsRight =
+  const arrows =
     numRows <= expandLines ? (
       <span className="skip right" title={`show ${numRows} skipped lines`} onClick={showAll}>
         ↕
@@ -48,7 +48,7 @@ export function SkipRow(props: SkipRowProps) {
       </>
     );
   const showMore = (
-    <a href="#" onClick={showAll}>
+    <a href="#" onClick={showAll} className="show-more">
       ↕ Show {numRows} more lines
     </a>
   );
@@ -63,7 +63,7 @@ export function SkipRow(props: SkipRowProps) {
   return (
     <tr ref={rowRef} className={'skip-row' + (isSelected ? ` selected` : '')}>
       <td colSpan={4} className="skip code">
-        {arrowsRight}
+        {arrows}
         {showMore} {headerHTML}
       </td>
     </tr>

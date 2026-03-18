@@ -201,3 +201,7 @@ tr.skip-row {
   border-bottom: none;
   border-radius: 4px 4px 0 0;
 }
+
+a.show-more {
+  color: #888;
+}
