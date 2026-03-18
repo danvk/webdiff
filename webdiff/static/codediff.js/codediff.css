@@ -173,9 +173,19 @@ tr.skip-row {
 .skip.right {
   right: 0;
 }
+.skip.expand-up, .skip.expand-down {
+  font-size: 0;
+  width: 20px;
+  height: 17px;
+  background: #aaa;
+  display: inline-block;
+  cursor: pointer;
+}
 .skip.expand-up {
   top: 0;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
 }
 .skip.expand-down {
   bottom: 0;
+  clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
 }
