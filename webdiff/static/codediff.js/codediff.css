@@ -171,7 +171,8 @@ tr.skip-row {
   left: 0;
 }
 .skip.right {
-  right: 0;
+  /* right: 24.5px; */
+  right: 32px;
 }
 .skip.expand-up, .skip.expand-down {
   font-size: 10px;
