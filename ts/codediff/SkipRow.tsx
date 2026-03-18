@@ -35,7 +35,7 @@ export function SkipRow(props: SkipRowProps) {
           onClick={() => {
             onShowMore(range, -expandLines);
           }}>
-          ^ EXPAND
+          ∨ EXPAND
         </span>
         <span
           className="skip right expand-down"
@@ -43,7 +43,7 @@ export function SkipRow(props: SkipRowProps) {
           onClick={() => {
             onShowMore(range, expandLines);
           }}>
-          v EXPAND
+          ∧ EXPAND
         </span>
       </>
     );

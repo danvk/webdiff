@@ -164,20 +164,17 @@ tr.skip-row {
   position: relative;
   line-height: 1.5em;
 }
-.skip.left, .skip.right {
+.skip.right {
   position: absolute;
-}
-.skip.left {
-  left: 0;
 }
 .skip.right {
   /* right: 24.5px; */
   right: 32px;
 }
 .skip.expand-up, .skip.expand-down {
-  font-size: 10px;
-  font-family: sans-serif;
-  color: #bbb;
+  font-size: 12px;
+  font-family: Inconsolata, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  color: #aaa;
   background: #fff;
   border: 1px solid #e8e8e8;
   padding: 0px 5px;
