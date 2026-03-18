@@ -11,7 +11,7 @@ export interface NormalizeJSONOptionProps {
 export function NormalizeJSONOption(props: NormalizeJSONOptionProps) {
   const {filePair} = props;
   const language = guessLanguageUsingFileName(filePair.a || filePair.b);
-  if (language !== 'json') {
+  if (language !== 'json' && language !== 'txt') {
     return null;
   }
 
@@ -27,7 +27,11 @@ export function NormalizeJSONOption(props: NormalizeJSONOptionProps) {
         onChange={toggleNormalizeJSON}
         id="normalize-json"
       />{' '}
-      <label htmlFor="normalize-json">Normalize JSON (z): indent, sort keys</label>
+      <label htmlFor="normalize-json">
+        {language === 'json'
+          ? 'Normalize JSON (z): indent, sort keys'
+          : 'Normalize text (z): sort lines'}
+      </label>
     </div>
   );
 }
