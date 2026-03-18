@@ -159,3 +159,23 @@ a, a:visited {
   text-decoration: none;
   color: #00a;
 }
+
+tr.skip-row {
+  position: relative;
+  line-height: 1.5em;
+}
+.skip.left, .skip.right {
+  position: absolute;
+}
+.skip.left {
+  left: 0;
+}
+.skip.right {
+  right: 0;
+}
+.skip.expand-up {
+  top: 0;
+}
+.skip.expand-down {
+  bottom: 0;
+}
