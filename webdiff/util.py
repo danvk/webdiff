@@ -179,8 +179,21 @@ def get_pdiff_bbox(diff_path):
     }
 
 
+def normalize_text(in_path: str):
+    data = [*open(in_path)]
+    data.sort()
+    _, norm_path = tempfile.mkstemp(suffix='.txt')
+    with open(norm_path, 'w') as out:
+        out.writelines(data)
+    logging.debug(f'Normalized text file {in_path} -> {norm_path}')
+    return norm_path
+
+
 @memoize
 def normalize_json(in_path: str):
+    if in_path.lower().endswith('.txt'):
+        return normalize_text(in_path)
+
     with open(in_path) as f:
         try:
             data = json.load(f)
@@ -188,6 +201,7 @@ def normalize_json(in_path: str):
             # This would be a good place to try parsing as JSON5/JSONC.
             logging.debug(f'Unable to parse {in_path} as JSON')
             return in_path
+
     _, norm_path = tempfile.mkstemp(suffix='.json')
     with open(norm_path, 'w') as out:
         json.dump(data, out, indent=2, sort_keys=True)
