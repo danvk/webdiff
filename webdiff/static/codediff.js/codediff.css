@@ -154,3 +154,8 @@ span.skip {
   -ms-user-select: text;
   user-select: text;
 }
+
+a, a:visited {
+  text-decoration: none;
+  color: #00a;
+}

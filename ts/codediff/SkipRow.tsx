@@ -49,7 +49,7 @@ export function SkipRow(props: SkipRowProps) {
     );
   const showMore = (
     <a href="#" onClick={showAll}>
-      Show {numRows} more lines
+      ↕ Show {numRows} more lines
     </a>
   );
   const headerHTML = header ? <span className="hunk-header">{header}</span> : '';
