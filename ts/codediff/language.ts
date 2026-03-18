@@ -16,7 +16,7 @@ export function guessLanguageUsingFileName(name: string) {
 
     // Highlighting based purely on file name, e.g. "Makefile".
     m = /(?:.*\/)?([^/]*)$/.exec(name);
-    if (m && m[1] == 'Makefile') {
+    if (m?.[1] == 'Makefile') {
       return 'makefile';
     }
     return null;

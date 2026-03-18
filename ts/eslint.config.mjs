@@ -7,6 +7,7 @@ import tseslint from 'typescript-eslint';
 import hooksPlugin from 'eslint-plugin-react-hooks';
 
 export default tseslint.config(
+  {ignores: ['eslint.config.mjs', 'jest.config.mjs', 'webpack.config.js']},
   eslint.configs.recommended,
   // See https://typescript-eslint.io/users/configs
   ...tseslint.configs.strictTypeChecked,

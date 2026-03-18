@@ -34,7 +34,7 @@ export function Root() {
     (idx: number) => {
       const search = searchParams.toString();
       const url = `/${idx}` + (search ? `?${search}` : '');
-      navigate(url);
+      void navigate(url);
     },
     [navigate, searchParams],
   );

@@ -4,6 +4,7 @@ import {htmlTextMapper} from '../html-text-mapper';
 function htmlToText(html: string) {
   const div = document.createElement('div');
   div.innerHTML = html;
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
   return div.textContent ?? '';
 }
 

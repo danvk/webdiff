@@ -36,8 +36,8 @@ declare const GIT_CONFIG: GitConfig;
 
 export function injectStylesFromConfig() {
   const colors = GIT_CONFIG['webdiff.colors'];
-  document.write(`
-  <style>
+  const style = document.createElement('style');
+  style.textContent = `
   .diff .delete, .before.replace {
     background-color: ${colors.delete};
   }
@@ -50,8 +50,8 @@ export function injectStylesFromConfig() {
   .after .char-replace, .after .char-insert {
     background-color: ${colors.charInsert};
   }
-  </style>
-  `);
+  `;
+  document.head.appendChild(style);
 }
 
 export interface Options extends GitDiffOptions {

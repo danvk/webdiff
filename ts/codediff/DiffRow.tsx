@@ -28,9 +28,7 @@ const makeCodeTd = (type: string, text: string | undefined, html: string | undef
   if (text === undefined) {
     return {text: '', html: '', className: 'empty code'};
   }
-  if (html === undefined) {
-    html = escapeHtml(text);
-  }
+  html ??= escapeHtml(text);
   text = text.replaceAll('\t', '\u00a0\u00a0\u00a0\u00a0');
   html = html.replaceAll('\t', '\u00a0\u00a0\u00a0\u00a0');
   const className = 'code ' + type;
