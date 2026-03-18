@@ -22,31 +22,6 @@ export function SkipRow(props: SkipRowProps) {
     e.preventDefault();
     onShowMore(range, numRows);
   };
-  const arrowsLeft =
-    numRows <= expandLines ? (
-      <span className="skip left" title={`show ${numRows} skipped lines`} onClick={showAll}>
-        ↕
-      </span>
-    ) : (
-      <>
-        <span
-          className="skip left expand-up"
-          title={`show ${expandLines} more lines above`}
-          onClick={() => {
-            onShowMore(range, -expandLines);
-          }}>
-          ↑ Expand
-        </span>
-        <span
-          className="skip left expand-down"
-          title={`show ${expandLines} more lines below`}
-          onClick={() => {
-            onShowMore(range, expandLines);
-          }}>
-          ↓ Expand
-        </span>
-      </>
-    );
   const arrowsRight =
     numRows <= expandLines ? (
       <span className="skip right" title={`show ${numRows} skipped lines`} onClick={showAll}>
@@ -60,7 +35,7 @@ export function SkipRow(props: SkipRowProps) {
           onClick={() => {
             onShowMore(range, -expandLines);
           }}>
-          ↑ Expand
+          ^ EXPAND
         </span>
         <span
           className="skip right expand-down"
@@ -68,7 +43,7 @@ export function SkipRow(props: SkipRowProps) {
           onClick={() => {
             onShowMore(range, expandLines);
           }}>
-          ↓ Expand
+          v EXPAND
         </span>
       </>
     );
@@ -88,7 +63,6 @@ export function SkipRow(props: SkipRowProps) {
   return (
     <tr ref={rowRef} className={'skip-row' + (isSelected ? ` selected` : '')}>
       <td colSpan={4} className="skip code">
-        {arrowsLeft}
         {arrowsRight}
         {showMore} {headerHTML}
       </td>
