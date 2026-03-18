@@ -17,5 +17,5 @@ def test_image_metadata_svg():
     path = os.path.join(TESTDATA, 'images/right/colombia.svg')
     md = image_metadata(path)
     assert md['num_bytes'] == 1689203
-    assert md['width'] == '2029.0425'
-    assert md['height'] == '2296.0974'
+    assert md['width'] == 2029.0425
+    assert md['height'] == 2296.0974

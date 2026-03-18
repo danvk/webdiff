@@ -61,7 +61,7 @@ def image_metadata(path):
             width = root.get('width')
             height = root.get('height')
             if width is not None and height is not None:
-                md.update({'width': width, 'height': height})
+                md.update({'width': float(width), 'height': float(height)})
         except Exception:
             pass
     else:
