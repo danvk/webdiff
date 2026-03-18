@@ -1,6 +1,5 @@
 import React from 'react';
-import {useNavigate, useParams} from 'react-router';
-import {useSearchParams} from 'react-router-dom';
+import {useNavigate, useParams, useSearchParams} from 'react-router';
 import {FilePair} from './CodeDiffContainer';
 import {DiffView, PerceptualDiffMode} from './DiffView';
 import {FileSelector, FileSelectorMode} from './FileSelector';
@@ -34,7 +33,7 @@ export function Root() {
     (idx: number) => {
       const search = searchParams.toString();
       const url = `/${idx}` + (search ? `?${search}` : '');
-      navigate(url);
+      void navigate(url);
     },
     [navigate, searchParams],
   );

@@ -7,7 +7,7 @@ const mode = process.env.NODE_ENV || 'production';
 const options = {
   mode: mode,
   entry: './index.tsx',
-  devtool: 'sourcemap',
+  devtool: 'source-map',
   module: {
     rules: [
       {
@@ -28,7 +28,7 @@ const options = {
 
 if (mode === 'development') {
   Object.assign(options, {
-    devtool: '#cheap-module-eval-source-map',
+    devtool: 'cheap-module-eval-source-map',
   });
 }
 

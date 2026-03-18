@@ -195,7 +195,7 @@ function FileDiff(props: FileDiffProps) {
       if (contentsAfter && lengthOrZero(contentsAfter) > lengthOrZero(contentsBefore)) {
         byLength = [byLength[1], byLength[0]];
       }
-      language = byLength[0] ? guessLanguageUsingContents(byLength[0]) ?? null : null;
+      language = byLength[0] ? (guessLanguageUsingContents(byLength[0]) ?? null) : null;
     }
     return language;
   }, [contentsAfter, contentsBefore, numLines, path]);

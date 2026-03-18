@@ -70,6 +70,7 @@ export function copyOnlyMatching(e: ClipboardEvent, selector: string) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     text = doc.textContent!;
   } else {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     text = [...nodes].map(n => n.textContent ?? '').join('\n');
   }
 
@@ -84,5 +85,9 @@ interface WebkitElement extends Element {
 /** scrollIntoViewIfNeeded has nicer behavior than the web standard, but is non-standard. */
 export function scrollIntoViewIfNeeded(el: Element) {
   const wkEl = el as WebkitElement;
-  wkEl.scrollIntoViewIfNeeded?.() ?? wkEl.scrollIntoView({block: 'nearest'});
+  if (wkEl.scrollIntoViewIfNeeded) {
+    wkEl.scrollIntoViewIfNeeded();
+  } else {
+    wkEl.scrollIntoView({block: 'nearest'});
+  }
 }

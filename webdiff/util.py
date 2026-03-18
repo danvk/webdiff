@@ -56,8 +56,9 @@ def image_metadata(path):
         im = Image.open(path)
         width, height = im.size
         md.update({'width': width, 'height': height})
-    finally:
-        return md
+    except Exception:
+        pass
+    return md
 
 
 @memoize

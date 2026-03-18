@@ -9,7 +9,7 @@ function strArrayLen(x: string[]) {
 }
 
 function allWhitespace(x: string) {
-  return !!x.match(/^\s*$/);
+  return !!/^\s*$/.exec(x);
 }
 
 /**
@@ -114,10 +114,10 @@ export function splitIntoWords(line: string): string[] {
     WS = 4,
     SYM = 5;
   const charType = function (c: string) {
-    if (c.match(/[a-z]/)) return LC;
-    if (c.match(/[A-Z]/)) return UC;
-    if (c.match(/[0-9]/)) return NUM;
-    if (c.match(/\s/)) return WS;
+    if (/[a-z]/.exec(c)) return LC;
+    if (/[A-Z]/.exec(c)) return UC;
+    if (/[0-9]/.exec(c)) return NUM;
+    if (/\s/.exec(c)) return WS;
     return SYM;
   };
 
