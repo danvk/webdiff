@@ -8,6 +8,7 @@ import os
 import re
 import subprocess
 import tempfile
+import xml.etree.ElementTree as ET
 
 from PIL import Image
 
@@ -52,12 +53,24 @@ def are_files_identical(path1, path2):
 def image_metadata(path):
     """Returns a dict with metadata about the image located at path."""
     md = {'num_bytes': os.path.getsize(path)}
-    try:
-        im = Image.open(path)
-        width, height = im.size
-        md.update({'width': width, 'height': height})
-    except Exception:
-        pass
+    if path.lower().endswith('.svg'):
+        try:
+            tree = ET.parse(path)
+            root = tree.getroot()
+            # SVG elements may have a namespace, e.g. {http://www.w3.org/2000/svg}svg
+            width = root.get('width')
+            height = root.get('height')
+            if width is not None and height is not None:
+                md.update({'width': width, 'height': height})
+        except Exception:
+            pass
+    else:
+        try:
+            im = Image.open(path)
+            width, height = im.size
+            md.update({'width': width, 'height': height})
+        except Exception:
+            pass
     return md
 
 
