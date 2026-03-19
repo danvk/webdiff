@@ -168,7 +168,6 @@ tr.skip-row {
   position: absolute;
 }
 .skip.right {
-  /* right: 24.5px; */
   right: 32px;
 }
 .skip.expand-up, .skip.expand-down {

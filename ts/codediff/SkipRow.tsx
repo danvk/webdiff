@@ -47,11 +47,6 @@ export function SkipRow(props: SkipRowProps) {
         </span>
       </>
     );
-  const showMore = (
-    <a href="#" onClick={showAll} className="show-more">
-      ↕ Show {numRows} more lines
-    </a>
-  );
   const headerHTML = header ? <span className="hunk-header">{header}</span> : '';
 
   const rowRef = React.useRef<HTMLTableRowElement>(null);
@@ -64,7 +59,10 @@ export function SkipRow(props: SkipRowProps) {
     <tr ref={rowRef} className={'skip-row' + (isSelected ? ` selected` : '')}>
       <td colSpan={4} className="skip code">
         {arrows}
-        {showMore} {headerHTML}
+        <a href="#" onClick={showAll} className="show-more">
+          ↕ Show {numRows} more lines
+        </a>{' '}
+        {headerHTML}
       </td>
     </tr>
   );
