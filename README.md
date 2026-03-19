@@ -195,6 +195,6 @@ There are two wrinkles here:
 [Homebrew]: https://brew.sh/
 [ImageMagick]: https://imagemagick.org/index.php
 [git config]: https://git-scm.com/docs/git-config
-[themes]: http://example.com
+[themes]: https://github.com/danvk/webdiff/tree/main/webdiff/static/css/themes
 [poetry]: https://python-poetry.org/docs/repositories/#publishable-repositories
 [pipx]: https://pipx.pypa.io/stable/
