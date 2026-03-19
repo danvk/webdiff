@@ -317,7 +317,8 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
   };
 
   const diffType = beforeLines.length === 0 ? 'add' : afterLines.length === 0 ? 'delete' : 'change';
-  const divClassName = `diff diff-${diffType}` + (selectingState ? ` selecting-${selectingState}` : '');
+  const divClassName =
+    `diff diff-${diffType}` + (selectingState ? ` selecting-${selectingState}` : '');
   const tableClassName = 'diff' + (params.wordWrap ? ' word-wrap' : '');
   return (
     <div className={divClassName} onMouseDown={handleMouseDown} onCopy={handleCopy}>
