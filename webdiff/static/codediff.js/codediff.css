@@ -66,6 +66,12 @@ table.diff tr.skip-row td {
   padding: 0.5em;
 }
 
+/* Partially collapse empty sides of diffs */
+.diff.diff-add td.before,
+.diff.diff-delete td.after {
+  width: 51ch;
+}
+
 .line-no, .code {
   padding: 2px;
   height: 1.11em;
