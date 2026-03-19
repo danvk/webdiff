@@ -44,6 +44,10 @@ td.code {
   width: 101ch;  /* per-side max line length */
 }
 
+.code.equal.expanded {
+  background-color: #f7f7f7;
+}
+
 .file-selector {
   padding-bottom: 5px;
   border-bottom: 1px solid #ccc;

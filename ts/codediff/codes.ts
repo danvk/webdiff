@@ -10,7 +10,7 @@ export type OpCode = [
 export type LineRange = [start: number, limit: number];
 
 export interface DiffRange {
-  type: OpType | 'skip';
+  type: OpType | 'skip' | 'equal expanded';
   before: LineRange;
   after: LineRange;
   header?: string;
