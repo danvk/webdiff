@@ -196,8 +196,8 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
   }, [initOps]);
   const [selectedLine, setSelectedLine] = React.useState<number | undefined>();
   const handleShowMore = (existing: SkipRange, num: number) => {
-    setOps(oldOps => {
-      const newOps: typeof oldOps = oldOps.flatMap(op => {
+    setOps(oldOps =>
+      oldOps.flatMap(op => {
         if (op.before[0] !== existing.beforeStartLine) {
           return [op];
         }
@@ -227,10 +227,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
             {...op, before: [before[0] + num, before[1]], after: [after[0] + num, after[1]]},
           ];
         }
-      });
-      console.log(newOps);
-      return newOps;
-    }
+      }),
     );
   };
 
