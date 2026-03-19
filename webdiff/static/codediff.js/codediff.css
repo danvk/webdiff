@@ -154,3 +154,53 @@ span.skip {
   -ms-user-select: text;
   user-select: text;
 }
+
+a, a:visited {
+  text-decoration: none;
+  color: #00a;
+}
+
+tr.skip-row {
+  position: relative;
+  line-height: 1.5em;
+}
+.skip.right {
+  position: absolute;
+}
+.skip.right {
+  right: 32px;
+}
+.skip.expand-up, .skip.expand-down {
+  font-size: 12px;
+  font-family: Inconsolata, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  color: #aaa;
+  background: #fff;
+  border: 1px solid #e8e8e8;
+  padding: 0px 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-block;
+  line-height: 1.3;
+  letter-spacing: 0.04em;
+}
+.skip.expand-up:hover, .skip.expand-down:hover {
+  background: #f5f5f5;
+  color: #888;
+  border-color: #ccc;
+}
+/* tab hangs down from the row above: no top border, rounded bottom corners */
+.skip.expand-up {
+  top: 0;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+}
+/* tab sticks up from the row below: no bottom border, rounded top corners */
+.skip.expand-down {
+  bottom: 0;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+}
+
+a.show-more {
+  color: #888;
+}
