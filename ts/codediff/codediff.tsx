@@ -203,7 +203,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
         }
         if (num === existing.numRows) {
           // change the skip to an equal
-          return [{...op, type: 'equal'}];
+          return [{...op, type: 'equal expanded'}];
         }
 
         const {before, after} = op;
@@ -211,7 +211,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
           return [
             {...op, before: [before[0], before[1] - num], after: [after[0], after[1] - num]},
             {
-              type: 'equal',
+              type: 'equal expanded',
               before: [before[1] - num, before[1]],
               after: [after[1] - num, after[1]],
             },
@@ -220,7 +220,7 @@ const CodeDiffView = React.memo((props: CodeDiffViewProps) => {
           num = -num;
           return [
             {
-              type: 'equal',
+              type: 'equal expanded',
               before: [before[0], before[0] + num],
               after: [after[0], after[0] + num],
             },
